@@ -1,0 +1,41 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage{fullpage}
+
+\usepackage[backend=biber]{biblatex}
+\bibliography{report}
+
+\setlength{\parindent}{1cm}
+
+\begin{document}
+
+  \input{title.tex}
+
+  % Table of content
+  \thispagestyle{empty}
+
+  \tableofcontents
+  \newpage
+
+  % Abstract
+  \thispagestyle{empty}
+
+  \input{abstract.tex}
+  \newpage
+
+  % Start page numbering
+  \pagenumbering{arabic}
+
+  % Report
+  \input{sections/introduction.tex}
+  \input{sections/background.tex}
+  \input{sections/requirements.tex}
+  \input{sections/implementation.tex}
+  \input{sections/evaluation.tex}
+  \input{sections/conclusion.tex}
+
+  \newpage
+
+  % References
+  \printbibliography
+
+\end{document}
