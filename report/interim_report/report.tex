@@ -7,36 +7,33 @@
 \input{title.tex}
 
 \section{Current Progress}
-We have slightly changed how some requirements were structured in the work plan.
+We have updated some requirements that were mentioned in the project plan.
 Rather than first collecting a large dataset of website traces over a long period of time,
-we decided to work with existing datasets to perform some experiments and to collect that data later in the project.
+we decided to start with existing datasets to perform some experiments. Then later, if we get the opportunity to do so, we can still collect our own data.
 
 Given the nature of the challenge, a majority of the time will be spend on researching models that perform automatic feature selection.
-After careful examination, there are only a couple deep learning methods that seem to be appropriate.
-These include a \textit{Stacked Autoencoder}, a \textit{RNN Encoder Decoder} or a \textit{Bidirectional RNN Encoder}.
+After careful examination, there are only two couple deep learning methods that seem to be appropriate, a \textit{RNN Encoder Decoder} or a \textit{Bidirectional RNN Encoder}.
+We also considered using a \textit{Stacked Autoencoder}  but it did not seem to be appropriate as it requires a fixed-length vector as an input.
+Hence, if we were to use it, we either have to pad or compress the traces, which are both not elegant solutions.
 In addition to simply training these models on the data, we might perform \textit{denoising} on the them, which essentially means learning the models to distinguish uncorrupted data from corrupted data.
 This final step allows us to fine tune the encoders to get a consistent performance even if some of the data is noisy.
 
-Although we have started experimenting with some of these models, we have not managed to implement all of them.
+Although we have started experimenting with some of these models, they have not been fully implemented.
 However we are still on schedule for doing so.
 
 Finally, we have also selected a set of previously successful website fingerprinting attacks.
-An environment has been set up, majority of these models have been implemented and the infrastructure is in place to extract a set of popular features from the raw data.
+An environment has been set up, some of these models have been implemented and the infrastructure is in place to extract a set of hand-picked features from the raw data.
 This will allow us to quickly perform a performance comparison with the manually engineered features and the automatically selected ones.
 
-
 \section{Remaining Work}
-First, we will need to start the data collection process to collect data over a longer period of time.
-The reason why we perform this process ourselves is because there are simply no such datasets out there.
-This might be because the content of websites often changes rapidly, affecting the outcome of several attacks.
-Therefore having this data will allow us to perform an analysis of how certain attacks perform, given that the content of some web pages might have changed, which is a more realistic scenario anyway.
+The first priority is to fully implement a \textit{RNN Encoder Decoder} or a \textit{Bidirectional RNN Encoder} and fine tune it.
+Next, we have to perform the analysis on how appropriate our automatically engineered features are compared to hand-picked ones.
+So this includes finishing the implementation of existing models, and the infrastructure to extract the features.
 
-Next, the usefulness of some models such as the \textit{Stacked Autoencoder} still need to be examined since it assumes a fixed-length vector as an input.
-Perhaps we will need to experiment with transforming the data to \textit{wavelet coefficients} or a similar technique.
-
-We will also need to fully implement those models and decide on the criteria that we will use for comparing the performance.
+Next, we need to pick a set of criteria that we will use to compare the predictive power of several models.
 Using these criteria we will then have to perform a thorough analysis of how the automatically engineered features compared to the hand-picked ones.
 
 Finally, after all of the above has been completed, we will focus on finished writing the final report.
+If there is still time remaining, we might still try to collect our own data over an extended period of time.
 
 \end{document}
