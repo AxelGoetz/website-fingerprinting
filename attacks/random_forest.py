@@ -22,8 +22,9 @@ class kFingerprinting:
         fingerprints - An array of tuples, that for each training instance contains: (fingerprint, prediction)
         k_neighbours - Amount of closest neighbours the model needs to match before it is classified as the appropriate instance
         is_multiclass - Depending on the thread model, we can either have a multiclass problem or a binary, this boolean flag changes that
+        unmonitored_label - The label of the unmonitored websites
     """
-    def __init__(self, num_trees=1000, k_neighbours=3, is_multiclass=True):
+    def __init__(self, num_trees=1000, k_neighbours=3, is_multiclass=True, unmonitored_label=-1):
         self.forest = RandomForestClassifier(n_jobs=2, n_estimators=num_trees, oob_score=True)
         self.k_neighbours = k_neighbours
         self.is_multiclass = is_multiclass
@@ -67,8 +68,11 @@ class kFingerprinting:
                 if self.is_multiclass:
                     res.append(neighbours[0][1])
                 else:
-                    res.append(1)
+                    if neighbours[0][1] != unmonitored_label:
+                        res.append(1)
+                    else:
+                        res.append(unmonitored_label)
             else:
-                res.append(-1) # Classify as unseen website
+                res.append(unmonitored_label) # Classify as unseen website
 
         return res
