@@ -237,7 +237,7 @@ class Seq2SeqModel():
 
 def train_on_copy_task(sess, model, data,
                        batch_size=100,
-                       max_batches=5000,
+                       max_batches=None,
                        batches_in_epoch=1000,
                        verbose=True):
     """
@@ -252,7 +252,8 @@ def train_on_copy_task(sess, model, data,
     loss_track = []
 
     batches_in_data = len(data) // batch_size
-    max_batches = batches_in_data if batches_in_data < max_batches else max_batches
+    if max_batches is None or batches_in_data < max_batches:
+        max_batches = batches_in_data
 
     try:
         for batch in range(max_batches):

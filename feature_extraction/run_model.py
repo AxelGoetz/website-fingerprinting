@@ -26,7 +26,6 @@ def run_model(data):
 
         train_on_copy_task(session, model, data,
                            batch_size=100,
-                           max_batches=3000,
                            batches_in_epoch=100,
                            verbose=True)
 
