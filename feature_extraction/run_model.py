@@ -7,7 +7,7 @@ import numpy as np
 from importlib import reload
 from sys import stdin, stdout
 
-cache_data, sequence_lengths, labels = None, None, None
+cache_data, labels = None, None
 if __name__ == '__main__':
     stdout.write("To re-run the model, press enter and to exit press CTRL-C\n")
     try:
@@ -16,7 +16,7 @@ if __name__ == '__main__':
                 cache_data, labels  = import_data()
 
             stdout.write("Training on data...\n")
-            temp.temp(cache_data, sequence_lengths, labels)
+            temp.temp(cache_data)
             stdout.write("Finished running model.")
 
             # Wait for enter
