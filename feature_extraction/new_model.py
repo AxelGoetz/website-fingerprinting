@@ -234,6 +234,32 @@ class Seq2SeqModel():
             self.decoder_targets: decoder_targets_,
         }
 
+    def save(self, sess, file_name):
+        """
+        Save the model in a file
+
+        @param sess is the session
+        @param file_name is the file name without the extension
+        """
+        saver = tf.train.Saver()
+        saver.save(sess, file_name + '.ckpt')
+        saver.export_meta_graph(filename=file_name + '.meta')
+
+    def import_from_file(self, sess, file_name):
+        """
+        Imports the graph from a file
+
+        @param sess is the session
+        @param file_name is a string that represents the file name
+            without the extension
+        """
+
+        # Get the graph
+        saver = tf.train.import_meta_graph(file_name + '.meta')
+
+        # Restore the variables
+        saver.restore(sess, file_name + 'ckpt')
+
 
 def train_on_copy_task(sess, model, data,
                        batch_size=100,
@@ -276,5 +302,7 @@ def train_on_copy_task(sess, model, data,
 
     except KeyboardInterrupt:
         print('training interrupted')
+
+    model.save(sess, 'seq2seq_model')
 
     return loss_track
