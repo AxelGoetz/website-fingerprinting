@@ -1,5 +1,6 @@
-import tensorflow as tf
 from tensorflow.contrib.rnn import LSTMCell, GRUCell
+import matplotlib.pyplot as plt
+import tensorflow as tf
 import numpy as np
 
 from importlib import reload
@@ -24,10 +25,12 @@ def run_model(data):
 
         session.run(tf.global_variables_initializer())
 
-        train_on_copy_task(session, model, data,
+        loss_track = train_on_copy_task(session, model, data,
                            batch_size=100,
                            batches_in_epoch=100,
                            verbose=True)
+
+        plt.plot(loss_track)
 
 cache_data, labels = None, None
 if __name__ == '__main__':
