@@ -44,7 +44,7 @@ class HelperTests(unittest.TestCase):
     def test_pad_traces(self):
         self.data = [[[1.1, -1], [2, 1], [3, 1], [4, 1]], [[1, -1]]]
 
-        padded_matrix, sequence_lengths = helpers.pad_traces(self.data)
+        padded_matrix, sequence_lengths = helpers.pad_traces(self.data, extra_padding=5)
 
         self.assertEqual(len(padded_matrix[0]), 9)
         self.assertEqual(sequence_lengths[0], 4)
