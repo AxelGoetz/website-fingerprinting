@@ -95,9 +95,28 @@ class Seq2SeqModel():
             self.encoder_inputs_projected = self.projection(self.encoder_inputs, self.input_embedding_size, scope)
 
     def _init_encoder(self):
-        self.encoder_outputs, self.encoder_final_state = tf.nn.dynamic_rnn(
-            self.encoder_cell, self.encoder_inputs_projected,
-            dtype=tf.float32, time_major=True,
+        ((encoder_fw_outputs,
+          encoder_bw_outputs),
+         (encoder_fw_final_state,
+          encoder_bw_final_state)) = (
+            tf.nn.bidirectional_dynamic_rnn(cell_fw=self.encoder_cell,
+                                            cell_bw=self.encoder_cell,
+                                            inputs=self.encoder_inputs_projected,
+                                            sequence_length=self.encoder_inputs_length,
+                                            dtype=tf.float32, time_major=True)
+            )
+
+        self.encoder_outputs = tf.concat((encoder_fw_outputs, encoder_fw_outputs), 2)
+
+        encoder_final_state_c = tf.concat(
+            (encoder_fw_final_state.c, encoder_bw_final_state.c), 1)
+
+        encoder_final_state_h = tf.concat(
+            (encoder_fw_final_state.h, encoder_bw_final_state.h), 1)
+
+        self.encoder_final_state = LSTMStateTuple(
+            c=encoder_final_state_c,
+            h=encoder_final_state_h
         )
 
     def _init_decoder(self):
