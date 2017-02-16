@@ -1,6 +1,8 @@
 appdirs==1.4.0
+cycler==0.10.0
 h5py==2.6.0
 Keras==1.2.1
+matplotlib==2.0.0
 numpy==1.12.0
 packaging==16.8
 pandas==0.19.2
