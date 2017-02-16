@@ -297,6 +297,6 @@ TSWLatexianTemp*
 .latex.json
 .latex/
 
-WebsiteFingerprinting.pem
+website-fingerprinting.pem
 
 data/
