@@ -17,6 +17,8 @@ def add_EOS(data, sequence_lengths, EOS=-1):
     for i, sequence in enumerate(data):
         sequence[sequence_lengths[i]] = EOS
 
+    return data
+
 
 def time_major(data):
     """
@@ -31,7 +33,8 @@ def time_major(data):
 
 def shuffle_data(data, seed=123):
     """
-    Shuffles an array-like object
+    Shuffles an array-like object, we perform it in here to reset the seed
+    and get consistent shuffles.
     """
     np.random.seed(seed)
     np.random.shuffle(data)
@@ -54,13 +57,16 @@ def get_batches(data, batch_size=100):
     data_length = len(data)
 
     for i in range(0, data_length, batch_size):
+        if i + batch_size >= data_length:
+            return
+
         start_index = i
-        end_index = i + batch_size if i + batch_size < data_length else data_length
+        end_index = i + batch_size
 
         yield data[start_index: end_index]
 
 
-def pad_traces(data, extra_padding=5):
+def pad_traces(data, extra_padding=1):
     """
     Pad the traces such that they have the same length
 
@@ -73,10 +79,11 @@ def pad_traces(data, extra_padding=5):
 
     max_sequence_length = max(sequence_lengths) + extra_padding
 
-    inputs_batch_major = np.zeros(shape=[batch_size, max_sequence_length], dtype=np.int32)
+    inputs_batch_major = np.zeros(shape=[batch_size, max_sequence_length, 2], dtype=np.float32)
 
     for i, seq in enumerate(data):
-        for j, element in enumerate(seq[0]):
-            inputs_batch_major[i, j] = element
+        for j, element in enumerate(seq):
+            inputs_batch_major[i][j][0] = element[0]
+            inputs_batch_major[i][j][1] = element[1]
 
     return inputs_batch_major, sequence_lengths
