@@ -9,7 +9,7 @@ import numpy as np
 
 # CONSTANTS
 dirname, _ = path.split(path.abspath(__file__))
-DATA_DIR = dirname + '/../data/test-cells'
+DATA_DIR = dirname + '/../data/cells'
 UNKNOWN_WEBPAGE = -1
 TRACE_DELIMITER = '\t'
 
