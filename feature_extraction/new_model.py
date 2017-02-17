@@ -213,13 +213,22 @@ class Seq2SeqModel():
 
         return linear
 
-    def next_batch(self, batches):
+    def next_batch(self, batches, in_memory):
         """
         Returns the next batch.
 
-        @batches an iterator with all of the batches (in batch-major form without padding)
+        @param batches an iterator with all of the batches (
+            if in_memory == True:
+                in batch-major form without padding
+            else:
+                A list of paths to the files
+        )
+        @param in_memory is a boolean value
         """
         batch = next(batches)
+
+        if not in_memory:
+            batch = [helpers.read_cell_file(path) for path in batch]
 
         batch, encoder_input_lengths_ = helpers.pad_traces(batch)
         encoder_inputs_ = helpers.time_major(batch)
@@ -263,13 +272,14 @@ def train_on_copy_task(sess, model, data,
                        batch_size=100,
                        max_batches=None,
                        batches_in_epoch=1000,
-                       verbose=True):
+                       verbose=True,
+                       in_memory=True):
     """
     Train the `Seq2SeqModel` on a copy task
 
     @param sess is a tensorflow session
     @param model is the seq2seq model
-    @param data is the data (in batch-major form and not padded)
+    @param data is the data (in batch-major form and not padded or a list of files (depending on `in_memory`))
     """
     batches = helpers.get_batches(data, batch_size=batch_size)
 
@@ -281,7 +291,7 @@ def train_on_copy_task(sess, model, data,
 
     try:
         for batch in range(max_batches):
-            fd = model.next_batch(batches)
+            fd = model.next_batch(batches, in_memory)
             _, l = sess.run([model.train_op, model.loss], fd)
             loss_track.append(l)
 
@@ -290,7 +300,7 @@ def train_on_copy_task(sess, model, data,
                     print('batch {}'.format(batch))
                     print('  minibatch loss: {}'.format(sess.run(model.loss, fd)))
                     predict_ = sess.run(model.decoder_outputs, fd)
-                    for i, (inp, pred) in enumerate(zip(fd[model.encoder_inputs].T, predict_.T)):
+                    for i, (inp, pred) in enumerate(zip(fd[model.encoder_inputs], predict_)):
                         print('  sample {}:'.format(i + 1))
                         print('    input     > {}'.format(inp))
                         print('    predicted > {}'.format(pred))
@@ -300,6 +310,8 @@ def train_on_copy_task(sess, model, data,
 
     except KeyboardInterrupt:
         print('training interrupted')
+        model.save(sess, 'seq2seq_model')
+        exit(0)
 
     model.save(sess, 'seq2seq_model')
 

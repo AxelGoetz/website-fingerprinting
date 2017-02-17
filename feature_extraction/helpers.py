@@ -5,6 +5,7 @@ Includes all of the helper functions such as:
 """
 
 import numpy as np
+TRACE_DELIMITER = '\t'
 
 def add_EOS(data, sequence_lengths, EOS=-1):
     """
@@ -44,7 +45,7 @@ def get_batches(data, batch_size=100):
     """
     Divides the data up into batches
 
-    @param data is an array of sequences
+    @param data is an array of sequences or an array of paths to files
     @param batch_size is the size of each batch
 
     @return an iterator with the batch sizes
@@ -87,3 +88,23 @@ def pad_traces(data, extra_padding=1):
             inputs_batch_major[i][j][1] = element[1]
 
     return inputs_batch_major, sequence_lengths
+
+def read_cell_file(path):
+    """
+    For a file, reads its contents and returns them in the appropriate format
+
+    @param path is a path to the file
+    @return a list of (size, incoming pairs)
+    """
+    contents = []
+    with open(path, 'r') as open_file:
+        for line in open_file:
+            line = line[:-1] # Get rid of newline
+
+            split = line.split(TRACE_DELIMITER)
+            split[0] = float(split[0])
+            split[1] = int(split[1])
+
+            contents.append(split)
+
+    return contents
