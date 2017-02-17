@@ -49,14 +49,13 @@ class Seq2SeqModel():
         - decoder cell is the cell used for decoding
             (Should be part of `tf.nn.rnn_cell`)
 
-        - max_sequence_length described the maximum amount of steps in the sequence
         - seq_width shows how many features each input in the sequence has
             (For website fingerprinting this is only 2 (packet_size, incoming))
         - batch_size
 
     """
 
-    def __init__(self, encoder_cell, decoder_cell, max_sequence_length, seq_width, batch_size=100):
+    def __init__(self, encoder_cell, decoder_cell, seq_width, batch_size=100):
         # Constants
         self.EOS = -1
         self.PAD = 0
@@ -64,7 +63,6 @@ class Seq2SeqModel():
         self.encoder_cell = encoder_cell
         self.decoder_cell = decoder_cell
 
-        self.max_sequence_length = max_sequence_length
         self.seq_width = seq_width
 
         self.batch_size = batch_size
@@ -87,7 +85,7 @@ class Seq2SeqModel():
         """
         The main placeholders used for the input data, and output
         """
-        # The usual format is: `[self.max_sequence_length, self.batch_size, self.seq_width]`
+        # The usual format is: `[max_sequence_length, self.batch_size, self.seq_width]`
         # But we define them as None to make them dynamic
         self.encoder_inputs = tf.placeholder(tf.float32,
             [None, self.batch_size, self.seq_width])
