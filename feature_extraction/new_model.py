@@ -18,26 +18,26 @@ We will use time-major rather than batch-major as it is slightly more efficient.
 We will not be using bucketing because traces of the same webpage will have the same length.
 Therefore every batch, we will most likely be training the seq2seq model on one webpage
 
-! Backpropagation through time
 ! GRU vs LSTM
-! Train the model on the output of the previous, on the vector as input or on the actual data
 ! Does encoder share weights with decoder or not (Less computation vs natural (https://arxiv.org/pdf/1409.3215.pdf))
 ! Reverse traces? (https://arxiv.org/pdf/1409.3215.pdf)
-! Deep LSTM or GRU networks for each cell?
 
 Hyperparameters to tune:
 ------------------------
--
-
+- Learning rate
+- Which cell to use (GRU vs LSTM) or a deep RNN architecture using `MultiRNNCell`
+- Reversing traces
+- Bidirectional encoder
 
 TODO:
 - Use bucketing (`tensorflow.contrib.training.bucket_by_sequence_length`)
-- Implement bidirectional encoder (how do you deal with hidden units in the state?) - Should be twice the size
 - Stacked LSTM (Just pass `MultiRNNCell`?)
 """
 import numpy as np
 import tensorflow as tf
 import helpers
+
+from tensorflow.contrib.rnn import LSTMStateTuple
 
 class Seq2SeqModel():
     """
@@ -55,7 +55,7 @@ class Seq2SeqModel():
 
     """
 
-    def __init__(self, encoder_cell, decoder_cell, seq_width, batch_size=100):
+    def __init__(self, encoder_cell, decoder_cell, seq_width, batch_size=100, bidirectional=False):
         # Constants
         self.EOS = -1
         self.PAD = 0
@@ -66,6 +66,8 @@ class Seq2SeqModel():
         self.seq_width = seq_width
 
         self.batch_size = batch_size
+
+        self.bidirectional = bidirectional
 
         self._make_graph()
 
@@ -104,13 +106,38 @@ class Seq2SeqModel():
                 (since time-major == True)
             - encoder_final_state is shaped [batch_size, encoder_cell.state_size]
         """
-        with tf.variable_scope('Encoder') as scope:
-            self.encoder_outputs, self.encoder_final_state = tf.nn.dynamic_rnn(
-                cell=self.encoder_cell,
-                dtype=tf.float32,
-                sequence_length=self.encoder_inputs_length,
-                inputs=self.encoder_inputs,
-                time_major=True)
+        if not self.bidirectional:
+            with tf.variable_scope('Encoder') as scope:
+                self.encoder_outputs, self.encoder_final_state = tf.nn.dynamic_rnn(
+                    cell=self.encoder_cell,
+                    dtype=tf.float32,
+                    sequence_length=self.encoder_inputs_length,
+                    inputs=self.encoder_inputs,
+                    time_major=True)
+        else:
+            ((encoder_fw_outputs,
+              encoder_bw_outputs),
+             (encoder_fw_final_state,
+              encoder_bw_final_state)) = (
+                tf.nn.bidirectional_dynamic_rnn(cell_fw=self.encoder_cell,
+                                                cell_bw=self.encoder_cell,
+                                                inputs=self.encoder_inputs,
+                                                sequence_length=self.encoder_inputs_length,
+                                                dtype=tf.float32, time_major=True)
+                )
+
+            self.encoder_outputs = tf.concat((encoder_fw_outputs, encoder_fw_outputs), 2)
+
+            encoder_final_state_c = tf.concat(
+                (encoder_fw_final_state.c, encoder_bw_final_state.c), 1)
+
+            encoder_final_state_h = tf.concat(
+                (encoder_fw_final_state.h, encoder_bw_final_state.h), 1)
+
+            self.encoder_final_state = LSTMStateTuple(
+                c=encoder_final_state_c,
+                h=encoder_final_state_h
+            )
 
     def _init_decoder(self):
         """
@@ -127,7 +154,7 @@ class Seq2SeqModel():
             elements_finished = (time >= self.decoder_inputs_length)
 
             # EOS token (0 + self.EOS)
-            initial_input = tf.zeros([self.batch_size, self.encoder_cell.output_size], dtype=tf.float32) + self.EOS
+            initial_input = tf.zeros([self.batch_size, self.decoder_cell.output_size], dtype=tf.float32) + self.EOS
             initial_cell_state = self.encoder_final_state
             initial_loop_state = None  # we don't need to pass any additional information
 
@@ -141,6 +168,8 @@ class Seq2SeqModel():
             if cell_output is None:  # time == 0
                 return loop_fn_initial(time, cell_output, cell_state, loop_state)
 
+            cell_output.set_shape([self.batch_size, self.decoder_cell.output_size])
+
             emit_output = cell_output
 
             next_cell_state = cell_state
@@ -150,7 +179,7 @@ class Seq2SeqModel():
 
             next_input = tf.cond(
                 finished,
-                lambda: tf.zeros([self.batch_size, self.encoder_cell.output_size], dtype=tf.float32), # self.PAD
+                lambda: tf.zeros([self.batch_size, self.decoder_cell.output_size], dtype=tf.float32), # self.PAD
                 lambda: cell_output # Use the input from the previous cell
             )
 

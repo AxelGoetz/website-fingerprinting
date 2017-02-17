@@ -38,7 +38,8 @@ def run_model(data, in_memory=True):
         model = Seq2SeqModel(encoder_cell=cell(encoder_hidden_states),
                              decoder_cell=cell(decoder_hidden_states),
                              seq_width=2,
-                             batch_size=batch_size)
+                             batch_size=batch_size,
+                             bidirectional=bidirectional)
 
         session.run(tf.global_variables_initializer())
 
