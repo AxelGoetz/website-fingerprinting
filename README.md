@@ -1,6 +1,4 @@
-[![Build Status](https://travis-ci.com/AxelGoetz/website-fingerprinting.svg?token=MDrK2H5qtb5x5ygwhAzr&branch=master)](https://travis-ci.com/AxelGoetz/website-fingerprinting)
-
-# Website Fingerprinting
+# Website Fingerprinting [![Build Status](https://travis-ci.com/AxelGoetz/website-fingerprinting.svg?token=MDrK2H5qtb5x5ygwhAzr&branch=master)](https://travis-ci.com/AxelGoetz/website-fingerprinting)
 
 There have been a large variety of website fingerprinting attacks.
 However most of them require a very tedious process of feature-selection.

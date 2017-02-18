@@ -1,24 +1,18 @@
 """
-We make the assumption that the amount of website we need to classify is only limited (only 110 in our dataset).
-Therefore there is no need to use a sampled softmax to handle a large amount of output classes as is often done for NLP problems.
-
 This file implements a RNN encoder-decoder model (also known as sequence-to-sequence models).
-Then in order to extract the features, we use the output vector from the encoder model.
 
 We made the choice not to implement an attention mechanism (which means that the decoder is allowed to have a 'peak' at the input).
 The reason why is because we are not trying to maximize the output of the decoder but instead the feature selection process.
 (http://suriyadeepan.github.io/2016-06-28-easy-seq2seq/)
 
-NOTE: The model can be adapted to different batch sizes and sequence lengths without retraining
-(e.g. by serializing model parameters and Graph definitions via tf.train.Saver)
-but changing vocabulary size requires retraining the model.
+We make the assumption that the amount of website we need to classify is only limited (only 110 in our dataset).
+Therefore there is no need to use a sampled softmax to handle a large amount of output classes as is often done for NLP problems.
 
 We will use time-major rather than batch-major as it is slightly more efficient.
 
 We will not be using bucketing because traces of the same webpage will have the same length.
 Therefore every batch, we will most likely be training the seq2seq model on one webpage
 
-! GRU vs LSTM
 ! Does encoder share weights with decoder or not (Less computation vs natural (https://arxiv.org/pdf/1409.3215.pdf))
 ! Reverse traces? (https://arxiv.org/pdf/1409.3215.pdf)
 
@@ -29,9 +23,7 @@ Hyperparameters to tune:
 - Reversing traces
 - Bidirectional encoder
 - Other objective functions (such as MSE,...)
-
-TODO:
-- Use bucketing (`tensorflow.contrib.training.bucket_by_sequence_length`)
+- Amount of encoder and decoder hidden states
 """
 import numpy as np
 import tensorflow as tf
