@@ -31,6 +31,8 @@ def run_model(data, in_memory=True):
 
     cell = LSTMCell
 
+    reverse_traces = True
+
     with tf.Session() as session:
 
         # with bidirectional encoder, decoder state size should be
@@ -47,7 +49,8 @@ def run_model(data, in_memory=True):
                            batch_size=batch_size,
                            batches_in_epoch=100,
                            verbose=True,
-                           in_memory=in_memory)
+                           in_memory=in_memory,
+                           reverse=reverse_traces)
 
         plt.plot(loss_track)
 

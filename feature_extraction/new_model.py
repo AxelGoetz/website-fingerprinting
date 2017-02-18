@@ -28,14 +28,16 @@ Hyperparameters to tune:
 - Which cell to use (GRU vs LSTM) or a deep RNN architecture using `MultiRNNCell`
 - Reversing traces
 - Bidirectional encoder
+- Other objective functions (such as MSE,...)
 
 TODO:
 - Use bucketing (`tensorflow.contrib.training.bucket_by_sequence_length`)
-- Stacked LSTM (Just pass `MultiRNNCell`?)
 """
 import numpy as np
 import tensorflow as tf
 import helpers
+
+from sys import stdout
 
 from tensorflow.contrib.rnn import LSTMStateTuple
 
@@ -88,7 +90,8 @@ class Seq2SeqModel():
         The main placeholders used for the input data, and output
         """
         # The usual format is: `[max_sequence_length, self.batch_size, self.seq_width]`
-        # But we define them as None to make them dynamic
+        # But we define `max_sequence_length` as None to make it dynamic so we only need to pad
+        # each batch to the maximum sequence length
         self.encoder_inputs = tf.placeholder(tf.float32,
             [None, self.batch_size, self.seq_width])
 
@@ -242,7 +245,7 @@ class Seq2SeqModel():
 
         return linear
 
-    def next_batch(self, batches, in_memory):
+    def next_batch(self, batches, in_memory, reverse):
         """
         Returns the next batch.
 
@@ -253,13 +256,14 @@ class Seq2SeqModel():
                 A list of paths to the files
         )
         @param in_memory is a boolean value
+        @param reverse is a boolean value that reverses the traces if true
         """
         batch = next(batches)
 
         if not in_memory:
             batch = [helpers.read_cell_file(path) for path in batch]
 
-        batch, encoder_input_lengths_ = helpers.pad_traces(batch)
+        batch, encoder_input_lengths_ = helpers.pad_traces(batch, reverse=reverse)
         encoder_inputs_ = helpers.time_major(batch)
 
         decoder_targets_ = helpers.time_major(helpers.add_EOS(batch, encoder_input_lengths_))
@@ -302,7 +306,8 @@ def train_on_copy_task(sess, model, data,
                        max_batches=None,
                        batches_in_epoch=1000,
                        verbose=True,
-                       in_memory=True):
+                       in_memory=True,
+                       reverse=False):
     """
     Train the `Seq2SeqModel` on a copy task
 
@@ -320,25 +325,25 @@ def train_on_copy_task(sess, model, data,
 
     try:
         for batch in range(max_batches):
-            fd = model.next_batch(batches, in_memory)
+            fd = model.next_batch(batches, in_memory, reverse)
             _, l = sess.run([model.train_op, model.loss], fd)
             loss_track.append(l)
 
             if verbose:
                 if batch == 0 or batch % batches_in_epoch == 0:
-                    print('batch {}'.format(batch))
-                    print('  minibatch loss: {}'.format(sess.run(model.loss, fd)))
+                    stdout.write('batch {}\n'.format(batch))
+                    stdout.write('  minibatch loss: {}\n'.format(sess.run(model.loss, fd)))
                     predict_ = sess.run(model.decoder_outputs, fd)
                     for i, (inp, pred) in enumerate(zip(fd[model.encoder_inputs], predict_)):
-                        print('  sample {}:'.format(i + 1))
-                        print('    input     > {}'.format(inp))
-                        print('    predicted > {}'.format(pred))
+                        stdout.write('  sample {}:\n'.format(i + 1))
+                        stdout.write('    input     > {}\n'.format(inp))
+                        stdout.write('    predicted > {}\n'.format(pred))
                         if i >= 0:
                             break
-                    print()
+                    stdout.write('\n')
 
     except KeyboardInterrupt:
-        print('training interrupted')
+        stdout.write('training interrupted')
         model.save(sess, 'seq2seq_model')
         exit(0)
 

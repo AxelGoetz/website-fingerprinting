@@ -67,16 +67,23 @@ def get_batches(data, batch_size=100):
         yield data[start_index: end_index]
 
 
-def pad_traces(data, extra_padding=1):
+def pad_traces(data, extra_padding=1, reverse=False):
+
     """
     Pad the traces such that they have the same length
 
     @param data is an 2D matrix in the following format: [[size, incoming]]
     @param extra_padding determines how much extra padding is added to the elements
+    @param reverse is a boolean value that if true, reverses the traces
+
     @return a tuple where the first element is the padded matrix and the second the lengths
     """
     sequence_lengths = [len(seq) for seq in data]
     batch_size = len(data)
+
+    if reverse:
+        for i, seq in enumerate(data):
+            data[i] = list(reversed(seq))
 
     max_sequence_length = max(sequence_lengths) + extra_padding
 

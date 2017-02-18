@@ -28,9 +28,9 @@ class HelperTests(unittest.TestCase):
         self.assertTrue((new_data[4] == np.array([0, 0, 0, 0])).all())
 
     def test_shuffle_data(self):
-        data_batch = helpers.get_batches(self.data)
-        sequence_lengths_batch = helpers.get_batches(self.sequence_lengths)
-        labels_batch = helpers.get_batches(self.labels)
+        data_batch = helpers.get_batches(self.data, batch_size=2)
+        sequence_lengths_batch = helpers.get_batches(self.sequence_lengths, batch_size=2)
+        labels_batch = helpers.get_batches(self.labels, batch_size=2)
 
         r_data = next(data_batch)
         r_sequence_length = next(sequence_lengths_batch)
@@ -51,3 +51,19 @@ class HelperTests(unittest.TestCase):
 
         self.assertEqual(len(padded_matrix[1]), 9)
         self.assertEqual(sequence_lengths[1], 1)
+
+    def test_pad_traces1(self):
+        self.data = [[[1.1, -1], [2, 1], [3, 1], [4, 1]], [[1, -1]]]
+
+        padded_matrix, sequence_lengths = helpers.pad_traces(self.data, extra_padding=5, reverse=True)
+
+        self.assertEqual(len(padded_matrix[0]), 9)
+        self.assertEqual(sequence_lengths[0], 4)
+        self.assertEqual(padded_matrix[0][0][0], 4)
+        self.assertEqual(padded_matrix[0][0][1], 1)
+
+
+        self.assertEqual(len(padded_matrix[1]), 9)
+        self.assertEqual(sequence_lengths[1], 1)
+        self.assertEqual(padded_matrix[1][0][0], 1)
+        self.assertEqual(padded_matrix[1][0][1], -1)
