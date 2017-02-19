@@ -31,7 +31,7 @@ def run_model(data, in_memory=True):
 
     cell = LSTMCell
 
-    reverse_traces = True
+    reverse_traces = False
 
     with tf.Session() as session:
 

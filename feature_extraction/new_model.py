@@ -326,7 +326,7 @@ def train_on_copy_task(sess, model, data,
                     stdout.write('batch {}\n'.format(batch))
                     stdout.write('  minibatch loss: {}\n'.format(sess.run(model.loss, fd)))
                     predict_ = sess.run(model.decoder_outputs, fd)
-                    for i, (inp, pred) in enumerate(zip(fd[model.encoder_inputs], predict_)):
+                    for i, (inp, pred) in enumerate(zip(fd[model.encoder_inputs].swapaxes(0, 1), predict_.swapaxes(0, 1))):
                         stdout.write('  sample {}:\n'.format(i + 1))
                         stdout.write('    input     > {}\n'.format(inp))
                         stdout.write('    predicted > {}\n'.format(pred))
