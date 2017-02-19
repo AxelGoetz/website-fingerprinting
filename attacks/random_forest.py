@@ -76,3 +76,6 @@ class kFingerprinting:
                 res.append(unmonitored_label) # Classify as unseen website
 
         return res
+
+def get_random_forest(num_trees=1000, k_neighbours=3, is_multiclass=True, unmonitored_label=-1):
+    return kFingerprinting(num_trees=num_trees, k_neighbours=k_neighbours, is_multiclass=is_multiclass, unmonitored_label=unmonitored_label)
