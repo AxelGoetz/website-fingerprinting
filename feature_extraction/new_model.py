@@ -342,5 +342,6 @@ def train_on_copy_task(sess, model, data,
         exit(0)
 
     model.save(sess, 'seq2seq_model')
+    helpers.save_object(loss_track, 'loss_track.pkl')
 
     return loss_track
