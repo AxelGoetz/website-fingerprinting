@@ -41,7 +41,8 @@ def run_model(data, in_memory=True):
                              decoder_cell=cell(decoder_hidden_states),
                              seq_width=2,
                              batch_size=batch_size,
-                             bidirectional=bidirectional)
+                             bidirectional=bidirectional,
+                             reverse=reverse_traces)
 
         session.run(tf.global_variables_initializer())
 
@@ -49,8 +50,7 @@ def run_model(data, in_memory=True):
                            batch_size=batch_size,
                            batches_in_epoch=100,
                            verbose=True,
-                           in_memory=in_memory,
-                           reverse=reverse_traces)
+                           in_memory=in_memory)
 
         plt.plot(loss_track)
 

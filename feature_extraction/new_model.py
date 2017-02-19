@@ -14,7 +14,7 @@ We will not be using bucketing because traces of the same webpage will have the 
 Therefore every batch, we will most likely be training the seq2seq model on one webpage
 
 ! Does encoder share weights with decoder or not (Less computation vs natural (https://arxiv.org/pdf/1409.3215.pdf))
-! Reverse traces? (https://arxiv.org/pdf/1409.3215.pdf)
+! Reverse traces (https://arxiv.org/pdf/1409.3215.pdf)
 
 Hyperparameters to tune:
 ------------------------
@@ -47,9 +47,12 @@ class Seq2SeqModel():
             (For website fingerprinting this is only 2 (packet_size, incoming))
         - batch_size
 
+        - bidirectional is a boolean value that determines whether the encoder is bidirectional or not
+        - reverse is also a boolean value that when if true, reversed the traces for training
+
     """
 
-    def __init__(self, encoder_cell, decoder_cell, seq_width, batch_size=100, bidirectional=False):
+    def __init__(self, encoder_cell, decoder_cell, seq_width, batch_size=100, bidirectional=False, reverse=False):
         # Constants
         self.EOS = -1
         self.PAD = 0
@@ -62,6 +65,7 @@ class Seq2SeqModel():
         self.batch_size = batch_size
 
         self.bidirectional = bidirectional
+        self.reverse = reverse
 
         self._make_graph()
 
@@ -237,7 +241,7 @@ class Seq2SeqModel():
 
         return linear
 
-    def next_batch(self, batches, in_memory, reverse):
+    def next_batch(self, batches, in_memory):
         """
         Returns the next batch.
 
@@ -248,14 +252,13 @@ class Seq2SeqModel():
                 A list of paths to the files
         )
         @param in_memory is a boolean value
-        @param reverse is a boolean value that reverses the traces if true
         """
         batch = next(batches)
 
         if not in_memory:
             batch = [helpers.read_cell_file(path) for path in batch]
 
-        batch, encoder_input_lengths_ = helpers.pad_traces(batch, reverse=reverse)
+        batch, encoder_input_lengths_ = helpers.pad_traces(batch, reverse=self.reverse)
         encoder_inputs_ = helpers.time_major(batch)
 
         decoder_targets_ = helpers.time_major(helpers.add_EOS(batch, encoder_input_lengths_))
@@ -298,8 +301,7 @@ def train_on_copy_task(sess, model, data,
                        max_batches=None,
                        batches_in_epoch=1000,
                        verbose=True,
-                       in_memory=True,
-                       reverse=False):
+                       in_memory=True):
     """
     Train the `Seq2SeqModel` on a copy task
 
@@ -317,7 +319,7 @@ def train_on_copy_task(sess, model, data,
 
     try:
         for batch in range(max_batches):
-            fd = model.next_batch(batches, in_memory, reverse)
+            fd = model.next_batch(batches, in_memory)
             _, l = sess.run([model.train_op, model.loss], fd)
             loss_track.append(l)
 
