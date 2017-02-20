@@ -54,8 +54,7 @@ def run_model(data, in_memory=True):
 
         plt.plot(loss_track)
 
-
-if __name__ == '__main__':
+def main(_):
     cache_data, labels = None, None
     dirname, _ = path.split(path.abspath(__file__))
 
@@ -64,7 +63,7 @@ if __name__ == '__main__':
 
     try:
         if in_memory:
-            cache_data, labels  = import_data(data_dir=data_dir, in_memory=in_memory)
+            cache_data, labels = import_data(data_dir=data_dir, in_memory=in_memory)
         else:
             cache_data = import_data(data_dir=data_dir, in_memory=in_memory)
 
@@ -78,3 +77,6 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         stdout.write("Interrupted, this might take a while...\n")
         exit(0)
+
+if __name__ == '__main__':
+    tf.app.run()
