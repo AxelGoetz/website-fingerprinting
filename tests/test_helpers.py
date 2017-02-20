@@ -1,7 +1,7 @@
 import numpy as np
 import unittest
 
-from feature_extraction import helpers
+from feature_generation import helpers
 
 class HelperTests(unittest.TestCase):
 
