@@ -23,6 +23,9 @@ def run_model(data, in_memory=True):
     tf.reset_default_graph()
     tf.set_random_seed(123)
 
+    # Only print small part of array
+    np.set_printoptions(threshold=10)
+
     batch_size = 10
     bidirectional = False
 
@@ -32,6 +35,9 @@ def run_model(data, in_memory=True):
     cell = LSTMCell
 
     reverse_traces = False
+
+    # Responsible for shortening the cells
+    max_time_diff = 2
 
     with tf.Session() as session:
 
@@ -49,6 +55,7 @@ def run_model(data, in_memory=True):
         loss_track = train_on_copy_task(session, model, data,
                            batch_size=batch_size,
                            batches_in_epoch=100,
+                           max_time_diff=max_time_diff,
                            verbose=True,
                            in_memory=in_memory)
 

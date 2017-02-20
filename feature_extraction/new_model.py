@@ -241,7 +241,7 @@ class Seq2SeqModel():
 
         return linear
 
-    def next_batch(self, batches, in_memory):
+    def next_batch(self, batches, in_memory, max_time_diff=float("inf")):
         """
         Returns the next batch.
 
@@ -252,11 +252,13 @@ class Seq2SeqModel():
                 A list of paths to the files
         )
         @param in_memory is a boolean value
+        @param max_time_diff **(should only be defined if `in_memory == False`)**
+            specifies what the maximum time different between the first packet in the trace and the last one should be
         """
         batch = next(batches)
 
         if not in_memory:
-            batch = [helpers.read_cell_file(path) for path in batch]
+            batch = [helpers.read_cell_file(path, max_time_diff=max_time_diff) for path in batch]
 
         batch, encoder_input_lengths_ = helpers.pad_traces(batch, reverse=self.reverse)
         encoder_inputs_ = helpers.time_major(batch)
@@ -300,6 +302,7 @@ def train_on_copy_task(sess, model, data,
                        batch_size=100,
                        max_batches=None,
                        batches_in_epoch=1000,
+                       max_time_diff=float("inf"),
                        verbose=True,
                        in_memory=True):
     """
@@ -319,7 +322,7 @@ def train_on_copy_task(sess, model, data,
 
     try:
         for batch in range(max_batches):
-            fd = model.next_batch(batches, in_memory)
+            fd = model.next_batch(batches, in_memory, max_time_diff)
             _, l = sess.run([model.train_op, model.loss], fd)
             loss_track.append(l)
 

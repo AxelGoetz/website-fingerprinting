@@ -96,11 +96,14 @@ def pad_traces(data, extra_padding=1, reverse=False):
 
     return inputs_batch_major, sequence_lengths
 
-def read_cell_file(path):
+def read_cell_file(path, max_time_diff=float("inf")):
     """
     For a file, reads its contents and returns them in the appropriate format
 
     @param path is a path to the file
+    @param max_time_diff is the maximum difference between the time in the first cell and the last.
+        cuts all the entries after that
+
     @return a list of (size, incoming pairs)
     """
     contents = []
@@ -109,8 +112,11 @@ def read_cell_file(path):
             line = line[:-1] # Get rid of newline
 
             split = line.split(TRACE_DELIMITER)
-            split[0] = float(split[0])
-            split[1] = int(split[1])
+            split[0] = float(split[0]) # Time
+            split[1] = int(split[1]) # Incoming/outcoming
+
+            if len(contents) > 0 and split[0] - contents[0][0] > max_time_diff:
+                break
 
             contents.append(split)
 
