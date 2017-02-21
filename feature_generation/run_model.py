@@ -29,7 +29,7 @@ def run_model(data, in_memory=True):
     batch_size = 10
     bidirectional = False
 
-    encoder_hidden_states = 20
+    encoder_hidden_states = 40
     decoder_hidden_states = 2 * encoder_hidden_states if bidirectional else encoder_hidden_states
 
     cell = LSTMCell
@@ -77,9 +77,6 @@ def main(_):
         stdout.write("Training on data...\n")
         run_model(cache_data, in_memory=in_memory)
         stdout.write("Finished running model.")
-
-        # Wait for enter
-        stdin.readline()
 
     except KeyboardInterrupt:
         stdout.write("Interrupted, this might take a while...\n")

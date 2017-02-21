@@ -328,6 +328,8 @@ def train_on_copy_task(sess, model, data,
 
             if batch == 0 or batch % batches_in_epoch == 0:
                 model.save(sess, 'seq2seq_model')
+                helpers.save_object(loss_track, 'loss_track.pkl')
+                
                 if verbose:
                     stdout.write('batch {}\n'.format(batch))
                     stdout.write('  minibatch loss: {}\n'.format(sess.run(model.loss, fd)))
