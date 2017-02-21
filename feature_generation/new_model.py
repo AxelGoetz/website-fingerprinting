@@ -49,7 +49,6 @@ class Seq2SeqModel():
 
         - bidirectional is a boolean value that determines whether the encoder is bidirectional or not
         - reverse is also a boolean value that when if true, reversed the traces for training
-
     """
 
     def __init__(self, encoder_cell, decoder_cell, seq_width, batch_size=100, bidirectional=False, reverse=False):
@@ -329,7 +328,7 @@ def train_on_copy_task(sess, model, data,
             if batch == 0 or batch % batches_in_epoch == 0:
                 model.save(sess, 'seq2seq_model')
                 helpers.save_object(loss_track, 'loss_track.pkl')
-                
+
                 if verbose:
                     stdout.write('batch {}\n'.format(batch))
                     stdout.write('  minibatch loss: {}\n'.format(sess.run(model.loss, fd)))

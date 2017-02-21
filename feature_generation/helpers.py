@@ -20,7 +20,6 @@ def add_EOS(data, sequence_lengths, EOS=-1):
 
     return data
 
-
 def time_major(data):
     """
     Return the data in time-major form (Most often used to turn a single batch into this form)

@@ -85,7 +85,7 @@ def import_data(data_dir=DATA_DIR, in_memory=True):
     @return
         if in_memory == True:
             is a tuple with the following format: ([[size, incoming]], [webpage_label])
-                where incoming is 1 is outgoing and -1 is incoming
+                where outgoing is 1 is incoming and -1
         else:
             a list with all of the paths of those files
 

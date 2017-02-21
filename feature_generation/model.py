@@ -1,4 +1,6 @@
 """
+DEPRECATED: You are probably looking for the file `new_model.py`
+
 We make the assumption that the amount of website we need to classify is only limited (only 110 in our dataset).
 Therefore there is no need to use a sampled softmax to handle a large amount of output classes as is often done for NLP problems.
 
@@ -40,10 +42,6 @@ from tensorflow.contrib.rnn import (LSTMCell, LSTMStateTuple,
                                     OutputProjectionWrapper)
 
 class Seq2SeqModel():
-    """
-    # TODO: Fill in
-    """
-
     PAD = 0
     EOS = 1
 
