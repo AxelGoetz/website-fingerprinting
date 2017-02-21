@@ -84,10 +84,10 @@ The project is structured as follows:
 ├── data
 │   ├── cells - Contains all of the raw traces. Consists of a list of pairs (packetSize, 1 if outgoing else -1)
 │   └── knn-cells - All of the processed traces with all of the features for the kNN attack (refer to [features.md](feature-extraction/features.md) for more info).
-├── feature-extraction - All of the source code to extract features for different models from the raw traces
+├── feature_extraction - All of the source code to extract features for different models from the raw traces
+├── feature_generation - Used to automatically extract features from the raw traces
 ├── report - Several different reports but the most important one is the final report.
 ├── .gitignore
-├── INSTALLATION.md
 ├── README.md
 └── requirements.txt
 ```
