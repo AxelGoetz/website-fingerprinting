@@ -82,6 +82,7 @@ def concentraction_packets(trace, features):
 
     We only have a maximum of a 100 spans
     """
+    features_added = 0
     for i in range(0, len(trace), 30):
         if i == 3000: # span_length * max_spans (30 * 100)
             break
@@ -95,9 +96,10 @@ def concentraction_packets(trace, features):
             pass
 
         features.append(count)
+        features_added += 1
 
     # Pad
-    for i in range(len(trace) // 30, 100):
+    for i in range(0, 100 - features_added):
         features.append(0)
 
 def bursts(trace, features):
