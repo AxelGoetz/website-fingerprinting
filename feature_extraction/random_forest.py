@@ -1,7 +1,7 @@
 """
 Extracts the hand-picked features used in the paper "k-fingerprinting: a Robust Scalable Website Fingerprinting Technique" by J. Hayes et. al.
 
-Then stores those features in the `../data/nb_cells` directory.
+Then stores those features in the `../data/rf_cells` directory.
 Where every file is named as follows:
 `{website}-{id}.cellf`
     with both `website` and `id` being integers

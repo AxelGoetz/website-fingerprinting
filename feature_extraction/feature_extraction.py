@@ -64,7 +64,7 @@ def extract_features(feature_extraction, save_dir, data_dir=DATA_DIR, extension=
 
             write_to_file(features, save_dir, file_name)
 
-        if i % 100 == 0:
+        if i % 50 == 0:
             update_progess(total_files, i)
 
     stdout.write("Finished extracting features\n")
@@ -76,8 +76,8 @@ def extract_all_features(save_dir, data_dir=DATA_DIR):
     from svc1 import extract_svc1_features
     from svc2 import extract_svc2_features
 
-    extract_features(extract_kNN_features, save_dir + '/kNN_cells', data_dir=data_dir, extension=".cell", model_name="kNN")
-    # extract_features(extract_nb_features, save_dir + '/nb_cells', data_dir=data_dir, extension=".cell", model_name="naive bayes")
+    # extract_features(extract_kNN_features, save_dir + '/knn_cells', data_dir=data_dir, extension=".cell", model_name="kNN")
+    extract_features(extract_nb_features, save_dir + '/nb_cells', data_dir=data_dir, extension=".cell", model_name="naive bayes")
     # extract_features(extract_rf_features, save_dir + '/rf_cells', data_dir=data_dir, extension=".cell", model_name="random forest")
     # extract_features(extract_svc1_features, save_dir + '/svc1_cells', data_dir=data_dir, extension=".cell", model_name="svc1")
     # extract_features(extract_svc2_features, save_dir + '/svc2_cells', data_dir=data_dir, extension=".cell", model_name="svc2")
