@@ -38,13 +38,29 @@ Given time constraints, we will only test our automatically generated features o
 
 More information on the hand-picked features can be found [here](./feature_extraction/features.md).
 
+Also, some unit tests have been written to test some of the data preprocessing.
+All of those can be run by using:
+
+```
+python -m unittest discover
+```
+
 ## Running the Code
 Since some of the source files contain unicode characters, you need to run all of the code with `python3`.
 
 The seq2seq model can be run by using:
 ```
-python feature_extraction/run_model.py
+python feature_generation/run_model.py
 ```
+
+To extract all of the hand-picked features from the data, first update the relative path in the [feature_extraction.py](./feature_extraction/feature_extraction.py) file to the data.
+
+Next, run:
+```
+python feature_extraction/feature_extraction.py
+```
+
+This script will create a new directory for every model within your data directory with the features inside of `{webpage_index}-{sample_number}.cellf` files.
 
 // TODO: Add how to run the other models for testing
 
@@ -82,12 +98,14 @@ The project is structured as follows:
 .
 ├── attacks - The source code for the existing attacks
 ├── data
-│   ├── cells - Contains all of the raw traces. Consists of a list of pairs (packetSize, 1 if outgoing else -1)
-│   └── knn-cells - All of the processed traces with all of the features for the kNN attack (refer to [features.md](feature-extraction/features.md) for more info).
+│   └── cells - Contains all of the raw traces. Consists of a list of pairs (packetSize, 1 if outgoing else -1)
 ├── feature_extraction - All of the source code to extract features for different models from the raw traces
 ├── feature_generation - Used to automatically extract features from the raw traces
 ├── report - Several different reports but the most important one is the final report.
+├── tests - Contains all of the unit tests
+├── static - Any static resources used for either the README or the report.
 ├── .gitignore
+├── .tavis.yml
 ├── README.md
 └── requirements.txt
 ```
