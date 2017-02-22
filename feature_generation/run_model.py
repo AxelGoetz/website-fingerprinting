@@ -29,7 +29,7 @@ def run_model(data, in_memory=True):
     batch_size = 10
     bidirectional = False
 
-    encoder_hidden_states = 40
+    encoder_hidden_states = 120
     decoder_hidden_states = 2 * encoder_hidden_states if bidirectional else encoder_hidden_states
 
     cell = LSTMCell
