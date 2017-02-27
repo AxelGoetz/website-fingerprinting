@@ -7,13 +7,107 @@ Where every file is named as follows:
     with both `website` and `id` being integers
 
 Some of the features we are extracting are:
-- Size markers (TODO: ???)
+- Size markers
 - Without packets that are sized 52 as they are attacks
 - HTML markers - Find the size of the HTML document by counting the size of incoming packets after the first outgoing packet & the next outgoing packet
 - Total Transmitted Bytes
 - Percentage of incoming packets
 - Number of packets
+
+! We couldn't include occurring packet sizes
 """
+
+def get_accumulative_list(arr):
+    """
+    Given an array, makes a cumulative one. Meaning that it add arr[0] to arr[1] and arr[1] to arr[2], etc.
+    """
+    for i in range(1, len(arr)):
+        arr[i] += arr[i - 1]
+
+    return arr
+
+def get_size_markers(trace, features):
+    """
+    At each direction change of traffic, we insert a size marker that reflects how much traffic has been sent into the respective direction.
+    Next, we add all of the markers reflecting incoming traffic and all the markers reflecting outcoming traffic and add those as features.
+
+    These values are rounded and incremented by 600 (as this yields the best result).
+    *(It is important that packets sized 52 (ACKs) are filtered out because otherwise traffic changes after almost every packet)*
+    """
+    outgoing = True
+    current_size = 0
+
+    outgoing_markers, incoming_markers = [], []
+
+    for val in trace:
+        if outgoing:
+            if val[1] > 0:
+                current_size += 1
+            else:
+                outgoing_markers.append(current_size)
+
+                # We have seen 1 packet that is incoming
+                current_size = 1
+                outgoing = False
+        else:
+            if val[1] < 0:
+                current_size += 1
+            else:
+                incoming_markers.append(current_size)
+
+                # We have seen 1 packet that is incoming
+                current_size = 1
+                outgoing = False
+
+        if outgoing:
+            outgoing_markers.append(current_size)
+        else:
+            incoming_markers.append(current_size)
+
+        outgoing_markers = get_accumulative_list(outgoing_markers)
+        incoming_markers = get_accumulative_list(incoming_markers)
+
+        features.append(int(sum(outgoing_markers)) + 600)
+        features.append(int(sum(incoming_markers)) + 600)
+
+def get_html_markers(trace, features):
+    """
+    Finds the amount of packets received inbetween the first and second incoming packet.
+    This is supposed to represent the html size.
+    """
+    # Find the first incoming packet
+    i = 0
+    while trace[i][1] > 0:
+        i += 1
+
+    count = 0
+    while trace[i][1] > 0:
+        i += 1
+        count += 1
+
+    # Add 600 d a rounding element
+    features.append(count + 600)
+
+def get_total_transmitted_size(trace, features):
+    """
+    Adds the total amount of packets and the total amount of incoming/outcoming packets
+    """
+    features.append(len(trace) + 1000)
+
+    # Outgoing
+    features.append(len([x for x in trace if x[1] > 0]) + 1000)
+
+    # Incoming
+    features.append(len([x for x in trace if x[1] < 0]) + 1000)
+
+def get_packet_stats(trace, features):
+    """
+    Finds the percentage of incoming packets and rounds them in steps of 5
+    """
+    incoming = len([x for x in trace if x[1] < 0])
+
+    incoming = (incoming // 20) * 20
+
 
 def extract_svc1_features(trace):
     """
@@ -22,4 +116,11 @@ def extract_svc1_features(trace):
     @param trace is a trace of loading a web page in the following format `[(time, incoming)]`
         where outgoing is 1 is incoming and -1
     """
-    pass
+    features = []
+
+    get_size_markers(trace, features)
+    get_html_markers(trace, features)
+    get_total_transmitted_size(trace, features)
+    get_packet_stats(trace, features)
+
+    return features
