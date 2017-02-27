@@ -1,9 +1,12 @@
-from os import scandir, path, makedirs
-from sys import stdout
+from os import scandir, makedirs, path as ospath
+from sys import stdout, path
+
+# Hack to import from sibling directory
+path.append(ospath.dirname(path[0]))
 
 from feature_generation.helpers import read_cell_file
 
-dirname, _ = path.split(path.abspath(__file__))
+dirname, _ = ospath.split(ospath.abspath(__file__))
 DATA_DIR = dirname + '/../data/test-cells'
 
 def update_progess(total, current):
@@ -30,7 +33,7 @@ def create_dir_if_not_exists(directory):
 
     @param directory is a string containing the **absolute** path to the directory
     """
-    if not path.exists(directory):
+    if not ospath.exists(directory):
         makedirs(directory)
 
 def extract_features(feature_extraction, save_dir, data_dir=DATA_DIR, extension=".cell", model_name=""):
@@ -67,7 +70,6 @@ def extract_features(feature_extraction, save_dir, data_dir=DATA_DIR, extension=
         if i % 50 == 0:
             update_progess(total_files, i)
 
-    stdout.write("Finished extracting features\n")
 
 def extract_all_features(save_dir, data_dir=DATA_DIR):
     from kNN import extract_kNN_features
@@ -76,12 +78,13 @@ def extract_all_features(save_dir, data_dir=DATA_DIR):
     from svc1 import extract_svc1_features
     from svc2 import extract_svc2_features
 
-    # extract_features(extract_kNN_features, save_dir + '/knn_cells', data_dir=data_dir, extension=".cell", model_name="kNN")
+    extract_features(extract_kNN_features, save_dir + '/knn_cells', data_dir=data_dir, extension=".cell", model_name="kNN")
     extract_features(extract_nb_features, save_dir + '/nb_cells', data_dir=data_dir, extension=".cell", model_name="naive bayes")
-    # extract_features(extract_rf_features, save_dir + '/rf_cells', data_dir=data_dir, extension=".cell", model_name="random forest")
-    # extract_features(extract_svc1_features, save_dir + '/svc1_cells', data_dir=data_dir, extension=".cell", model_name="svc1")
-    # extract_features(extract_svc2_features, save_dir + '/svc2_cells', data_dir=data_dir, extension=".cell", model_name="svc2")
+    extract_features(extract_rf_features, save_dir + '/rf_cells', data_dir=data_dir, extension=".cell", model_name="random forest")
+    extract_features(extract_svc1_features, save_dir + '/svc1_cells', data_dir=data_dir, extension=".cell", model_name="svc1")
+    extract_features(extract_svc2_features, save_dir + '/svc2_cells', data_dir=data_dir, extension=".cell", model_name="svc2")
 
+    stdout.write("Finished extracting features\n")
 
 if __name__ == '__main__':
     extract_all_features(DATA_DIR + '/..', DATA_DIR)
