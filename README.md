@@ -1,4 +1,5 @@
-# Website Fingerprinting [![Build Status](https://travis-ci.com/AxelGoetz/website-fingerprinting.svg?token=MDrK2H5qtb5x5ygwhAzr&branch=master)](https://travis-ci.com/AxelGoetz/website-fingerprinting)
+# Website Fingerprinting [![Build Status](https://travis-ci.com/AxelGoetz/website-fingerprinting.svg?token=MDrK2H5qtb5x5ygwhAzr&branch=master)](https://travis-ci.com/AxelGoetz/website-fingerprinting) [![codecov](https://codecov.io/gh/AxelGoetz/website-fingerprinting/branch/master/graph/badge.svg?token=VhWKyahGjG)](https://codecov.io/gh/AxelGoetz/website-fingerprinting)
+
 
 There have been a large variety of website fingerprinting attacks.
 However most of them require a very tedious process of feature-selection.
