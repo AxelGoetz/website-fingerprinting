@@ -36,15 +36,24 @@ def get_cumulative_representation(trace, features, n):
     """
     a, c = 0, 0
 
-    sample = (len(trace) // n) + 1
+    sample = (len(trace) // n)
+    amount = 0
 
     for i, packet in enumerate(trace):
-        c += val[1]
-        a += abs(val[1])
+        c += packet[1]
+        a += abs(packet[1])
 
         if i % sample == 0:
+            amount += 1
             features.append(c)
             features.append(a)
+
+            if amount == n:
+                break
+
+    for i in range(amount, n):
+        features.append(0)
+        features.append(0)
 
 
 def extract_svc2_features(trace):
@@ -57,8 +66,10 @@ def extract_svc2_features(trace):
     features = []
 
     get_packet_stats(trace, features)
-
     # n = 100 yields the best result
     get_cumulative_representation(trace, features, 100)
+
+    if len(features) != 203:
+        print(len(features))
 
     return features
