@@ -1,4 +1,4 @@
-# Website Fingerprinting [![Build Status](https://travis-ci.com/AxelGoetz/website-fingerprinting.svg?token=MDrK2H5qtb5x5ygwhAzr&branch=master)](https://travis-ci.com/AxelGoetz/website-fingerprinting) [![codecov](https://codecov.io/gh/AxelGoetz/website-fingerprinting/branch/master/graph/badge.svg?token=VhWKyahGjG)](https://codecov.io/gh/AxelGoetz/website-fingerprinting)
+# Website Fingerprinting [![Build Status](https://travis-ci.com/AxelGoetz/website-fingerprinting.svg?token=MDrK2H5qtb5x5ygwhAzr&branch=master)](https://travis-ci.com/AxelGoetz/website-fingerprinting) [![codecov](https://codecov.io/gh/AxelGoetz/website-fingerprinting/branch/master/graph/badge.svg?token=VhWKyahGjG)](https://codecov.io/gh/AxelGoetz/website-fingerprinting) [![versioneye](https://www.versioneye.com/user/projects/58b4886a9fd69a003e8d2baa/badge.svg?)](https://www.versioneye.com/user/projects/58b4886a9fd69a003e8d2baa?child=summary#tab-dependencies)
 
 
 There have been a large variety of website fingerprinting attacks.
