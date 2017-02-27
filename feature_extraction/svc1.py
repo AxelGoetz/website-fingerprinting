@@ -34,41 +34,24 @@ def get_size_markers(trace, features):
     These values are rounded and incremented by 600 (as this yields the best result).
     *(It is important that packets sized 52 (ACKs) are filtered out because otherwise traffic changes after almost every packet)*
     """
-    outgoing = True
-    current_size = 0
-
-    outgoing_markers, incoming_markers = [], []
+    features_added = 0
+    prev = 0
+    size = 0
 
     for val in trace:
-        if outgoing:
-            if val[1] > 0:
-                current_size += 1
-            else:
-                outgoing_markers.append(current_size)
+        # Direction change
+        if prev * val[1] < 0:
+            if features_added >= 300:
+                break
 
-                # We have seen 1 packet that is incoming
-                current_size = 1
-                outgoing = False
-        else:
-            if val[1] < 0:
-                current_size += 1
-            else:
-                incoming_markers.append(current_size)
+            features.append(size / 600)
+            features_added += 1
 
-                # We have seen 1 packet that is incoming
-                current_size = 1
-                outgoing = False
+        size += 1
+        prev = val[1]
 
-        if outgoing:
-            outgoing_markers.append(current_size)
-        else:
-            incoming_markers.append(current_size)
-
-        outgoing_markers = get_accumulative_list(outgoing_markers)
-        incoming_markers = get_accumulative_list(incoming_markers)
-
-        features.append(int(sum(outgoing_markers)) + 600)
-        features.append(int(sum(incoming_markers)) + 600)
+    for i in range(features_added, 300):
+        features.append(0)
 
 def get_html_markers(trace, features):
     """
@@ -107,6 +90,8 @@ def get_packet_stats(trace, features):
     incoming = len([x for x in trace if x[1] < 0])
 
     incoming = (incoming // 20) * 20
+
+    features.append(incoming)
 
 
 def extract_svc1_features(trace):
