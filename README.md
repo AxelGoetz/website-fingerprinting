@@ -46,6 +46,12 @@ All of those can be run by using:
 python -m unittest discover
 ```
 
+Next, to generate a new coverage report, we need to install [coverage](https://coverage.readthedocs.io/en/coverage-4.3.4/) and run:
+```
+pip install coverage
+coverage run --omit="/usr/local/*" -m unittest discover
+```
+
 ## Running the Code
 Since some of the source files contain unicode characters, you need to run all of the code with `python3`.
 
