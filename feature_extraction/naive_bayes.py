@@ -23,6 +23,7 @@ def inter_packet_time(trace):
     """
     times = []
 
+    # From start to -1 and from 1 to end
     for elem, next_elem in zip(trace[:-1], trace[1:]):
         times.append(next_elem[0] - elem[0])
 
@@ -64,16 +65,20 @@ def get_rtt(trace, features):
 
 def get_html_size(trace, features):
     """
-    Finds the amount of packets received inbetween the first and second incoming packet.
+    Finds the amount of packets received inbetween the first and last incoming packet of the first burst.
     This is supposed to represent the html size.
     """
-    # Find the first incoming packet
     i = 0
+    # Find the first outgoing packet
+    while trace[i][1] < 0:
+        i += 1
+
+    # Find the first incoming packet
     while trace[i][1] > 0:
         i += 1
 
-    count = 0
-    while trace[i][1] > 0:
+    count = 1
+    while trace[i][1] < 0:
         i += 1
         count += 1
 
@@ -97,7 +102,7 @@ def get_inter_arrival_time(trace, features):
 
     for time in inter_arrival_times:
         if len(time) == 0:
-            features.extend([0, 0, 0, 0])
+            features.extend([0, 0, 0])
 
         else:
             features.append(max(time))
