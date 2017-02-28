@@ -69,7 +69,4 @@ def extract_svc2_features(trace):
     # n = 100 yields the best result
     get_cumulative_representation(trace, features, 100)
 
-    if len(features) != 203:
-        print(len(features))
-
     return features
