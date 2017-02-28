@@ -132,22 +132,26 @@ def bursts(trace, features):
     if current_burst_length != 0:
         bursts.append(current_burst_length)
 
-    features.append(max(bursts))
-    features.append(sum(bursts) / len(bursts))
-    features.append(len(bursts))
+    if len(bursts) == 0:
+        features.extend([0, 0, 0, 0, 0, 0])
 
-    counts = [0, 0, 0]
-    for x in bursts:
-        if x > 5:
-            counts[0] += 1
-        if x > 10:
-            counts[1] += 1
-        if x > 15:
-            counts[2] += 1
+    else:
+        features.append(max(bursts))
+        features.append(sum(bursts) / len(bursts))
+        features.append(len(bursts))
 
-    features.append(counts[0])
-    features.append(counts[1])
-    features.append(counts[2])
+        counts = [0, 0, 0]
+        for x in bursts:
+            if x > 5:
+                counts[0] += 1
+            if x > 10:
+                counts[1] += 1
+            if x > 15:
+                counts[2] += 1
+
+        features.append(counts[0])
+        features.append(counts[1])
+        features.append(counts[2])
 
     for i in range(0, 5):
         try:
