@@ -41,7 +41,17 @@ class HelperTests(unittest.TestCase):
                 self.assertEqual(r_sequence_length[i], 3)
                 self.assertEqual(r_labels[i], 3)
 
-    def test_pad_traces(self):
+    def test_get_batches(self):
+        self.data = [1] * 101
+        iterator = helpers.get_batches(self.data, batch_size=100)
+
+        count = 0
+        for i in iterator:
+            count += 1
+
+        self.assertEqual(count, 1)
+
+    def test_pad_traces1(self):
         self.data = [[[1.1, -1], [2, 1], [3, 1], [4, 1]], [[1, -1]]]
 
         padded_matrix, sequence_lengths = helpers.pad_traces(self.data, extra_padding=5)
@@ -52,7 +62,7 @@ class HelperTests(unittest.TestCase):
         self.assertEqual(len(padded_matrix[1]), 9)
         self.assertEqual(sequence_lengths[1], 1)
 
-    def test_pad_traces1(self):
+    def test_pad_traces2(self):
         self.data = [[[1.1, -1], [2, 1], [3, 1], [4, 1]], [[1, -1]]]
 
         padded_matrix, sequence_lengths = helpers.pad_traces(self.data, extra_padding=5, reverse=True)
@@ -66,4 +76,4 @@ class HelperTests(unittest.TestCase):
         self.assertEqual(len(padded_matrix[1]), 9)
         self.assertEqual(sequence_lengths[1], 1)
         self.assertEqual(padded_matrix[1][0][0], 1)
-        self.assertEqual(padded_matrix[1][0][1], -1)
+        self.assertEqual(padded_matrix[1][0][1], -1)        
