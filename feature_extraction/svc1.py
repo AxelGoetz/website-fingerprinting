@@ -58,15 +58,23 @@ def get_html_markers(trace, features):
     Finds the amount of packets received inbetween the first and second incoming packet.
     This is supposed to represent the html size.
     """
-    # Find the first incoming packet
     i = 0
-    while trace[i][1] > 0:
-        i += 1
-
     count = 0
-    while trace[i][1] > 0:
-        i += 1
-        count += 1
+    try:
+        # Find the first outgoing packet
+        while trace[i][1] < 0:
+            i += 1
+
+        # Find the first incoming packet
+        while trace[i][1] > 0:
+            i += 1
+
+        while trace[i][1] < 0:
+            i += 1
+            count += 1
+
+    except IndexError:
+        pass
 
     # Add 600 d a rounding element
     features.append(count + 600)
@@ -87,7 +95,7 @@ def get_packet_stats(trace, features):
     """
     Finds the percentage of incoming packets and rounds them in steps of 5
     """
-    incoming = len([x for x in trace if x[1] < 0])
+    incoming = (len([x for x in trace if x[1] < 0]) / len(trace)) * 100
 
     incoming = (incoming // 20) * 20
 
