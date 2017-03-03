@@ -98,8 +98,15 @@ def get_packet_ordering(trace, features):
             incoming.append(i)
 
     # Average
-    features.append(sum(incoming) / len(incoming))
-    features.append(sum(outgoing) / len(outgoing))
+    try:
+        features.append(sum(incoming) / len(incoming))
+    except ZeroDivisionError:
+        features.append(-1)
+
+    try:
+        features.append(sum(outgoing) / len(outgoing))
+    except ZeroDivisionError:
+        features.append(-1)
 
     # Standard deviation
     features.append(np.std(incoming))

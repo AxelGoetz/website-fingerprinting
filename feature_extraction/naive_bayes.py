@@ -48,18 +48,23 @@ def get_rtt(trace, features):
     """
     i = 0
     first_outgoing_packet = -1
-    while i < len(trace):
-        if trace[i][1] > 0:
-            first_outgoing_packet = trace[i][0]
-            break
-        i += 1
-
     first_incoming_packet = -1
-    while i < len(trace):
-        if trace[i][1] < 0:
-            first_incoming_packet = trace[i][0]
-            break
-        i += 1
+
+    try:
+        while i < len(trace):
+            if trace[i][1] > 0:
+                first_outgoing_packet = trace[i][0]
+                break
+            i += 1
+
+        while i < len(trace):
+            if trace[i][1] < 0:
+                first_incoming_packet = trace[i][0]
+                break
+            i += 1
+
+    except IndexError:
+        pass
 
     features.append(first_incoming_packet - first_outgoing_packet)
 
@@ -69,18 +74,22 @@ def get_html_size(trace, features):
     This is supposed to represent the html size.
     """
     i = 0
-    # Find the first outgoing packet
-    while trace[i][1] < 0:
-        i += 1
-
-    # Find the first incoming packet
-    while trace[i][1] > 0:
-        i += 1
-
     count = 1
-    while trace[i][1] < 0:
-        i += 1
-        count += 1
+    try:
+        # Find the first outgoing packet
+        while trace[i][1] < 0:
+            i += 1
+
+        # Find the first incoming packet
+        while trace[i][1] > 0:
+            i += 1
+
+        while trace[i][1] < 0:
+            i += 1
+            count += 1
+
+    except IndexError:
+        pass
 
     features.append(count)
 

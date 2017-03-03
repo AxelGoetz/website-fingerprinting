@@ -37,6 +37,7 @@ def get_cumulative_representation(trace, features, n):
     a, c = 0, 0
 
     sample = (len(trace) // n)
+    sample = 1 if sample == 0 else sample
     amount = 0
 
     for i, packet in enumerate(trace):

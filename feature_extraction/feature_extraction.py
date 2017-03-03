@@ -7,7 +7,7 @@ path.append(ospath.dirname(path[0]))
 from feature_generation.helpers import read_cell_file
 
 dirname, _ = ospath.split(ospath.abspath(__file__))
-DATA_DIR = dirname + '/../data/test-cells'
+DATA_DIR = dirname + '/../data/cells'
 
 def update_progess(total, current):
     """Prints a percentage of how far the process currently is"""
