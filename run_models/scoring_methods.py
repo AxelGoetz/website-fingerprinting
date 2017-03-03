@@ -11,6 +11,10 @@ import constants
 
 from sklearn.metrics import f1_score, roc_auc_score
 
+SCORING_METHODS = {
+    'accuracy': accuracy, 'confusion-matrix': confusion_matrix, 'f1-score': f1_score, 'auc': auc
+}
+
 def check_inputs(y_pred, y_true):
     """
     Performs checks on the input to any of the scoring methods.
@@ -73,6 +77,7 @@ def f1_score(y_pred, y_true):
     @param y_pred is a 1D array-like object that represents the predicted values
     @param y_true is also a 1D array-like object of the same length as `y_pred` and represents the true values
     """
+    check_inputs(y_pred, y_true)
     return f1_score(y_true, y_pred, average="weighted")
 
 def auc(y_pred, y_true):
@@ -82,4 +87,16 @@ def auc(y_pred, y_true):
     @param y_pred is a 1D array-like object that represents the predicted values
     @param y_true is also a 1D array-like object of the same length as `y_pred` and represents the true values
     """
+    check_inputs(y_pred, y_true)
     return roc_auc_score(y_true, y_pred)
+
+def evaluate_model(y_pred, y_true):
+    """
+    Given a `y_pred` and `y_true`, returns a dictionary with all of the scoring methods
+    """
+    evaluations = {}
+
+    for scoring_method in SCORING_METHODS:
+        evaluations[scoring_method] = SCORING_METHODS[scoring_method](y_pred, y_true)
+
+    return evaluations
