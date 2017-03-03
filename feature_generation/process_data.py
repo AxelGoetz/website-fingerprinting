@@ -19,7 +19,7 @@ def update_progess(total, current):
     stdout.write("{:.2f} %\r".format((current/total) * 100))
     stdout.flush()
 
-def pull_data_in_memory(data_dir):
+def pull_data_in_memory(data_dir, extension=".cell"):
     """
     Gets the content of all the data in the `data_dir` directory in memory.
 
@@ -32,9 +32,9 @@ def pull_data_in_memory(data_dir):
     total_files = len([f for f in scandir(data_dir) if f.is_file()])
 
     for i, f in enumerate(scandir(data_dir)):
-        if f.is_file():
+        if f.is_file() and f.name[-len(extension):] == extension:
             name = f.name
-            name = name.replace(".cell", "")
+            name = name.replace(extension, "")
 
             name_split = name.split('-') # Contains [webpage, index (OPTIONAL)]
 
@@ -75,7 +75,7 @@ def get_files(data_dir, extension=".cell"):
     stdout.write("Finished importing data\n")
     return files
 
-def import_data(data_dir=DATA_DIR, in_memory=True):
+def import_data(data_dir=DATA_DIR, in_memory=True, extension=".cell"):
     """
     Reads all of the files in the `data_dir` and returns all of the contents in a variable.
 
@@ -93,9 +93,9 @@ def import_data(data_dir=DATA_DIR, in_memory=True):
     stdout.write("Starting data import\n")
 
     if in_memory:
-        return pull_data_in_memory(data_dir)
+        return pull_data_in_memory(data_dir, extension)
     else:
-        return get_files(data_dir)
+        return get_files(data_dir, extension)
 
 
 if __name__ == '__main__':
