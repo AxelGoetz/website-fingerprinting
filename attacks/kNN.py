@@ -10,10 +10,13 @@ class kNN():
     $$ d(P, P') = \sum_{1 \leq i \leq |F|} w_i |f_i(P) - f_i(P')| $$
 
     Attributes:
-        - TODO: Fill in
+        - is_multiclass does not make a difference. It is just part of the interface used for models
+        - K_CLOSEST_NEIGHBORS is the amount of neighbours it uses for a majority vote
+        - weights is a list of `AMOUNT_FEATURES` length that is used to signify how 'important' features are
+        - K_RECO is the number of closest neighbours used for weight learning
     """
 
-    def __init__(self, K_CLOSEST_NEIGHBORS=10):
+    def __init__(self, is_multiclass=True, K_CLOSEST_NEIGHBORS=10):
         # Constants
         self.K_RECO = 5.0 # Num of neighbors for weight learning
 
@@ -245,6 +248,7 @@ class kNN():
 
             return predicted
 
+# Tests that have nothing to do with website fingerprinting
 if __name__ == '__main__':
     from sklearn.model_selection import train_test_split
     from sklearn.datasets import load_iris

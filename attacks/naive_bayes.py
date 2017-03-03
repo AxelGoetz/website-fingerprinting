@@ -7,5 +7,5 @@ Since the data cannot be moddeled by a gaussian distribution nor a multivariate 
 
 from sklearn.naive_bayes import MultinomialNB
 
-def get_naive_bayes():
+def get_naive_bayes(is_multiclass=True):
     return MultinomialNB()

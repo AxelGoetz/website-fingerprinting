@@ -7,7 +7,7 @@ A. Panchenko et al. used a radial basis function (RBF) as a kernel with C = 2^{1
 
 from sklearn.svm import SVC
 
-def get_svc(is_multiclass):
+def get_svc(is_multiclass=True):
     """
     Depending on the thread model, we either have a multiclass problem or a non-multiclass
     """

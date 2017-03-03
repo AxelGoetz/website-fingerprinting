@@ -65,13 +65,7 @@ class kFingerprinting:
             neighbours_match = all(x[1] == neighbours[0][1] for x in neighbours)
 
             if neighbours_match:
-                if self.is_multiclass:
-                    res.append(neighbours[0][1])
-                else:
-                    if neighbours[0][1] != unmonitored_label:
-                        res.append(1)
-                    else:
-                        res.append(unmonitored_label)
+                res.append(neighbours[0][1])
             else:
                 res.append(unmonitored_label) # Classify as unseen website
 
