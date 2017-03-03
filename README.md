@@ -1,10 +1,9 @@
-# Website Fingerprinting [![Build Status](https://travis-ci.com/AxelGoetz/website-fingerprinting.svg?token=MDrK2H5qtb5x5ygwhAzr&branch=master)](https://travis-ci.com/AxelGoetz/website-fingerprinting) [![codecov](https://codecov.io/gh/AxelGoetz/website-fingerprinting/branch/master/graph/badge.svg?token=VhWKyahGjG)](https://codecov.io/gh/AxelGoetz/website-fingerprinting) [![versioneye](https://www.versioneye.com/user/projects/58b4886a9fd69a003e8d2baa/badge.svg?)](https://www.versioneye.com/user/projects/58b4886a9fd69a003e8d2baa?child=summary#tab-dependencies)
-
+# Website Fingerprinting [![Build Status](https://travis-ci.com/AxelGoetz/website-fingerprinting.svg?token=MDrK2H5qtb5x5ygwhAzr&branch=master)](https://travis-ci.com/AxelGoetz/website-fingerprinting) [![versioneye](https://www.versioneye.com/user/projects/58b4886a9fd69a003e8d2baa/badge.svg?)](https://www.versioneye.com/user/projects/58b4886a9fd69a003e8d2baa?child=summary#tab-dependencies) [![codecov](https://codecov.io/gh/AxelGoetz/website-fingerprinting/branch/master/graph/badge.svg?token=VhWKyahGjG)](https://codecov.io/gh/AxelGoetz/website-fingerprinting)
 
 There have been a large variety of website fingerprinting attacks.
 However most of them require a very tedious process of feature-selection.
 
-There have been some attempts to use authoencoders to solve this problem however those NN require a fixed-length input to begin with.
+There have been some attempts to use autoencoders to solve this problem however those NN require a fixed-length input to begin with.
 Hence, you need to perform a feature selection process to begin with.
 
 This project therefore examines the use of RNN's to perform a feature selection process since they can be unrolled to a custom length for each trace.
@@ -48,8 +47,8 @@ python -m unittest discover
 
 Next, to generate a new coverage report, we need to install [coverage](https://coverage.readthedocs.io/en/coverage-4.3.4/) and run:
 ```
-pip install coverage
-coverage run --omit="/usr/local/*" -m unittest discover
+pip install coverage # Outside of your virtual environment
+coverage run --omit="/usr/local/*" -m unittest discover # Inside the virtual environment
 ```
 
 ## Running the Code
@@ -88,7 +87,7 @@ source venv/bin/activate
 ```
 to activate the virtual environment. Once you are in this environment, you will need to install the appropriate packages by running:
 ```
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 ### GPU Setup
