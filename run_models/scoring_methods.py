@@ -4,16 +4,11 @@ Current supports:
 - accuracy
 - confusion-matrix
 - f1-score
-- area under the ROC curve
 """
 
 import constants
 
 from sklearn.metrics import f1_score, roc_auc_score
-
-SCORING_METHODS = {
-    'accuracy': accuracy, 'confusion-matrix': confusion_matrix, 'f1-score': f1_score, 'auc': auc
-}
 
 def check_inputs(y_pred, y_true):
     """
@@ -70,7 +65,7 @@ def confusion_matrix(y_pred, y_true):
 
     return res
 
-def f1_score(y_pred, y_true):
+def f1_score1(y_pred, y_true):
     """
     Returns the weighted f1 score
 
@@ -78,17 +73,7 @@ def f1_score(y_pred, y_true):
     @param y_true is also a 1D array-like object of the same length as `y_pred` and represents the true values
     """
     check_inputs(y_pred, y_true)
-    return f1_score(y_true, y_pred, average="weighted")
-
-def auc(y_pred, y_true):
-    """
-    Returns the weighted area under the ROC curve
-
-    @param y_pred is a 1D array-like object that represents the predicted values
-    @param y_true is also a 1D array-like object of the same length as `y_pred` and represents the true values
-    """
-    check_inputs(y_pred, y_true)
-    return roc_auc_score(y_true, y_pred)
+    return f1_score(y_true, y_pred, average='weighted')
 
 def evaluate_model(y_pred, y_true):
     """
@@ -100,3 +85,10 @@ def evaluate_model(y_pred, y_true):
         evaluations[scoring_method] = SCORING_METHODS[scoring_method](y_pred, y_true)
 
     return evaluations
+
+def get_scoring_methods():
+    return {
+        'accuracy': accuracy, 'confusion-matrix': confusion_matrix, 'f1-score': f1_score1
+    }
+
+SCORING_METHODS = get_scoring_methods()

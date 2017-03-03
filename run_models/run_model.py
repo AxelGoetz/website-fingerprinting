@@ -4,14 +4,14 @@ Provides the code to train and run the simple machine learning models in the `at
 
 import numpy as np
 import constants
-import scoring
+import scoring_methods
 
 from sklearn.model_selection import StratifiedKFold
 from os import path as ospath
-from sys import path
+from sys import path, exit
 
 dirname, _ = ospath.split(ospath.abspath(__file__))
-DATA_DIR = dirname + '/../data/
+DATA_DIR = dirname + '/../data/'
 
 # Hack to import from sibling directory
 path.append(ospath.dirname(path[0]))
@@ -27,13 +27,13 @@ def get_X_y(monitored_data, unmonitored_data):
     """
     monitored_data = np.array(monitored_data)
 
-    X = monitored_data[:, 0]
+    X = list(monitored_data[:, 0])
     X.extend(unmonitored_data)
 
-    y = monitored_data[:, 1]
+    y = list(monitored_data[:, 1])
     y.extend([constants.UNMONITORED_LABEL] * len(unmonitored_data))
 
-    return X, y
+    return np.array(X), np.array(y)
 
 def k_fold_validation(model, monitored_data, unmonitored_data, k, random_state=123):
     """
@@ -58,7 +58,7 @@ def k_fold_validation(model, monitored_data, unmonitored_data, k, random_state=1
         model.fit(X_train, y_train)
         prediction = model.predict(X_test)
 
-        evaluations.append(scoring.evaluate_model(prediction, y_test))
+        evaluations.append(scoring_methods.evaluate_model(prediction, y_test))
 
     return evaluations
 
@@ -82,16 +82,16 @@ def evaluate(model, monitored_data, unmonitored_data, random_state=123):
     unmonitored_split = int(len(unmonitored_data) * constants.TRAIN_PERCENTAGE_UNMONITORED)
 
     training_evaluations = k_fold_validation(
-        model, monitored_data[:monitored_split], unmonitored_data[:unmonitored_split], constants.K_FOLDS, random_state=random_state=123
+        model, monitored_data[:monitored_split], unmonitored_data[:unmonitored_split], constants.K_FOLDS, random_state=random_state
     )
 
     X_train, y_train = get_X_y(monitored_data[:monitored_split], unmonitored_data[:unmonitored_split])
-    X_test, y_test = get_X_y(monitored_data[monitored_split:], unmonitored_data[unmonitored_split])
+    X_test, y_test = get_X_y(monitored_data[monitored_split:], unmonitored_data[unmonitored_split:])
 
     model.fit(X_train, y_train)
     prediction = model.predict(X_test)
 
-    test_evaluation = scoring.evaluate_model(prediction, y_test)
+    test_evaluation = scoring_methods.evaluate_model(prediction, y_test)
 
     return {
         'training_error': training_evaluations, 'test_error': test_evaluation
@@ -130,15 +130,27 @@ def get_models():
 
     @return `[{'model_name': ..., 'model_constructor': ..., 'path_to_features': ...}]`
     """
-    import attacks
+    from attacks import kNN, naive_bayes, random_forest, svc
 
     return [
-        {'model_name': 'kNN', 'model_constructor': attacks.kNN.kNN, 'path_to_features': DATA_DIR + "knn_cells"},
-        {'model_name': 'naive_bayes', 'model_constructor': attacks.naive_bayes.get_naive_bayes, 'path_to_features': DATA_DIR + "nb_cells"},
-        {'model_name': 'random_forest', 'model_constructor': attacks.random_forest.get_random_forest, 'path_to_features': DATA_DIR + "rf_cells"},
-        {'model_name': 'svc1', 'model_constructor': attacks.svc.get_svc, 'path_to_features': DATA_DIR + "svc1_cells"},
-        {'model_name': 'svc2', 'model_constructor': attacks.svc.get_svc, 'path_to_features': DATA_DIR + "svc2_cells"},
+        {'model_name': 'kNN', 'model_constructor': kNN.kNN, 'path_to_features': DATA_DIR + "knn_cells"},
+        {'model_name': 'naive_bayes', 'model_constructor': naive_bayes.get_naive_bayes, 'path_to_features': DATA_DIR + "nb_cells"},
+        {'model_name': 'random_forest', 'model_constructor': random_forest.get_random_forest, 'path_to_features': DATA_DIR + "rf_cells"},
+        {'model_name': 'svc1', 'model_constructor': svc.get_svc, 'path_to_features': DATA_DIR + "svc1_cells"},
+        {'model_name': 'svc2', 'model_constructor': svc.get_svc, 'path_to_features': DATA_DIR + "svc2_cells"},
     ]
+
+def get_appropriate_dict(name):
+    """
+    Given a model name, returns the correct dict
+    """
+    model_dicts = get_models()
+
+    for val in model_dicts:
+        if val['model_name'] == name:
+            return val
+
+    return None
 
 def evaluate_model(model_dict, hand_picked_features=True, is_multiclass=True):
     """
@@ -151,18 +163,38 @@ def evaluate_model(model_dict, hand_picked_features=True, is_multiclass=True):
         where each scoring method is a dict of scoring methods with as key the name and as value the actual score.
     """
     path = model_dict['path_to_features']
-    if not hand_picked_features:
+    if hand_picked_features:
         path = DATA_DIR + 'af_cells'
 
     from helpers import pull_data_in_memory
 
-    data = pull_data_in_memory(data_dir=DATA_DIR, in_memory=True, extension=".cellf")
+    data = pull_data_in_memory(data_dir=path, extension=".cellf")
 
     if not is_multiclass:
         make_data_binary(data)
 
-    monitored_data, unmonitored_data = split_data()
+    monitored_data, unmonitored_data = split_data(data)
 
     model = model_dict['model_constructor'](is_multiclass=is_multiclass)
 
     return evaluate(model, monitored_data, unmonitored_data)
+
+
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Runs a specific machine learning model on the appropriate data.")
+
+    parser.add_argument('--model', help="Select which model to run (kNN, naive_bayes, random_forest, svc1, scv2)", default="kNN")
+    parser.add_argument('--handpicked', action='store_true', help="Whether to use the hand-picked features or automatically generated ones")
+    parser.add_argument('--is_multiclass', action='store_true', help="If you are training on a multiclass or binary problem.")
+
+    args = parser.parse_args()
+
+    model_dict = get_appropriate_dict(args.model)
+    if model_dict is None:
+        print("Model not found. Needs to be one of the following values: (kNN, naive_bayes, random_forest, svc1, scv2)")
+        exit(0)
+
+    res = evaluate_model(model_dict, args.handpicked, args.is_multiclass)
+    print(res)
