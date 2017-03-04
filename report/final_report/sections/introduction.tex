@@ -2,6 +2,87 @@
 
 \subsection{The Problem}
 
-\subsection{Aims and Goals}
+The internet has become an essential tool for communication for a majority of the population. But privacy has always remained a major concern,
+which is why nowadays most web content providers are slowly moving away from HTTP to HTTPS.
+For instance, at the time of writing, around 86\% of Google’s traffic is encrypted. This is a significant improvement compared to 2014 where only 50\%
+was sent over HTTPS \cite{google_transparancy}. However, this encryption only obscures the content of the web page and does not
+hide what websites you are visiting or in general who you might be communicating with.
 
-\subsection{Overview of Project}
+Hence, an Internet Service Provider (ISP) can easily obtain a lot of information about a person.
+This is an especially large concern for people living in oppressive regimes since it allows a government to easily spy on its people and
+censor whatever websites they would like. To circumvent these issues, several anonymization techniques have been developed.
+These systems obscure both the content and metadata, allowing a user to anonymously browse the web. One of the most popular low-latency anonymization
+networks is called Tor, which relies on a concept called Onion Routing \cite{tor_project}.
+
+The list of known attacks against Tor is at the time of writing very limited and most of them rely on very
+unlikely scenarios such as having access to specific parts of the network \textit{(both entry and exit nodes)} \cite{tor_project}.
+However, for this report we will make a more reasonable assumption that an attacker is a \textit{local eavesdropper}.
+By this we mean that the entity only has access to the traffic between the sender and the first anonymization node, like ISPs.
+
+One of the most successful attacks that satisfies these conditions is known as \textit{website fingerprinting} (WFP).
+It relies on the fact that Tor does not significantly alter the shape of the network traffic \cite{kfingerprinting}.
+Hence, the attack infers information about the content by analysing the raw traffic.
+For instance by analysing the packet sizes, the amount of packets and the direction of the traffic, we might be able to deduce
+which web pages certain users are visiting.
+Initially, Tor was considered to be secure against this threat but around 2011, some techniques such as the \textit{support vector classifier} (SVC)
+used by Panchenko et al. started to get recognition rates higher than 50\% \cite{panchenko1}.
+
+However, one of the main problems with majority of the attacks proposed in the research literature, is that they rely on a laborious,
+time-consuming manual feature engineering process. The reason why is because most primitive machine learning techniques are only able to
+process fixed-length vectors as its input. Therefore features need to be picked based on intuition and trial and error processes that reveal
+the supposedly most informative features.
+
+Thus the goal of this paper is to investigate the use of novel deep-learning techniques to automatically extract
+a fixed-length vector representation from a traffic trace that represents loading a web page.
+Next, we aim to use these features in existing attacks to see if our model successfully identified the appropriate features.
+
+\newpage
+
+\subsection{Aims and Goals}
+We can subdivide the project up into different aims, each with their own goals:
+
+\begin{enumerate}
+   \item \textbf{Aim:} Critically review the effectiveness of current website fingerprinting attacks.\\
+   \textbf{Goals:}
+   \begin{itemize}
+      \item Analyse various models that are currently used in fingerprinting attacks.
+      \item Examine how would a small percentage of false positives impacts a potential attack.
+      \item Analyse how the rapid changing nature of some web pages would impact the attack.
+      \item Review if there are any assumptions that are being made that could impact the effectiveness of an attack.
+   \end{itemize}
+
+   \item \textbf{Aim:} Automatically generate features from a trace that represents loading a webpage.\\
+   \textbf{Goals:}
+   \begin{itemize}
+      \item Critically compare various different feature generation techniques such as stacked authoencoders, RNN sequence-to-sequence and bidirectional RNN encoder decoder models.
+      \item Identify a dataset that is large enough to train a deep-learning model.
+      \item Compare several software libraries to perform fast numerical computation such as Tensorflow, Torch, Theano and Keras.
+      \item Implement the most appropriate feature generation model in one of the previously mentioned software libraries.
+   \end{itemize}
+
+   \item \textbf{Aim:} Train existing models with the automatically generated features and test their performance compared to hand-picked ones.\\
+   \textbf{Goals:}
+   \begin{itemize}
+      \item Identify five different models that have previously been successful in various website fingerprinting attacks and implement those models.
+      \item Extract the same hand-picked features from our dataset as mentioned in the respective papers.
+      \item Investigate an appropriate technique for evaluating the results of different models.
+      \item Compare the hand-picked features compared to the automatically generated ones for different models. In addition, we also want to investigate
+         their effectiveness in different threat models. For instance if an adversary wants to identify which specific web pages a user is visiting \textit{(multi-class classification)} or
+         if the adversary just wants to know whether the user visits a web page from a monitored set of web pages \textit{(binary classification)}.
+   \end{itemize}
+
+\end{enumerate}
+
+\newpage
+
+\subsection{Project Overview}
+As previously mentioned, the general project can be split up into three different aims. Hence, we also approached it in three stages:
+
+\begin{itemize}
+\item First, we examine different existing website fingerprinting models to gain a deeper understanding of the concept.
+\item Next, we perform more research to contrast different automatic feature selection models and implement the most appropriate model.
+\item Finally, we compare the effectiveness of hand-picked features with the automatically generated ones by training them on different existing website fingerprinting models.
+\end{itemize}
+
+
+\subsection{Report Structure}
