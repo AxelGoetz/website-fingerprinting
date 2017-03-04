@@ -133,4 +133,7 @@ def extract_nb_features(trace):
     get_html_size(trace, features)
     get_inter_arrival_time(trace, features)
 
+    # Non negative values
+    features = [abs(x) for x in features]
+
     return features

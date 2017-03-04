@@ -22,7 +22,7 @@ Some of the features we are extracting are:
 """
 
 from functools import reduce
-from math import floor, ceil
+from math import floor, ceil, isnan, isinf
 
 import numpy as np
 
@@ -275,5 +275,7 @@ def extract_rf_features(trace):
     get_alternative_concentration(packets_per_sec, features)
     get_inter_arrival_time(trace, in_trace, out_trace, features)
     get_transmission_time_stats(trace, in_trace, out_trace, features)
+
+    features = [0 if x is isnan(x) or isinf(x) else x for x in features]
 
     return features
