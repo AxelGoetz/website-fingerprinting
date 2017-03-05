@@ -6,7 +6,7 @@ analyse the current state of the project domain and outline the research that fo
 As previously mentioned, the goal of this project is to automate the feature selection process for a website fingerprinting attack.
 By this we mean that given a specific trace, our model should be able to produce a fixed-length vector that is a close representation of the respective trace.
 However, before we delve into the details of the attack, we first need to gain a greater understanding of some concepts such as
-onion routing, machine learning and website fingerprinting in general.
+onion routing, website fingerprinting in general and deep learning.
 
 \subsubsection{Onion Routing}
 To preserve privacy, we do not only need to obscure the content of a webpage but also hide who is taking to whom \cite{goldschlag1999onion}.
@@ -65,18 +65,16 @@ connection setup, data movement and connection tear-down \cite{goldschlag1999oni
 
 \end{enumerate}
 
-Now that we know the basics of onion routing, we also need to examine how Tor uses it to be able to effectively perform an attack.
+Tor generally uses the same circuit for connections that happen within around 10 minutes after creating a circuit.
+Later requests, however, are given a new circuit \cite{tor_project, tor_project2}.
 
-
-\subsubsection{Machine Learning}
+\subsection{Related Work}
 
 \subsubsection{Website Fingerprinting}
 
 \subsubsection{Defenses}
 
 \subsubsection{Critical Analysis}
-
-\subsection{Related Work}
 
 \subsection{Deep Learning}
 
