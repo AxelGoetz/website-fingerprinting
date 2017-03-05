@@ -317,7 +317,7 @@ def train_on_copy_task(sess, model, data,
 
     batches_in_data = len(data) // batch_size
     if max_batches is None or batches_in_data < max_batches:
-        max_batches = batches_in_data
+        max_batches = batches_in_data - 1
 
     try:
         for batch in range(max_batches):
@@ -350,3 +350,44 @@ def train_on_copy_task(sess, model, data,
     helpers.save_object(loss_track, 'loss_track.pkl')
 
     return loss_track
+
+def get_vector_representations(sess, model, data,
+                       batch_size=100,
+                       max_batches=None,
+                       batches_in_epoch=1000,
+                       max_time_diff=float("inf"),
+                       verbose=True,
+                       in_memory=True):
+    """
+    Given a trained model, gets a vector representation for the traces in batch
+
+    @param sess is a tensorflow session
+    @param model is the seq2seq model
+    @param data is the data (in batch-major form and not padded or a list of files (depending on `in_memory`))
+    """
+    batches = helpers.get_batches(data, batch_size=batch_size)
+
+    results = None
+
+    batches_in_data = len(data) // batch_size
+    if max_batches is None or batches_in_data < max_batches:
+        max_batches = batches_in_data - 1
+
+    try:
+        for batch in range(max_batches):
+            fd = model.next_batch(batches, in_memory, max_time_diff)
+            l = sess.run(model.encoder_final_state, fd)
+
+            # Returns a tuple, so we concatenate
+            l = np.concatenate((l.c, l.h), axis=1)
+
+            if results is None:
+                results = l
+            else:
+                results = np.concatenate((results, l), axis=0)
+
+    except KeyboardInterrupt:
+        stdout.write('Interrupted')
+        exit(0)
+
+    return results

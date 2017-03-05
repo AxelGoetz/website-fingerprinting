@@ -7,7 +7,7 @@ from importlib import reload
 from sys import stdin, stdout
 from os import path
 
-from new_model import Seq2SeqModel, train_on_copy_task
+from new_model import Seq2SeqModel, train_on_copy_task, get_vector_representations
 from process_data import import_data
 
 def run_model(data, in_memory=True):
