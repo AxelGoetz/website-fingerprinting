@@ -11,7 +11,7 @@ hide what websites you are visiting or in general who you might be communicating
 Hence, an Internet Service Provider (ISP) can easily obtain a lot of information about a person.
 This is an especially large concern for people living in oppressive regimes since it allows a government to easily spy on its people and
 censor whatever websites they would like. To circumvent these issues, several anonymization techniques have been developed.
-These systems obscure both the content and metadata, allowing a user to anonymously browse the web. One of the most popular low-latency anonymization
+These systems obscure both the content and meta-data, allowing a user to anonymously browse the web. One of the most popular low-latency anonymization
 networks is called Tor, which relies on a concept called Onion Routing \cite{tor_project}.
 
 The list of known attacks against Tor is at the time of writing very limited and most of them rely on very
@@ -86,3 +86,8 @@ As previously mentioned, the general project can be split up into three differen
 
 
 \subsection{Report Structure}
+The general report has a very simple infrastructure. In the following section we further explore several concepts that are necessary
+to understand the basics of website fingerprinting and the specific attack that we will be performing in our experiment.
+Next, we identify the threat model and design an attack for that threat model that automatically generates features.
+Finally, we explore several methods of evaluating the performance of different models with different features and contrast the hand-picked
+features with the automatically generated ones.
