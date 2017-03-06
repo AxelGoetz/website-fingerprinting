@@ -2,6 +2,8 @@
 Attack based on the following paper "Effective Attacks and Provable Defenses for Website Fingerprinting" by T. Wang et al.
 """
 
+from sys import stdout
+
 class kNN():
     """
     k Neirest Neighbour classifier described in the paper outlined above.
@@ -16,7 +18,7 @@ class kNN():
         - K_RECO is the number of closest neighbours used for weight learning
     """
 
-    def __init__(self, is_multiclass=True, K_CLOSEST_NEIGHBORS=10):
+    def __init__(self, is_multiclass=True, K_CLOSEST_NEIGHBORS=5):
         # Constants
         self.K_RECO = 5.0 # Num of neighbors for weight learning
 
@@ -174,7 +176,12 @@ class kNN():
         @param data is a 2D matrix with the data samples and features
         @param labels is a 1D list where `class_of(data[i]) == labels[i]` for all i in `range(len(data))`
         """
-        for i, row in enumerate(data):
+        training = min(len(data), 2000)
+
+        for i in range(training):
+            update_progess(training, i)
+
+            row = data[i]
             distances = self._calculate_all_dist(row, data, index=i)
             new_data = [{'point': data[k], 'distance': distances[k], 'label': labels[k]} for k in range(len(data))]
 
@@ -238,7 +245,8 @@ class kNN():
 
         else:
             predicted = []
-            for point in X:
+            for i, point in enumerate(X):
+                update_progess(len(X), i)
                 dists = self._calculate_all_dist(point, self.data)
 
                 points = [{'distance': dists[i], 'label': self.data[i]['label']} for i in range(len(self.data))]
@@ -247,6 +255,11 @@ class kNN():
                 predicted.append(self._majority_vote(points))
 
             return predicted
+
+def update_progess(total, current):
+    """Prints a percentage of how far the process currently is"""
+    stdout.write("{:.2f} %\r".format((current/total) * 100))
+    stdout.flush()
 
 # Tests that have nothing to do with website fingerprinting
 if __name__ == '__main__':

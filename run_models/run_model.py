@@ -16,6 +16,17 @@ DATA_DIR = dirname + '/../data/'
 # Hack to import from sibling directory
 path.append(ospath.dirname(path[0]))
 
+def clean_data(X):
+    """
+    Goes over a list of features and removes any nan of infinite values
+
+    @param X is a numpy matrix
+    """
+    for i, row in enumerate(X):
+        for j, val in enumerate(row):
+            if np.isnan(val) or np.isinf(val):
+                X[i][j] = 0
+
 def get_X_y(monitored_data, unmonitored_data):
     """
     Gets a X, y array by combining both the `monitored_data` and `unmonitored_data` lists
@@ -33,7 +44,11 @@ def get_X_y(monitored_data, unmonitored_data):
     y = list(monitored_data[:, 1])
     y.extend([constants.UNMONITORED_LABEL] * len(unmonitored_data))
 
-    return np.array(X), np.array(y)
+    X, y = np.array(X), np.array(y)
+
+    clean_data(X)
+
+    return X, y
 
 def k_fold_validation(model, monitored_data, unmonitored_data, k, random_state=123):
     """
@@ -50,15 +65,23 @@ def k_fold_validation(model, monitored_data, unmonitored_data, k, random_state=1
     skf = StratifiedKFold(n_splits=k, random_state=random_state, shuffle=True)
 
     evaluations = []
-
+    i = 1
     for train, test in skf.split(X, y):
+        print("Starting split {}".format(i))
         X_train, X_test = X[train], X[test]
         y_train, y_test = y[train], y[test]
 
+        print("Fitting data")
         model.fit(X_train, y_train)
+
+        print("Predicting")
         prediction = model.predict(X_test)
 
         evaluations.append(scoring_methods.evaluate_model(prediction, y_test))
+
+        print(evaluations[-1])
+
+        i += 1
 
     return evaluations
 
@@ -88,6 +111,7 @@ def evaluate(model, monitored_data, unmonitored_data, random_state=123):
     X_train, y_train = get_X_y(monitored_data[:monitored_split], unmonitored_data[:unmonitored_split])
     X_test, y_test = get_X_y(monitored_data[monitored_split:], unmonitored_data[unmonitored_split:])
 
+    print("Calculating test error")
     model.fit(X_train, y_train)
     prediction = model.predict(X_test)
 
@@ -120,9 +144,9 @@ def make_data_binary(data):
     - `constants.UNMONITORED_LABEL`
     - `constant.MONITORED_LABEL`
     """
-    for row in data:
+    for i, row in enumerate(data):
         if row[1] != constants.UNMONITORED_LABEL:
-            row[1] = constants.MONITORED_LABEL
+            row = (row[0], constants.MONITORED_LABEL)
 
 def get_models():
     """
