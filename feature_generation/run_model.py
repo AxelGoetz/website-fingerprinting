@@ -26,7 +26,7 @@ def run_model(data, in_memory=True):
     # Only print small part of array
     np.set_printoptions(threshold=10)
 
-    batch_size = 10
+    batch_size = 100
     bidirectional = False
 
     encoder_hidden_states = 120
@@ -70,9 +70,9 @@ def main(_):
 
     try:
         if in_memory:
-            cache_data, labels = import_data(data_dir=data_dir, in_memory=in_memory)
+            cache_data, labels = import_data(data_dir=data_dir, in_memory=in_memory, extension=".cell")
         else:
-            cache_data = import_data(data_dir=data_dir, in_memory=in_memory)
+            cache_data = import_data(data_dir=data_dir, in_memory=in_memory, extension=".cell")
 
         stdout.write("Training on data...\n")
         run_model(cache_data, in_memory=in_memory)
