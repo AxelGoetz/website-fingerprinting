@@ -15,6 +15,8 @@ The main features we are extracting are:
     - Burst - sequence of outgoing packets, in which there are no two adjacent incoming packets (max, mean and number of bursts)
 
 !! We do not include the unique packet lengths because we do not have that data readily available.
+
+!! DEPRECATED - `kNN.go` is used instead.
 """
 
 from functools import reduce

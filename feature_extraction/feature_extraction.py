@@ -1,5 +1,5 @@
 from os import scandir, makedirs, path as ospath
-from sys import stdout, path
+from sys import stdout, path, exit
 
 # Hack to import from sibling directory
 path.append(ospath.dirname(path[0]))
@@ -58,7 +58,11 @@ def extract_features(feature_extraction, save_dir, data_dir=DATA_DIR, extension=
 
     for i, f in enumerate(scandir(data_dir)):
         if f.is_file() and f.name[-len(extension):] == extension:
-            file_content = read_cell_file(f.path)
+            try:
+                file_content = read_cell_file(f.path)
+            except:
+                print(f.path)
+                exit(0)
             features = feature_extraction(file_content)
 
             file_name = f.name
@@ -72,17 +76,22 @@ def extract_features(feature_extraction, save_dir, data_dir=DATA_DIR, extension=
 
 
 def extract_all_features(save_dir, data_dir=DATA_DIR):
-    from kNN import extract_kNN_features
     from naive_bayes import extract_nb_features
     from random_forest import extract_rf_features
     from svc1 import extract_svc1_features
     from svc2 import extract_svc2_features
+    import subprocess
 
-    extract_features(extract_kNN_features, save_dir + '/knn_cells', data_dir=data_dir, extension=".cell", model_name="kNN")
+    subprocess.run([
+        'go', 'run', dirname + '/kNN.go', '-folder', data_dir,
+        '-sites', '100', '-instances', '90', '-open', '9000',
+        '-new_path', save_dir + '/knn_cells'])
+
     extract_features(extract_nb_features, save_dir + '/nb_cells', data_dir=data_dir, extension=".cell", model_name="naive bayes")
     extract_features(extract_rf_features, save_dir + '/rf_cells', data_dir=data_dir, extension=".cell", model_name="random forest")
     extract_features(extract_svc1_features, save_dir + '/svc1_cells', data_dir=data_dir, extension=".cell", model_name="svc1")
     extract_features(extract_svc2_features, save_dir + '/svc2_cells', data_dir=data_dir, extension=".cell", model_name="svc2")
+
 
     stdout.write("Finished extracting features\n")
 

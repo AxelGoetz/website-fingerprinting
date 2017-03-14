@@ -11,6 +11,8 @@ Some of the features we are extracting are:
 - Sum of outgoing packet sizes
 - RTT (delay between first get and response)
 - HTML document size
+
+# TODO: CHANGE THIS TO: Website Fingerprinting: Attacking Popular Privacy Enhancing Technologies with the Multinomial Naïve-Bayes Classifier
 """
 
 import numpy as np
