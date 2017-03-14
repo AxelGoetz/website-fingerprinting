@@ -90,6 +90,12 @@ to activate the virtual environment. Once you are in this environment, you will 
 pip install -r requirements.txt
 ```
 
+Some of the code is also written in [go](https://golang.org/), which requires an [installation](https://golang.org/doc/install).
+This depends on your system but if you're running MACOS, I recommend using [homebrew](https://brew.sh/):
+```
+brew install go
+```
+
 ### GPU Setup
 
 If you plan to use the GPU support, you will also need to run some additional instructions, all of which can be found [here](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/g3doc/get_started/os_setup.md#test-the-tensorflow-installation) and you will need to install the GPU enabled tensorflow instead..
