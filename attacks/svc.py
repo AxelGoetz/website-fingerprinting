@@ -3,6 +3,7 @@ SVC attack described in "Website Fingerprinting in Onion Routing Based Anonymiza
 However in both papers, different features were used.
 
 A. Panchenko et al. used a radial basis function (RBF) as a kernel with C = 2^{17} and γ = 2^{-19}
+For "Website Fingerprinting at Internet Scale" they used a range of values but for the purpose of this report, we will just use these values.
 """
 
 from sklearn.svm import SVC
