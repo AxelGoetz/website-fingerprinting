@@ -52,7 +52,6 @@ def pull_data_in_memory(data_dir, extension=".cell"):
                 webpage_label = int(name_split[0])
 
             labels.append(webpage_label)
-
             data.append(read_feature_file(f.path))
 
             if i % 100 == 0:

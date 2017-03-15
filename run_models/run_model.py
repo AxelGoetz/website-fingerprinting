@@ -154,10 +154,10 @@ def get_models():
 
     @return `[{'model_name': ..., 'model_constructor': ..., 'path_to_features': ...}]`
     """
-    from attacks import kNN, naive_bayes, random_forest, svc
+    from attacks import kNN1, naive_bayes, random_forest, svc
 
     return [
-        {'model_name': 'kNN', 'model_constructor': kNN.kNN, 'path_to_features': DATA_DIR + "knn_cells"},
+        {'model_name': 'kNN', 'model_constructor': kNN1.kNN, 'path_to_features': DATA_DIR + "knn_cells"},
         {'model_name': 'naive_bayes', 'model_constructor': naive_bayes.get_naive_bayes, 'path_to_features': DATA_DIR + "nb_cells"},
         {'model_name': 'random_forest', 'model_constructor': random_forest.get_random_forest, 'path_to_features': DATA_DIR + "rf_cells"},
         {'model_name': 'svc1', 'model_constructor': svc.get_svc, 'path_to_features': DATA_DIR + "svc1_cells"},
@@ -220,5 +220,6 @@ if __name__ == '__main__':
         print("Model not found. Needs to be one of the following values: (kNN, naive_bayes, random_forest, svc1, scv2)")
         exit(0)
 
-    res = evaluate_model(model_dict, args.handpicked, args.is_multiclass)
-    print(res)
+    else:
+        res = evaluate_model(model_dict, args.handpicked, args.is_multiclass)
+        print(res)

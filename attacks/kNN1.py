@@ -2,6 +2,7 @@
 Attack based on the following paper "Effective Attacks and Provable Defenses for Website Fingerprinting" by T. Wang et al.
 """
 
+from sklearn.neighbors import NearestNeighbors
 from sys import stdout
 
 class kNN():
@@ -21,8 +22,16 @@ class kNN():
     def __init__(self, is_multiclass=True, K_CLOSEST_NEIGHBORS=5):
         # Constants
         self.K_RECO = 5.0 # Num of neighbors for weight learning
-
         self.K_CLOSEST_NEIGHBORS = K_CLOSEST_NEIGHBORS
+
+        self.weights = None
+
+        self.kNN_finder = NearestNeighbors(
+            n_neighbors=K_CLOSEST_NEIGHBORS,
+            metric=self._calculate_dist,
+            metric_params=None, # Dict otherwise
+            n_jobs=-1
+        )
 
     def _init_weights(self):
         """
@@ -55,25 +64,6 @@ class kNN():
                 dist += w * abs(f1 - f2)
 
         return dist
-
-    def _calculate_all_dist(self, point, data, index=-1):
-        """
-        Calculates the distances between the point and all other data points.
-
-        @param the index of the point in data (-1 if not defined) *(So we don't include it since it will be 0 anyway)*.
-
-        @return a list of distances
-        """
-        distances = []
-        for i, row in enumerate(data):
-            if i == index:
-                distances.append(float("inf"))
-
-            else:
-                dist = self._calculate_dist(point, row)
-                distances.append(dist)
-
-        return distances
 
     def _calculate_all_dist_for_feature(self, point, data, feature_index, index=-1):
         """
@@ -182,8 +172,8 @@ class kNN():
             update_progess(training, i)
 
             row = data[i]
-            distances = self._calculate_all_dist(row, data, index=i)
-            new_data = [{'point': data[k], 'distance': distances[k], 'label': labels[k]} for k in range(len(data))]
+            distances, indexes = self.kNN_finder.kneighbors([row], n_neighbors=int(self.K_RECO * 3), return_distance=True)
+            new_data = [{'point': data[y], 'distance': x, 'label': labels[y]} for (x, y) in zip(distances[0], indexes[0])]
 
             same_label, different_label = self._find_closest_reco_points(labels[i], new_data)
 
@@ -191,8 +181,6 @@ class kNN():
 
             # Go over all features
             for j, feature in enumerate(row):
-                # import pdb; pdb.set_trace()
-                # print(different_label)
                 diff_label_distances = self._calculate_all_dist_for_feature(row, different_label, j)
                 same_label_distances = self._calculate_all_dist_for_feature(row, same_label, j)
 
@@ -223,6 +211,8 @@ class kNN():
         self.AMOUNT_FEATURES = len(X[0])
         self._init_weights()
 
+        self.kNN_finder.fit(X, y)
+
         self._learn_weights(X, y)
 
         self.data = [{'point': X[i], 'label': y[i]} for i in range(len(X))]
@@ -245,12 +235,12 @@ class kNN():
 
         else:
             predicted = []
-            for i, point in enumerate(X):
-                update_progess(len(X), i)
-                dists = self._calculate_all_dist(point, self.data)
+            distances, indexes = self.kNN_finder.kneighbors([row], n_neighbors=self.K_CLOSEST_NEIGHBORS, return_distance=True)
 
-                points = [{'distance': dists[i], 'label': self.data[i]['label']} for i in range(len(self.data))]
-                points = sorted(points, key=lambda x: x['distance'])[:self.K_CLOSEST_NEIGHBORS]
+            for distance, index in zip(distances, indexes):
+
+                points = [{'distance': x, 'label': self.data[y]['label']} for (x, y) in zip(distance, index)]
+                points = sorted(points, key=lambda x: x['distance'])
 
                 predicted.append(self._majority_vote(points))
 
