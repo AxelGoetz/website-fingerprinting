@@ -51,22 +51,27 @@ class Seq2SeqModel():
         - reverse is also a boolean value that when if true, reversed the traces for training
     """
 
-    def __init__(self, encoder_cell, decoder_cell, seq_width, batch_size=100, bidirectional=False, reverse=False):
+    def __init__(self, encoder_cell, decoder_cell, seq_width, batch_size=100, bidirectional=False, reverse=False, saved_graph=None, sess=None):
+        """
+        @param saved_graph is a string, representing the path to the saved graph
+        """
         # Constants
-        self.EOS = -1
         self.PAD = 0
+        self.EOS = -1
+
+        self.reverse = reverse
+        self.seq_width = seq_width
+        self.batch_size = batch_size
+
+        self.bidirectional = bidirectional
 
         self.encoder_cell = encoder_cell
         self.decoder_cell = decoder_cell
 
-        self.seq_width = seq_width
-
-        self.batch_size = batch_size
-
-        self.bidirectional = bidirectional
-        self.reverse = reverse
-
         self._make_graph()
+
+        if saved_graph is not None and sess is not None:
+            self.import_from_file(sess, saved_graph)
 
     def _make_graph(self):
         """
@@ -278,8 +283,8 @@ class Seq2SeqModel():
         @param file_name is the file name without the extension
         """
         saver = tf.train.Saver()
-        saver.save(sess, file_name + '.ckpt')
-        saver.export_meta_graph(filename=file_name + '.meta')
+        saver.save(sess, file_name)
+        # saver.export_meta_graph(filename=file_name + '.meta')
 
     def import_from_file(self, sess, file_name):
         """
@@ -294,7 +299,7 @@ class Seq2SeqModel():
         saver = tf.train.import_meta_graph(file_name + '.meta')
 
         # Restore the variables
-        saver.restore(sess, file_name + 'ckpt')
+        saver.restore(sess, file_name)
 
 
 def train_on_copy_task(sess, model, data,
@@ -385,6 +390,10 @@ def get_vector_representations(sess, model, data,
                 results = l
             else:
                 results = np.concatenate((results, l), axis=0)
+
+            print(results)
+
+            # TODO: Write to file after every batch
 
     except KeyboardInterrupt:
         stdout.write('Interrupted')

@@ -1,16 +1,30 @@
-from sklearn.model_selection import StratifiedShuffleSplit
-from tensorflow.contrib.rnn import LSTMCell, GRUCell
-import matplotlib.pyplot as plt
+"""
+This script needs to be run after training the model with `train_model.py`.
+Stores the automatically generated features in `../data/af_cells`.
+"""
 import tensorflow as tf
 import numpy as np
 
-from sys import stdin, stdout, exit
-from os import path
+from tensorflow.contrib.rnn import LSTMCell, GRUCell
+from os import scandir, makedirs, path as ospath
+from sys import stdout, path, exit
 
-from new_model import Seq2SeqModel, train_on_copy_task, get_vector_representations
-from process_data import import_data, store_data
+from new_model import Seq2SeqModel, get_vector_representations
 
-TRAIN_SPLIT = 0.2
+dirname, _ = ospath.split(ospath.abspath(__file__))
+DATA_DIR = dirname + '/../data/cells'
+
+def create_dir_if_not_exists(directory):
+    """
+    Creates a dir if it does not exists, if it exists, it deletes it and creates a new one
+
+    @param directory is a string containing the **absolute** path to the directory
+    """
+    if ospath.exists(directory):
+        from shutil import rmtree
+        rmtree(directory)
+
+    makedirs(directory)
 
 def run_model(data, in_memory=False):
     """
@@ -37,46 +51,32 @@ def run_model(data, in_memory=False):
                              seq_width=2,
                              batch_size=args.batch_size,
                              bidirectional=args.bidirectional,
-                             reverse=args.reverse_traces)
+                             reverse=args.reverse_traces,
+                             saved_graph=args.graph_file,
+                             sess=session)
 
         session.run(tf.global_variables_initializer())
 
-        loss_track = train_on_copy_task(session, model, data,
-                           batch_size=args.batch_size,
-                           batches_in_epoch=100,
-                           max_time_diff=args.max_time_diff,
-                           verbose=True,
-                           in_memory=in_memory)
-
-        plt.plot(loss_track)
+        get_vector_representations(session, model, data,
+                               batch_size=args.batch_size,
+                               max_batches=None,
+                               batches_in_epoch=100,
+                               max_time_diff=args.max_time_diff,
+                               verbose=True,
+                               in_memory=False)
 
 def main(_):
-    paths, labels = None, None
-    dirname, _ = path.split(path.abspath(__file__))
+    paths, labels = [], []
+    with open(DATA_DIR + '/../X_test', 'r') as f:
+        paths = f.readline().split(' ')
 
-    try:
-        data_dir = dirname + '/../data/cells'
-        paths, labels = import_data(data_dir=data_dir, in_memory=False, extension=args.extension)
-        paths, labels = np.array(paths), np.array(labels)
-
-        sss = StratifiedShuffleSplit(n_splits=1, test_size=TRAIN_SPLIT, random_state=123)
-        sss.get_n_splits(paths, labels)
+    with open(DATA_DIR + '/../y_test', 'r') as f:
+        labels = f.readline().split(' ')
 
 
-        for train_index, test_index in sss.split(paths, labels):
-            X_train, X_test = paths[train_index], paths[test_index]
-            y_train, y_test = labels[train_index], labels[test_index]
+    create_dir_if_not_exists(DATA_DIR + '/../af_cells')
 
-            store_data(X_test, 'X_test')
-            store_data(y_test, 'y_test')
-
-            stdout.write("Training on data...\n")
-            run_model(X_train, in_memory=False)
-            stdout.write("Finished running model.")
-
-    except KeyboardInterrupt:
-        stdout.write("Interrupted, this might take a while...\n")
-        exit(0)
+    run_model(paths)
 
 if __name__ == '__main__':
     import argparse
@@ -90,9 +90,13 @@ if __name__ == '__main__':
     parser.add_argument('--reverse_traces', action='store_true', help="If you reverse the traces for training. Do not use if bidirectional is true (default not on)")
     parser.add_argument('--max_time_diff', metavar='', type=float, help="The time at which you stop considering a packet important (default infinity)", default=float('inf'))
     parser.add_argument('--extension', metavar='', help="Extension of the cell files", default=".cell")
+    parser.add_argument('--graph_file', metavar='', help="File name of the graph stores (default seq2seq_model)", default='seq2seq_model')
 
     global args
     args = parser.parse_args()
+
+    args.graph_file = dirname + '/../' + args.graph_file
+
     args.decoder_hidden_states = 2 * args.encoder_hidden_states if args.bidirectional else args.encoder_hidden_states
 
     if args.cell_type == 'LSTM':
