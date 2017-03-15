@@ -59,7 +59,7 @@ func extract(times []float64, sizes []int) (features string, err error) {
     }
   }
   for i := count; i < 300; i++ {
-    features += FeatureDelimiter + "'X'"
+    features += FeatureDelimiter + "-1"
   }
 
   count = 0
@@ -75,7 +75,7 @@ func extract(times []float64, sizes []int) (features string, err error) {
     }
   }
   for i := count; i < 300; i++ {
-    features += FeatureDelimiter + "'X'"
+    features += FeatureDelimiter + "-1"
   }
 
   // packet distributions (where are the outgoing packets concentrated)
@@ -144,7 +144,7 @@ func extract(times []float64, sizes []int) (features string, err error) {
     if len(bursts) > i {
       features += FeatureDelimiter + strconv.Itoa(bursts[i])
     } else {
-      features += FeatureDelimiter + "'X'"
+      features += FeatureDelimiter + "-1"
     }
   }
 
@@ -152,7 +152,7 @@ func extract(times []float64, sizes []int) (features string, err error) {
     if len(sizes) > i {
       features += FeatureDelimiter + strconv.Itoa(sizes[i]+1500)
     } else {
-      features += FeatureDelimiter + "'X'"
+      features += FeatureDelimiter + "-1"
     }
   }
 
