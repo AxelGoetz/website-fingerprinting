@@ -68,7 +68,14 @@ python feature_extraction/feature_extraction.py
 
 This script will create a new directory for every model within your data directory with the features inside of `{webpage_index}-{sample_number}.cellf` files.
 
-// TODO: Add how to run the other models for testing
+Finally, to run all of the models, you can run the script:
+```
+python run_models/run_model.py
+```
+
+with the appropriate parameters.
+
+// TODO: Add system manual
 
 ## Installation
 
@@ -98,7 +105,7 @@ brew install go
 
 ### GPU Setup
 
-If you plan to use the GPU support, you will also need to run some additional instructions, all of which can be found [here](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/g3doc/get_started/os_setup.md#test-the-tensorflow-installation) and you will need to install the GPU enabled tensorflow instead..
+If you plan to use the GPU support, you will also need to run some additional instructions, all of which can be found [here](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/g3doc/get_started/os_setup.md#test-the-tensorflow-installation) and you will need to install the GPU enabled tensorflow instead.
 
 
 ## Data
