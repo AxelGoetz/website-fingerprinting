@@ -1,3 +1,4 @@
+from sklearn.model_selection import StratifiedShuffleSplit
 from tensorflow.contrib.rnn import LSTMCell, GRUCell
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -8,7 +9,9 @@ from sys import stdin, stdout, exit
 from os import path
 
 from new_model import Seq2SeqModel, train_on_copy_task, get_vector_representations
-from process_data import import_data
+from process_data import import_data, store_data
+
+TRAIN_SPLIT = 0.2
 
 def run_model(data, in_memory=False):
     """
@@ -49,16 +52,28 @@ def run_model(data, in_memory=False):
         plt.plot(loss_track)
 
 def main(_):
-    cache_data, labels = None, None
+    paths, labels = None, None
     dirname, _ = path.split(path.abspath(__file__))
 
     try:
         data_dir = dirname + '/../data/cells'
-        cache_data = import_data(data_dir=data_dir, in_memory=False, extension=args.extension)
+        paths, labels = import_data(data_dir=data_dir, in_memory=False, extension=args.extension)
+        paths, labels = np.array(paths), np.array(labels)
 
-        stdout.write("Training on data...\n")
-        run_model(cache_data, in_memory=False)
-        stdout.write("Finished running model.")
+        sss = StratifiedShuffleSplit(n_splits=1, test_size=TRAIN_SPLIT, random_state=123)
+        sss.get_n_splits(paths, labels)
+
+
+        for train_index, test_index in sss.split(paths, labels):
+            X_train, X_test = paths[train_index], paths[test_index]
+            y_train, y_test = labels[train_index], labels[test_index]
+
+            store_data(X_test, 'X_test')
+            store_data(y_test, 'y_test')
+
+            stdout.write("Training on data...\n")
+            run_model(X_train, in_memory=False)
+            stdout.write("Finished running model.")
 
     except KeyboardInterrupt:
         stdout.write("Interrupted, this might take a while...\n")
@@ -88,7 +103,5 @@ if __name__ == '__main__':
     else:
         print("Cell type not found, try again (LSTM or GRU)")
         exit(0)
-
-    print(args)
 
     tf.app.run()
