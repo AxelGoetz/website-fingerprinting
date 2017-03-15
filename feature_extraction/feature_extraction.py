@@ -85,7 +85,7 @@ def extract_all_features(save_dir, data_dir=DATA_DIR):
     subprocess.run([
         'go', 'run', dirname + '/kNN.go', '-folder', data_dir,
         '-sites', '100', '-instances', '90', '-open', '9000',
-        '-new_path', save_dir + '/knn_cells'])
+        '-new_path', save_dir + '/knn_cells/'])
 
     extract_features(extract_nb_features, save_dir + '/nb_cells', data_dir=data_dir, extension=".cell", model_name="naive bayes")
     extract_features(extract_rf_features, save_dir + '/rf_cells', data_dir=data_dir, extension=".cell", model_name="random forest")

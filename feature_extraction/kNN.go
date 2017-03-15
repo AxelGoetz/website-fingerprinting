@@ -203,7 +203,7 @@ func main() {
 	open := flag.Int("open", 0, "number of open-world sites")
 	instances := flag.Int("instances", 0, "number of instances")
 	suffix := flag.String("suffix", ".cellf", "the suffix for the resulting files with parsed features")
-	new_path := flag.String("new_path", "../data/knn/", "The the path to the folder where the features will be stored")
+	new_path := flag.String("new_path", "../data/knn_cells/", "The the path to the folder where the features will be stored")
 	flag.Parse()
 
 	// workers
