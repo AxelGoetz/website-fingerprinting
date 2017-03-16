@@ -76,4 +76,19 @@ class HelperTests(unittest.TestCase):
         self.assertEqual(len(padded_matrix[1]), 9)
         self.assertEqual(sequence_lengths[1], 1)
         self.assertEqual(padded_matrix[1][0][0], 1)
-        self.assertEqual(padded_matrix[1][0][1], -1)        
+        self.assertEqual(padded_matrix[1][0][1], -1)
+
+    def test_extract_filename(self):
+        paths = [
+            "/Users/test/Desktop/file.txt",
+            "Hello/This/should/work/too",
+            "file.txt"
+        ]
+
+        extensions = ["txt", "", "txt"]
+
+        results = [helpers.extract_filename_from_path(path, extension) for (path, extension) in zip(paths, extensions)]
+
+        self.assertEqual(results[0], "file")
+        self.assertEqual(results[1], "too")
+        self.assertEqual(results[2], "file")

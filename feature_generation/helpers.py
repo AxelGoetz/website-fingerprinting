@@ -7,6 +7,8 @@ Includes all of the helper functions such as:
 import numpy as np
 TRACE_DELIMITER = '\t'
 
+from os import path as ospath
+
 def add_EOS(data, sequence_lengths, EOS=-1):
     """
     For the decoder targets, we want to add a EOS symbol after the end of each sequence
@@ -143,3 +145,27 @@ def load_object(file_name):
 
     with open(file_name, "rb") as f:
         return load(f)
+
+def write_to_file(content, save_dir, file_name, new_extension=""):
+    """
+    Writes the features to a file in a space separated fashion
+
+    @param content is a 1D list of features
+    @param save_dir is the absolute path to the directory where we save the traces
+    @param file_name is the file name to store the features in
+    """
+    content = list(map(lambda x: str(x), content))
+
+    with open(save_dir + '/' + file_name, 'w') as f:
+        import pdb; pdb.set_trace()
+        f.write(' '.join(content))
+
+def extract_filename_from_path(path, extension):
+    """
+    Extracts a file name from a given path. (Without the given extension)
+    """
+    if len(extension) > 0 and extension[0] != '.':
+        extension = '.' + extension
+
+    file_name = ospath.basename(path)
+    return file_name.replace(extension, "")
