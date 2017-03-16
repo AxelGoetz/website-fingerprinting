@@ -57,13 +57,12 @@ def run_model(data, in_memory=False):
 
         session.run(tf.global_variables_initializer())
 
-        get_vector_representations(session, model, data,
+        get_vector_representations(session, model, data, DATA_DIR + '/../af_cells',
                                batch_size=args.batch_size,
                                max_batches=None,
                                batches_in_epoch=100,
                                max_time_diff=args.max_time_diff,
-                               verbose=True,
-                               in_memory=False)
+                               verbose=True)
 
 def main(_):
     paths, labels = [], []

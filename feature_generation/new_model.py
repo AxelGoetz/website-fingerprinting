@@ -89,16 +89,16 @@ class Seq2SeqModel():
         """
         The main placeholders used for the input data, and output
         """
-        # The usual format is: `[max_sequence_length, self.batch_size, self.seq_width]`
+        # The usual format is: `[self.batch_size, max_sequence_length, self.seq_width]`
         # But we define `max_sequence_length` as None to make it dynamic so we only need to pad
         # each batch to the maximum sequence length
         self.encoder_inputs = tf.placeholder(tf.float32,
-            [None, self.batch_size, self.seq_width])
+            [self.batch_size, None, self.seq_width])
 
         self.encoder_inputs_length = tf.placeholder(tf.int32, [self.batch_size])
 
         self.decoder_targets = tf.placeholder(tf.float32,
-            [None, self.batch_size, self.seq_width])
+            [self.batch_size, None, self.seq_width])
 
     def _init_encoder(self):
         """
@@ -116,7 +116,7 @@ class Seq2SeqModel():
                     dtype=tf.float32,
                     sequence_length=self.encoder_inputs_length,
                     inputs=self.encoder_inputs,
-                    time_major=True)
+                    time_major=False)
         else:
             ((encoder_fw_outputs,
               encoder_bw_outputs),
@@ -126,7 +126,7 @@ class Seq2SeqModel():
                                                 cell_bw=self.encoder_cell,
                                                 inputs=self.encoder_inputs,
                                                 sequence_length=self.encoder_inputs_length,
-                                                dtype=tf.float32, time_major=True)
+                                                dtype=tf.float32, time_major=False)
                 )
 
             self.encoder_outputs = tf.concat((encoder_fw_outputs, encoder_fw_outputs), 2)
@@ -205,7 +205,7 @@ class Seq2SeqModel():
     def _init_train(self):
         self.loss = tf.reduce_sum(tf.square(self.decoder_targets - self.decoder_outputs))
 
-        # TODO: Which optimizer to use? `GradientDescentOptimizer`, `AdamOptimizer` or `RMSProp`?
+        # Which optimizer to use? `GradientDescentOptimizer`, `AdamOptimizer` or `RMSProp`?
         self.train_op = tf.train.AdamOptimizer().minimize(self.loss)
 
     def projection(self, inputs, projection_size, scope):
@@ -258,22 +258,30 @@ class Seq2SeqModel():
         @param in_memory is a boolean value
         @param max_time_diff **(should only be defined if `in_memory == False`)**
             specifies what the maximum time different between the first packet in the trace and the last one should be
+
+        @return if in_memory is False, returns a tuple of (dict, [paths]) where paths is a list of paths for each batch
+            else it returns a dict for training
         """
         batch = next(batches)
+        data_batch = batch
 
         if not in_memory:
-            batch = [helpers.read_cell_file(path, max_time_diff=max_time_diff) for path in batch]
+            data_batch = [helpers.read_cell_file(path, max_time_diff=max_time_diff) for path in batch]
 
-        batch, encoder_input_lengths_ = helpers.pad_traces(batch, reverse=self.reverse)
-        encoder_inputs_ = helpers.time_major(batch)
+        data_batch, encoder_input_lengths_ = helpers.pad_traces(data_batch, reverse=self.reverse)
+        encoder_inputs_ = data_batch
 
-        decoder_targets_ = helpers.time_major(helpers.add_EOS(batch, encoder_input_lengths_))
+        decoder_targets_ = helpers.add_EOS(data_batch, encoder_input_lengths_)
 
-        return {
-            self.encoder_inputs: encoder_inputs_,
+        train_dict = {
+                self.encoder_inputs: encoder_inputs_,
             self.encoder_inputs_length: encoder_input_lengths_,
             self.decoder_targets: decoder_targets_,
         }
+
+        if not in_memory:
+            return (train_dict, batch)
+        return train_dict
 
     def save(self, sess, file_name):
         """
@@ -307,8 +315,7 @@ def train_on_copy_task(sess, model, data,
                        max_batches=None,
                        batches_in_epoch=1000,
                        max_time_diff=float("inf"),
-                       verbose=True,
-                       in_memory=True):
+                       verbose=True):
     """
     Train the `Seq2SeqModel` on a copy task
 
@@ -326,7 +333,7 @@ def train_on_copy_task(sess, model, data,
 
     try:
         for batch in range(max_batches):
-            fd = model.next_batch(batches, in_memory, max_time_diff)
+            fd, _ = model.next_batch(batches, False, max_time_diff)
             _, l = sess.run([model.train_op, model.loss], fd)
             loss_track.append(l)
 
@@ -356,13 +363,13 @@ def train_on_copy_task(sess, model, data,
 
     return loss_track
 
-def get_vector_representations(sess, model, data,
+def get_vector_representations(sess, model, data, save_dir,
                        batch_size=100,
                        max_batches=None,
                        batches_in_epoch=1000,
                        max_time_diff=float("inf"),
                        verbose=True,
-                       in_memory=True):
+                       extension=".cell"):
     """
     Given a trained model, gets a vector representation for the traces in batch
 
@@ -380,7 +387,8 @@ def get_vector_representations(sess, model, data,
 
     try:
         for batch in range(max_batches):
-            fd = model.next_batch(batches, in_memory, max_time_diff)
+            print("Batch {}/{}".format(batch, max_batches))
+            fd, paths = model.next_batch(batches, False, max_time_diff)
             l = sess.run(model.encoder_final_state, fd)
 
             # Returns a tuple, so we concatenate
@@ -391,9 +399,10 @@ def get_vector_representations(sess, model, data,
             else:
                 results = np.concatenate((results, l), axis=0)
 
-            print(results)
+            file_names = [helpers.extract_filename_from_path(path, extension) for path in paths]
 
-            # TODO: Write to file after every batch
+            for file_name, features in zip(file_names, list(results)):
+                helpers.write_to_file(features, save_dir, file_name, new_extension=".cellf")
 
     except KeyboardInterrupt:
         stdout.write('Interrupted')

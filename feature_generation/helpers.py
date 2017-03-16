@@ -156,8 +156,7 @@ def write_to_file(content, save_dir, file_name, new_extension=""):
     """
     content = list(map(lambda x: str(x), content))
 
-    with open(save_dir + '/' + file_name, 'w') as f:
-        import pdb; pdb.set_trace()
+    with open(save_dir + '/' + file_name + new_extension, 'w') as f:
         f.write(' '.join(content))
 
 def extract_filename_from_path(path, extension):
