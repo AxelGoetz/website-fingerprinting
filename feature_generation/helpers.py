@@ -51,8 +51,6 @@ def get_batches(data, batch_size=100):
 
     @return an iterator with the batch sizes
     """
-    # TODO: Perhaps we can take the class distribution in each class into consideration
-
     # Randomly shuffle the data
     shuffle_data(data)
 

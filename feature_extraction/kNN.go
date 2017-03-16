@@ -79,7 +79,6 @@ func extract(times []float64, sizes []int) (features string, err error) {
   }
 
   // packet distributions (where are the outgoing packets concentrated)
-  // TODO: missing count = 0 reset here, but porting bug for now
   // count = 0
   for i := 0; i < len(sizes) && i < 3000; i++ {
     if i%30 != 29 {
