@@ -50,7 +50,6 @@ class kNN():
             f2 = point2[i]
             w = self.weights[i]
 
-            # TODO: Check why this step is needed
             if f1 != -1 and f2 != -1:
                 dist += w * abs(f1 - f2)
 
