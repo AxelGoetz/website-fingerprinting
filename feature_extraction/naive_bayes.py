@@ -11,8 +11,7 @@ Some of the features we are extracting are:
 - Sum of outgoing packet sizes
 - RTT (delay between first get and response)
 - HTML document size
-
-# TODO: CHANGE THIS TO: Website Fingerprinting: Attacking Popular Privacy Enhancing Technologies with the Multinomial Naïve-Bayes Classifier
+- We also include the cumulative representation of "Website Fingerprinting at Internet Scale"
 """
 
 import numpy as np
@@ -120,6 +119,35 @@ def get_inter_arrival_time(trace, features):
             features.append(sum(time) / len(time))
             features.append(np.std(time))
 
+def get_cumulative_representation(trace, features, n):
+    """
+    Gets a cumulative representation of a trace, described in the "Website Fingerprinting at Internet Scale" paper.
+
+    @param n is the amount of features to be added.
+        It affects how often and the places where you sample
+    """
+    a, c = 0, 0
+
+    sample = (len(trace) // n)
+    sample = 1 if sample == 0 else sample
+    amount = 0
+
+    for i, packet in enumerate(trace):
+        c += packet[1]
+        a += abs(packet[1])
+
+        if i % sample == 0:
+            amount += 1
+            features.append(c)
+            features.append(a)
+
+            if amount == n:
+                break
+
+    for i in range(amount, n):
+        features.append(0)
+        features.append(0)
+
 
 def extract_nb_features(trace):
     """
@@ -134,6 +162,7 @@ def extract_nb_features(trace):
     get_rtt(trace, features)
     get_html_size(trace, features)
     get_inter_arrival_time(trace, features)
+    get_cumulative_representation(trace, features, 100)
 
     # Non negative values
     features = [abs(x) for x in features]
