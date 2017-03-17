@@ -198,6 +198,7 @@ class Seq2SeqModel():
 
         decoder_outputs_ta, decoder_final_state, _ = tf.nn.raw_rnn(self.decoder_cell, loop_fn)
         self.decoder_outputs = decoder_outputs_ta.stack()
+        self.decoder_outputs = tf.transpose(self.decoder_outputs, [1, 0, 2])
 
         with tf.variable_scope('DecoderOutputProjection') as scope:
             self.decoder_outputs = self.projection(self.decoder_outputs, self.seq_width, scope)

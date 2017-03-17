@@ -45,8 +45,7 @@ def run_model(data, in_memory=False):
                            batch_size=args.batch_size,
                            batches_in_epoch=100,
                            max_time_diff=args.max_time_diff,
-                           verbose=True,
-                           in_memory=in_memory)
+                           verbose=True)
 
         plt.plot(loss_track)
 
