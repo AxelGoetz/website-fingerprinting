@@ -1,3 +1,6 @@
+% TODO: Remove
+\bibliography{../report.bib}
+
 \section{Background Information, Related Work and Research}
 In the following chapter, we further explore the motivation for undertaking the project,
 analyse the current state of the project domain and outline the research that forms the basis for the rest of the report.
@@ -108,35 +111,64 @@ Using a cosine similarity, they achieved around 50\% accuracy on an even smaller
 The first real threat however, was by A. Panchenko et al. who used a \textit{Support Vector Classifier} (SVC) on the same dataset of 775 web pages as Herrmann et al.
 and got a 54.61\% success rate \cite{herrmann2009website, panchenko1}.
 
-- Open vs closed world (all of the above have been closed world)
+All of the previously mentioned research, except the one done by Panchenko et al. have only considered a \textit{closed-world scenario}.
+A closed-world setting means that all of the web pages are known in advance \cite{panchenko1}.
+For instance, when Herrmann et al. trained their model on a dataset of 775 web pages, they made the assumption that a client could only visit one of
+those web pages and none other.
+In an \textit{open-world scenario}, the attacker does not know in advance which URLs the victim might visit.
+The most prominent example of this is when the authorities want to monitor which people try to access a set of censored sites \cite{panchenko1}.
+In order to achieve this, the models need to be trained on both \textit{monitored} and \textit{unmonited web pages}.
 
-- Naive Bayes
+Wang et al. later conducted an attack on Tor using a large open-world dataset \cite{wang_cai_johnson_nithyanand_goldberg_2014}.
+Using a novel \textit{k-Nearest Neighbor} (k-NN) classifier with \textit{weight adjustment} on a very large feature set \textit{(3736 features)}.
+In addition to getting around 90\% accuracy, they also significantly reduced the time needed for training \cite{wang_cai_johnson_nithyanand_goldberg_2014}.
 
--Wang (kNN)
+Using a completely different approach, Hayes et al. extract fingerprints using a \textit{random forests} \cite{kfingerprinting}.
+This novel technique involved storing a \textit{fingerprint} as a set of leaves within that forest.
+Next, they simply use the \textit{hamming distance} as a distance metric to find the k-nearest neighbors.
+If all the labels within those $k$ instances are the same, the model classifies the new instance as the previously mentioned label.
+The interesting aspect is that changing the value of $k$ allows them to vary the number of \textit{true positives} (TP) and \textit{false positives} (FP) \cite{kfingerprinting}.
 
-- Random forest
-
-Panchenko et al. improved upon their previous attack to create one current state-of-the-art methods. They tested their approach on several datasets,
+Finally, Panchenko et al. improved upon their previous attack to create one current state-of-the-art methods. They tested their approach on several datasets,
 including the one used by Wang et al. on their k-NN attack, where they got around 92\% accuracy.
 In an open-world scenario, on the other hand, they got up to 96\% accuracy.
 
-
-
-
-
-
 \subsubsection{Defenses}
 
-In gerenal, website fingerprinting is harder on Tor than other services because it performs several defenses (padding 512 byte), background noise (circuit constrction, SENDME)
+Not only has there been research regarding different attacks but there are also various works that describe possible defenses.
+First of all, Tor already implements \textit{padding}, which means that all packets are padded to a fixed-sized cell of $512$ bytes.
+Next, in response to the first attack by Panchenko et al., Tor also supported randomized ordering of HTTP pipelines \cite{panchenko1, kfingerprinting, perry2011experimental}.
+Finally, on top of these defenses, fingerprinting on Tor is made more difficult by all of the background noise present.
+This is due to the fact that Tor also sends packets for circuit construction or just \textit{SENDME's}, which ensure flow control \cite{panchenko2}.
+Although Wang et al. proposed a probabilistic method to remove these \cite{wang_goldberg_2013}, they might still make the classification process slightly more difficult.
 
-Defense at application level (Hayes)
+Lua et al. designed an application-level defense, that was able to successfully defends against a number of classifiers by modifying packet size, timing of packets, web object size, and
+flow size \cite{perry2011experimental}. This is achieved by splitting individual HTTP requests into multiple partial requests, using extra HTTP traffic as a cover and making use of HTTP pipelining \cite{cai_zhang_joshi_johnson_2012}.
+Although this has been a relatively effective technique to obfuscate traffic, several attacks have proven that this defense only still does not suffice \cite{cai_zhang_joshi_johnson_2012,wang_cai_johnson_nithyanand_goldberg_2014}.
+
+\textit{BuFLO}, on the other hand, is a \textit{simulatable} defense \cite{wang_cai_johnson_nithyanand_goldberg_2014}, designed by Dyer et al. that performed packet padding and sending data at a constant rate in both directions \cite{dyer2012peek}.
+The disadvantage of this method is the high overhead required in order to keep the constant data rate.
+Some extensions have been described that try to minimize this overhead such as  Nithyanand's work that uses existing knowledge of a website traces to maintain a high level of security \cite{nithyanand2014glove}.
+
+More recently, Cherubin et al. developed the first website fingerprinting defense on the server side \cite{cherubin2017website}.
+This can be particularly interesting for \textit{Tor hidden services} that want to provide, all of their users, the privacy that they require.
+The attack uses a technique, called \textit{ALPaCA}, which pads the content of a web page and creates new content to conceal specific features on a network level \cite{cherubin2017website}.
+
+Finally, there are also some other techniques such as \textit{decoy pages} and \textit{traffic morphing} \cite{wright2009traffic,panchenko1}.
+Decoy pages or \textit{camouflage} is a very simple technique that involves loading another web page whenever a web page is requested.
+This process provides more background noise that makes fingerprinting more difficult \cite{panchenko1}.
+Whilst traffic morphing is a slightly more complex technique that changes certain features in the traffic in order to make it appear as if another page is loaded \cite{wright2009traffic}.
 
 \subsubsection{Critical Analysis}
+- Examine how would a small percentage of false positives impacts a potential attack.
+- Analyse how the rapid changing nature of some web pages would impact the attack.
 - Tor version
 - Closed world
-- Well defined packet traces (It is assumed that the attacker knows where the packet trace of a singlenpage load starts and ends. If the client takes much
+- Well defined packet traces (It is assumed that the attacker knows where the packet trace of a single page load starts and ends. If the client takes much
     longer to load the next page after the current one is loaded, this assumption can be justified.)
 - No other activity (multi-tab browsing)
+- Dynamic websites
+- Adversary (ISP) can block Tor
 
 (Website fingerprinting at Internet scale proves that the attack does not scale in realistic settings)
 
