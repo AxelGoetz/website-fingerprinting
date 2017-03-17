@@ -46,4 +46,4 @@ class NaiveBayeseaturesTests(unittest.TestCase):
     def test_total(self):
         res = naive_bayes.extract_nb_features(self.trace)
 
-        self.assertEqual(len(res), 13)
+        self.assertEqual(len(res), 213)
