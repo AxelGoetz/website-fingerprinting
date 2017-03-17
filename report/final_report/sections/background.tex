@@ -133,6 +133,17 @@ Finally, Panchenko et al. improved upon their previous attack to create one curr
 including the one used by Wang et al. on their k-NN attack, where they got around 92\% accuracy.
 In an open-world scenario, on the other hand, they got up to 96\% accuracy.
 
+\subsubsection{Automatic Feature Selection}
+
+There are not many works that have examine the use of automatic feature selection techniques in the context of a website fingerprinting attacks.
+First, Abe et al. study the use of a \textit{stacked authoencoder} with a \textit{softmax classifier} \cite{deeplearning}.
+However, since a stacked authoencoder still requires a fixed-length input, they pad and truncate cells, whose length is shorter or longer than $5000$.
+With it, they manage to achieve a $88\%$ accuracy \cite{deeplearning}.
+
+V. Rimmer takes a very similar approach, as she also uses a stacked authoencoder with a softmax classifier \cite{deeplearningthesis}.
+But rather than padding and truncating the cells, she transforms the traces into a fixed-length histogram or \textit{wavelength coefficients}.
+With this, she manages to achieve a $71\%$ accuracy.
+
 \subsubsection{Defenses}
 
 Not only has there been research regarding different attacks but there are also various works that describe possible defenses.
@@ -160,23 +171,37 @@ This process provides more background noise that makes fingerprinting more diffi
 Whilst traffic morphing is a slightly more complex technique that changes certain features in the traffic in order to make it appear as if another page is loaded \cite{wright2009traffic}.
 
 \subsubsection{Critical Analysis}
-- Examine how would a small percentage of false positives impacts a potential attack.
-- Analyse how the rapid changing nature of some web pages would impact the attack.
-- Tor version
-- Closed world
-- Well defined packet traces (It is assumed that the attacker knows where the packet trace of a single page load starts and ends. If the client takes much
-    longer to load the next page after the current one is loaded, this assumption can be justified.)
-- No other activity (multi-tab browsing)
-- Dynamic websites
-- Adversary (ISP) can block Tor
 
-(Website fingerprinting at Internet scale proves that the attack does not scale in realistic settings)
+Most attacks, that have been described above, are based on a set of different assumptions.
+Here we list these assumptions and see if they are reasonable.
 
-\subsection{Deep Learning}
+The first one we examine is the open and closed-world scenarios.
+One of the main problems with website fingerprinting is the amount of web pages readily available on the web.
+An open-world scenario tries to solve this issue by only classifying a small amount of web pages and by labelling the other ones as unmonitored.
+However, machine learning theory states that the bigger the world size, the more data is required.
+So the small size of the \textit{hypothesis space} compared to our world size, could have a direct impact on the amount of false positives
+since the more web pages there are, the higher the probability that one of the traces will be very similar to one in the monitored set.
+Therefore, the false positive rates, described in the previously mentioned papers, might be higher in real life \cite{wfpcritique}.
 
-\subsection{Automatic Feature Selection}
+Nonetheless, even if those false positive rates are accurate, a very small amount of false negatives could have a large impact on the classification.
+M Perry shows that if the FP rate is as low as $0.2\%$ and just a $100$ page loads, around $18\%$ of the user base would be falsely accused of visiting at least one monitored website.
+Or after $1000$ page loads, this percentage increases to around $86\%$ \cite{wfpcritique}.
+
+There are also a variety of different factors that are often not considered such as the rapidly changing nature of some web pages.
+Juarez et al. show that it takes around $9$ days for the accuracy to drop from $80\%$ to under $50\%$ \cite{wfpevaluation}.
+Additionally, the content of some web pages is dynamic and some of the traces will vary, depending on who visits the website, making the classification for a large set of people difficult.
+Not only is dynamic websites an issue but different users will also be using different versions of the Tor Browser Bundle and might load the web page from different locations.
+This can decrease the accuracy with $70\%$ and $50\%$ respectively \cite{wfpevaluation}.
+On top of this, we also need to consider multi-tab browsing, where a client might be loading multiple web pages at the same time.
+Although some papers consider this \cite{naivebayes}, most assume that the attacker know where the trace of a single page starts and ends.
+
+\subsection{Deep Learning and Automatic Feature Selection}
+
+\subsubsection{Neural Networks}
 
 \subsubsection{Stacked Authoencoder}
+
+\subsubsection{Recurrent Neural Networks}
 
 \subsubsection{Sequence-to-Sequence Model}
 
