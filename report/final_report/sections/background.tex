@@ -287,7 +287,7 @@ It is known that these kinds of networks can learn to approximate any function \
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.4\textwidth]{feedforward}
+  \includegraphics[width=0.6\textwidth]{feedforward}
   \caption{Example of an feedforward neural network with one hidden layer}
   \label{fig:feedforward}
 \end{figure}
@@ -312,20 +312,45 @@ The size of these batches is a hyperparameter of the model.
 
 These feedforward neural net can be used to perform feature selection, by using a network called an \textit{autoencoder}.
 This network tries to learn the \textit{identity function} $f(x) \approx x$ when the number of neurons in the hidden layer is smaller than the ones in the input and output layers.
-Hence, essentially the network is trying to learn to learn how to compress the initial feature vector \cite{authoencoders}.
+Hence, essentially the network is trying to learn to learn how to compress the initial feature vector \cite{autoencoders}.
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.4\textwidth]{autoencoder}
+  \includegraphics[width=0.6\textwidth]{autoencoder}
   \caption{Example of a simple autoencoder}
-  \label{fig:feedforward}
+  \label{fig:autoencoder}
 \end{figure}
 
-In order to learn an even more compressed representation of the input, multiple layers are often introduces.
-Where each hidden layer contains even less nodes than the previous one.
+In order to learn an even more compressed representation of the input, multiple layers can be introduced, where each hidden layer contains even less nodes than the previous one.
+However, the problem with this approach is that the deeper the network, the more difficult it can be learn the appropriate weights \cite{nielsen_2017}.
+A solution to this problem is a greedy approach where each layer is trained in turn and then stacked on top of each other.
+By this we mean that we first train the first layer, just as before.
+Next, the weights of the first layer are used to transform the raw input in a compressed representation.
+This representation is then used to train the second layer and so on.
 
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.6\textwidth]{stacked_autoencoder}
+  \caption{Stacked autoencoder}
+  \label{fig:stacked-autoencoder}
+\end{figure}
 
 \subsubsection{Recurrent Neural Networks}
+
+Although stacked autoencoders have successfully been used in several cases \cite{deeplearningthesis,deeplearning2}, they still have a couple of drawbacks.
+First of all, they require a fixed length input, which means that sequential information will need to be preprocessed.
+Next, they also assume that all of the inputs and outputs are independent of each other \cite{britz_2016} whilst this might not be the case for sequential data such as the cell traces.
+Hence, we will look at \textit{recurrent neural networks} (RNNs), which relaxes some of the restrictions with a feedforward neural net.
+They allow connections to form loops.
+
+These loops
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.75\textwidth]{rnn}
+  \caption{Structure of a RNN \cite{britz_2016}}
+  \label{fig:rnn}
+\end{figure}
 
 \subsubsection{Sequence-to-Sequence Model}
 
