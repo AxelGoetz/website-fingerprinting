@@ -136,11 +136,11 @@ In an open-world scenario, on the other hand, they got up to 96\% accuracy.
 \subsubsection{Automatic Feature Selection}
 
 There are not many works that have examine the use of automatic feature selection techniques in the context of a website fingerprinting attacks.
-First, Abe et al. study the use of a \textit{stacked authoencoder} with a \textit{softmax classifier} \cite{deeplearning}.
-However, since a stacked authoencoder still requires a fixed-length input, they pad and truncate cells, whose length is shorter or longer than $5000$.
+First, Abe et al. study the use of a \textit{stacked autoencoder} with a \textit{softmax classifier} \cite{deeplearning}.
+However, since a stacked autoencoder still requires a fixed-length input, they pad and truncate cells, whose length is shorter or longer than $5000$.
 With it, they manage to achieve a $88\%$ accuracy \cite{deeplearning}.
 
-V. Rimmer takes a very similar approach, as she also uses a stacked authoencoder with a softmax classifier \cite{deeplearningthesis}.
+V. Rimmer takes a very similar approach, as she also uses a stacked autoencoder with a softmax classifier \cite{deeplearningthesis}.
 But rather than padding and truncating the cells, she transforms the traces into a fixed-length histogram or \textit{wavelength coefficients}.
 With this, she manages to achieve a $71\%$ accuracy.
 
@@ -197,12 +197,138 @@ Although some papers consider this \cite{naivebayes}, most assume that the attac
 
 \subsection{Deep Learning and Automatic Feature Selection}
 
-\subsubsection{Neural Networks}
+In the following section, we will give a very short introduction to deep learning and describe some of the deep learning solutions that allow us to perform feature extraction.
+We start by introducing deep learning by exploring \textit{artificial neural networks} and \textit{stacked autoencoders}.
+Then we move on to \textit{recurrent neural networks} and \textit{sequence-to-sequence models}.
+Finally, we describe some of the issues with deep learning, such as the \textit{vanishing gradient problem}.
+All of these explanations assume some familiarity with neural networks and don't go into depth, as that is outside the scope of this paper.
 
-\subsubsection{Stacked Authoencoder}
+Machine learning models basically take some value as its input and output a value, whilst trying to minimize some sort of error.
+All of the learning models that we explore below are forms of \textit{supervised learning}.
+This means that we know the expected output and minimize the error between the actual output and the expected output.
+
+\subsubsection{Artificial Neural Networks}
+
+\textit{Artificial neural networks} consist of a network of nodes, called \textit{neurons}.
+These neurons are named and modeled after their biological counterparts.
+One of the simplest ones, is called a \textit{perceptron}, which consists of a set of \textit{binary inputs}, \textit{weights} and an \textit{activation function}.
+Hence, essentially it weights different evidence by assigning a different weight to every input.
+Next, the output of the neuron can be calculated as follows:
+
+$$\text{output} = f(\sum_{i} w_i x_i)$$
+
+\newpage
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.4\textwidth]{perceptron}
+  \caption{Model of a perceptron with three inputs.}
+  \label{fig:perceptron}
+\end{figure}
+
+This function $f$ represents the \textit{activation function}.
+Essentially, the activation function expresses the idea that a neuron can `fire' after the sum of the inputs exceeds a certain threshold.
+There are certain different functions such as the \textit{step function}, \textit{sigmoid function} and the \textit{tanh function},
+which are all outlined in figure \ref{fig:activation-functions}.
+
+\begin{figure}[h]
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \resizebox{\linewidth}{!}{
+    \begin{tikzpicture}
+      \draw[->] (-3, 0) -- (3, 0) node[right] {$x$};
+      \draw[->] (-3, 0) -- (-3, 3) node[above] {$y$};
+      \draw[dotted] (-3, 1.5) -- (3, 1.5);
+      \draw[blue] (-1.5, 0) -- (0, 0);
+      \draw[blue] (0, 0) -- (0, 3);
+      \draw[blue] (0, 3) -- (3, 3);
+    \end{tikzpicture}
+    }
+    \caption{The step function.}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \resizebox{\linewidth}{!}{
+    \begin{tikzpicture}
+      \draw[->] (-3, 0) -- (3, 0) node[right] {$x$};
+      \draw[->] (-3, 0) -- (-3, 3) node[above] {$y$};
+      \draw[dotted] (-3, 1.5) -- (3, 1.5);
+      \draw[yscale=3,domain=-3:3,smooth,variable=\x,blue] plot ({\x},{1 / (1 + (e^(-\x)))});
+    \end{tikzpicture}
+    }
+    \caption{The sigmoid function.}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \resizebox{\linewidth}{!}{
+    \begin{tikzpicture}
+      \draw[->] (-3, 0) -- (3, 0) node[right] {$x$};
+      \draw[->] (-3, -1.5) -- (-3, 1.5) node[above] {$y$};
+      \draw[yscale=1.5,domain=-3:3,smooth,variable=\x,blue] plot ({\x},{(2 / (1 + (e^(-2 * \x)))) - 1});
+    \end{tikzpicture}
+    }
+    \caption{The tanh function.}
+  \end{subfigure}
+  \caption{Examples of different activation functions}
+
+\label{fig:activation-functions}
+\end{figure}
+
+Now to learn a function, it adapts the weight $w_i$ such that it minimizes the error between the predicted and the expected output.
+In order to achieve this, we need some manner of quantifying the error, called a \textit{loss function}.
+The most commonly used ones are the \textit{mean squared error} ($\text{MSE} = (x - x')^2$) and \textit{absolute loss} ($\text{AL} = | x - x' |$) \cite{nielsen_2017}.
+There are may other cost functions such as \textit{cross-entropy}, but they are not often used for the models that will be described below.
+
+To build a neural network, several of these perceptrons are connected together.
+The most standard network is a \textit{multilayer perceptron}, also called a \textit{feedforward neural net}.
+This specific network, as can be seen in figure \ref{fig:feedforward}, consists of an \textit{input layer}, one or more \textit{hidden layers} and an \textit{output layer}.
+All of these layers have an arbitrary number of neurons and the connections between these neurons can only go from left to right and can never form a loop.
+It is known that these kinds of networks can learn to approximate any function \cite{valiant2014learning}.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.4\textwidth]{feedforward}
+  \caption{Example of an feedforward neural network with one hidden layer}
+  \label{fig:feedforward}
+\end{figure}
+
+Now that we know how to construct these networks, we still need to manage to assign the appropriate weights to every connection such that the loss function is minimized.
+There weights can be learnt by using an algorithm, called \textit{backpropagation}.
+The optimization process usually starts with initializing all of the weights with a random value and then running backpropagation, which is structured as follows \cite{nielsen_2017}:
+\begin{enumerate}
+  \item Compute the outputs, given a certain input \textit{(feedforward pass)}.
+  \item Calculate the error vector.
+  \item Backpropagate the error by computing the differences between the expected output and the actual output, starting at the output layer and working towards the input layer.
+  \item Compute the partial derivatives for the weights.
+  \item Adjust the weights by subtracting these derivatives, multiplied by the \textit{learning rate}.
+\end{enumerate}
+
+The learning rate is essentially a hyperparameter to the model that defines how fast the network learns.
+If its value is high, the model learns quickly and if the value is low, the model learns more slowly but the learning process will be more accurate.
+The propagation process is also often done in \textit{batches}, which means that you calculate the propagations of a fixed amount of input vectors and only once this has finished, the weighs are changed.
+The size of these batches is a hyperparameter of the model.
+
+\subsubsection{Stacked autoencoder}
+
+These feedforward neural net can be used to perform feature selection, by using a network called an \textit{autoencoder}.
+This network tries to learn the \textit{identity function} $f(x) \approx x$ when the number of neurons in the hidden layer is smaller than the ones in the input and output layers.
+Hence, essentially the network is trying to learn to learn how to compress the initial feature vector \cite{authoencoders}.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.4\textwidth]{autoencoder}
+  \caption{Example of a simple autoencoder}
+  \label{fig:feedforward}
+\end{figure}
+
+In order to learn an even more compressed representation of the input, multiple layers are often introduces.
+Where each hidden layer contains even less nodes than the previous one.
+
 
 \subsubsection{Recurrent Neural Networks}
 
 \subsubsection{Sequence-to-Sequence Model}
+
+\subsubsection{The Vanishing Gradient Problem}
 
 \subsection{Software Libraries}
