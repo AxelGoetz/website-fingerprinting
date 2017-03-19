@@ -426,9 +426,19 @@ Finally, to extract the thought vector, the last state of both layers are extrac
   \label{fig:bidirectional-rnn}
 \end{figure}
 
+\newpage
 
-- attention
+Some research by Bahdanau et al. has been to improve the performance of encoder-decoder models by introducing \textit{attention mechanisms} \cite{attention_mechanisms}.
+This mechanism allows the decoder to have a more direct access to the input, thereby relieving the encoder by having to embed all the information in a fixed-length vector.
+Although this technique might work well for translation tasks, our work focuses on the feature extraction process.
+Therefore, we will not perform any analysis on sequence-to-sequence models with an attention mechanism.
+
+At the time of writing, there hasn't been much research regarding using sequence-to-sequence models for feature extraction.
+In fact, currently they are most often used for translation and other NLP tasks.
+Hence, they are most often used as a classification task where the model classifies which word is likely to be next \cite{tensorflowseq2seq,cho2014learning,rnnencoder,sutskever_vinyals_le}.
 
 \subsubsection{The Vanishing Gradient Problem}
+
+
 
 \subsection{Software Libraries}
