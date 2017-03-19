@@ -439,6 +439,55 @@ Hence, they are most often used as a classification task where the model classif
 
 \subsubsection{The Vanishing Gradient Problem}
 
+Since deep learning require a model to learn a vast majority of weights, due to the \textit{curse of dimensionality}.
+This essentially states that the more weights, or dimensions are introduced, the more data is required.
+However, deep learning suffers from an even greater problem, called the \textit{vanishing gradient problem} \cite{nielsen_2017}.
+This problem represents the fact that neurons in early layers tend to learn a lot slower than those in the last layers.
 
+The vanishing gradient problem is also the reason why some RNNs are not able to learn long-term dependencies.
+This is due to the fact that the derivatives of both tanh and sigmoid activation functions approach zero near both ends.
+Thus when one of the neurons is saturated, which means that the value of the gradient gets close to zero, it drives the gradients of previous neurons to zero as well \cite{britz_2016}.
+Hence, since those gradients are close to zero, they vanish after a couple of time steps.
+As RNNs tend to be a lot deeper than traditional feed-forward networks, this problems tends to be a lot more common \cite{britz_2016}.
+
+One solution to this problem is to use a ReLU activation function, as the derivative is either $0$ or $1$ \cite{britz_2016}.
+But both LSTM and GRU cells were especially designed to solve this issue in RNNs and therefore we will be using those throughout the rest of this paper \cite{LSTM,hochreiter1997long,cho2014learning}.
+
+- TODO: Add source curse of dimensionality
+- TODO: Plot derivatives of tanh and sigma
+
+\subsubsection{Regularisation}
+
+- TODO: Should I include this?
 
 \subsection{Software Libraries}
+
+There are various different computation libraries to efficiently implement deep learning algorithms.
+However, the most common ones are \textit{Tensorflow}, \textit{Theano}, \textit{Keras} and \textit{TODO: Include lua model}.
+The first three all provide their API in Python, whilst (TODO: Include) can only be used in Lua.
+
+Tensorflow has a c++ backend and allows GPU computations to speed up computations.
+The low-level API is provides more than enough flexibility to implement a sequence-to-sequence model.
+They do also provide a high-level API that include different RNN cells and even a sequence-to-sequence model.
+However, this model has been specifically designed for NLP tasks and therefore does not support the computations that we are trying to achieve.
+
+- TODO: Theano
+
+Keras, on the other hand, uses either Tensorflow or Theano as a back-end.
+Hence, the library provides high-level functions to create different models, rather than the low-level APIs provided by both Tensorflow and Theano.
+Although this library would allow us to quickly prototype a sequence-to-sequence model, it does not provide the low-level access that we might need in order to be able to tune certain hyperparameters.
+
+- TODO: Lua model
+
+After a careful analysis, Tensorflow provides us with the highest flexibility whilst still providing tools to easily perform certain calculations with their high-level API.
+Hence, the decision to use Tensorflow for the implementation of our main model.
+On top of Tensorflow, we will also be using sklearn, which provides us with a large amount of machine learning models to perform some of our testing, and numpy for fast data preprocessing.
+
+- TODO: Add references
+
+\subsection{Data Sets}
+
+
+- Tor Cells - because of padding
+
+- TODO - Time major
