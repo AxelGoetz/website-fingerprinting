@@ -201,7 +201,7 @@ In the following section, we will give a very short introduction to deep learnin
 We start by introducing deep learning by exploring \textit{artificial neural networks} and \textit{stacked autoencoders}.
 Then we move on to \textit{recurrent neural networks} and \textit{sequence-to-sequence models}.
 Finally, we describe some of the issues with deep learning, such as the \textit{vanishing gradient problem}.
-All of these explanations assume some familiarity with neural networks and don't go into depth, as that is outside the scope of this paper.
+All of these explanations assume some familiarity with neural networks and only aim to give a high-level overview of the most important concepts.
 
 Machine learning models basically take some value as its input and output a value, whilst trying to minimize some sort of error.
 All of the learning models that we explore below are forms of \textit{supervised learning}.
@@ -346,6 +346,9 @@ They allow connections to form loops.
 These loops basically represent that the network can be \textit{unrolled}.
 This we mean that if we have the same network as in figure \ref{fig:rnn} and you have a sequence that has a length of $n$, you unroll the network for $n$ steps.
 Hence, essentially an RNN has `memory' that affects the outcome of the computation \cite{britz_2016}.
+At every step, you can calculate the output by performing the calculation:
+$$\text{result}, h_t = f(h_{t - 1}, x_t)$$
+
 Unlike traditional deep networks, every layer in the unrolled network shares the same weights $W$.
 This greatly reduces the amount of parameters the network needs to learn \cite{britz_2016}.
 
@@ -383,7 +386,48 @@ BPTT is very similar to standard backpropagation with the key difference of summ
 
 \subsubsection{Sequence-to-Sequence Model}
 
+One specific type of RNN, that could be used for feature generation, is a \textit{sequence-to-sequence model}, introduced by Cho et al. \cite{cho2014learning}.
+Sometimes called a \textit{encoder-decoder model}, it consists of two RNNs where one RNN encodes a sequence into a fixed-length representation and the other decodes those representations into another variable-length sequence \cite{cho2014learning}.
+The models have been proven to be successful in several \textit{natural language processing} (NLP) tasks such as translation tasks \cite{cho2014learning,sutskever_vinyals_le,tensorflowseq2seq}.
+However, since the model extracts a fixed-length representation, we might be able to train a sequence-to-sequence model on a copy task, just like an autoencoder, and use that \textit{thought vector} as the extracted features.
 
+The model works as follows, each box in figure \ref{fig:seq2seq} represents an RNN cell. Next, the encoder RNN is unrolled, depending on the length of the input vector.
+After the encoder is finished, the final state vector is stored in a \textit{thought vector} variable.
+Next, the decoder is unrolled and run, with the though vector as its initial state and a start token as the first input.
+Finally, the output of the previous cell is then used as the input to the next cell until the network produces the end of sequence token \cite{cho2014learning}.
+The encoder and the decoder can share the same weights or, as is more common, use a different set of parameters \cite{tensorflowseq2seq}.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{seq2seq}
+  \caption{Structure of a sequence-to-sequence model \cite{britz_2016_1}.}
+  \label{fig:seq2seq}
+\end{figure}
+
+If this model is now trained on a copy task, where it tries to reproduce the input sequence from a thought vector, it means that just like an autoencoder,
+the network has learned to compress any variable-length sequence into a fixed-length representation.
+The size of this though vector, however, is another hyperparameter to the model.
+
+To allow a sequence-to-sequence to learn more complex representations, Sutskever et al. experimented with multilayered LSTM cells \cite{sutskever_vinyals_le}.
+They showed that this model was very successful in a English to French translation task and managed to cope with long term dependencies.
+Additionally, they also showed that reversing the sentences made the learning process easier.
+Sutskever et al. do not have a complete explanation for this phenomenon but they believe that it is due to the many short-term dependencies in the dataset \cite{sutskever_vinyals_le}.
+
+In addition to reversing the traces, Oshri et al. introduced the idea of using a \textit{bidirectional RNN encoder} \cite{rnnencoder}.
+The idea behind this kind of encoder is based on the fact that the output at time $t$ might not only depend on past information but also on future information.
+To combat this issue, the encoder consists of two layers, the forward and the backward layer, stacked on top of each other.
+Next, the output is computed, based on the hidden state of both layers \cite{britz_2016}.
+Finally, to extract the thought vector, the last state of both layers are extracted and averaged.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{bidirectional-rnn}
+  \caption{Structure of a bidirectional RNN. \cite{britz_2016}}
+  \label{fig:bidirectional-rnn}
+\end{figure}
+
+
+- attention
 
 \subsubsection{The Vanishing Gradient Problem}
 
