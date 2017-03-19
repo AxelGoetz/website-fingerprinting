@@ -343,16 +343,47 @@ Next, they also assume that all of the inputs and outputs are independent of eac
 Hence, we will look at \textit{recurrent neural networks} (RNNs), which relaxes some of the restrictions with a feedforward neural net.
 They allow connections to form loops.
 
-These loops
+These loops basically represent that the network can be \textit{unrolled}.
+This we mean that if we have the same network as in figure \ref{fig:rnn} and you have a sequence that has a length of $n$, you unroll the network for $n$ steps.
+Hence, essentially an RNN has `memory' that affects the outcome of the computation \cite{britz_2016}.
+Unlike traditional deep networks, every layer in the unrolled network shares the same weights $W$.
+This greatly reduces the amount of parameters the network needs to learn \cite{britz_2016}.
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.75\textwidth]{rnn}
-  \caption{Structure of a RNN \cite{britz_2016}}
+  \includegraphics[width=\textwidth]{rnn}
+  \caption{Structure of a RNN and an example of the unrolling process \cite{britz_2016}.}
   \label{fig:rnn}
 \end{figure}
 
+One of the problems with RNNs are that they struggle to learn long-term dependencies \cite{bengio1994learning}.
+But some cells, more specifically \textit{long short term memory} (LSTM) and \textit{gated recurring unit} (GRU) cells do not have this problem \cite{hochreiter1997long,LSTM,cho2014learning}.
+Rather than just having a single neural network layer, LSTMs consist of four different layers, that all interact in a novel way \cite{LSTM}.
+These interactions are outlined in figure \ref{fig:lstm}.
+Although a full description is outside the scope of this paper, essentially the top line remains relatively unchanged and can therefore store long-term dependancies.
+Whilst the bottom line contains more short term information \cite{LSTM,hochreiter1997long}.
+
+\newpage
+
+The \textit{gated recurring unit} (GRU) is a slightly more simple model than an LSTM.
+The cell combines several of the gates and states to minimize the amount of parameters the model needs to learn.
+Therefore, GRU allows a model to learn at a faster space.
+Whilst LSTM cells have a greater expressive power \cite{hochreiter1997long,LSTM,cho2014learning}.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{lstm}
+  \caption{Interactions within a LSTM cell \cite{LSTM}.}
+  \label{fig:lstm}
+\end{figure}
+
+Recurrent neural nets cannot make use of the same backpropagation algorithm used by feedforward neural nets since the unrolled layers share the same set of weights.
+Instead, we use a different optimization method, called \textit{backpropagation through time} (BPTT).
+BPTT is very similar to standard backpropagation with the key difference of summing up the gradients for the weights at every time step \cite{britz_2016}.
+
 \subsubsection{Sequence-to-Sequence Model}
+
+
 
 \subsubsection{The Vanishing Gradient Problem}
 
