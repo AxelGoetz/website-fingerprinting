@@ -28,7 +28,7 @@ connection setup, data movement and connection tear-down \cite{goldschlag1999oni
         Additionally, since all of the traffic is forwarded from the first node, the second and the third nodes do not know the identity of Alice.
     \end{itemize}
 
-    \begin{figure}[h]
+    \begin{figure}[ht]
       \centering
       \includegraphics[width=0.75\textwidth]{tor_setup}
       \caption{An example of a connection setup for the onion routing protocol.}
@@ -55,7 +55,7 @@ connection setup, data movement and connection tear-down \cite{goldschlag1999oni
     Now we know why the protocol is called onion routing because it encrypts the data in multiple layers and at every node, one of the layers of the onion is peeled off \cite{tor_project2}.
     The key is that none of the nodes know the complete path that has been taken.
 
-    \begin{figure}[h]
+    \begin{figure}[ht]
       \centering
       \includegraphics[width=0.75\textwidth]{tor_message_sending}
       \caption{Sending a message with the onion routing protocol.}
@@ -81,7 +81,7 @@ So it can be anyone from a person on the same network to an ISP.
 The reason as to why the attacker has to be local is because in onion routing systems, it is the only place in the network where you still know
 the true identity of the client.
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=0.75\textwidth]{threat_model}
   \caption{Threat model for a simple website fingerprinting attack.}
@@ -190,7 +190,7 @@ Or after $1000$ page loads, this percentage increases to around $86\%$ \cite{wfp
 There are also a variety of different factors that are often not considered such as the rapidly changing nature of some web pages.
 Juarez et al. show that it takes around $9$ days for the accuracy to drop from $80\%$ to under $50\%$ \cite{wfpevaluation}.
 Additionally, the content of some web pages is dynamic and some of the traces will vary, depending on who visits the website, making the classification for a large set of people difficult.
-Not only is dynamic websites an issue but different users will also be using different versions of the Tor Browser Bundle and might load the web page from different locations.
+Not only is dynamic websites an issue but different users will also be using different versions of the \textit{Tor Browser Bundle} and might load the web page from different locations.
 This can decrease the accuracy with $70\%$ and $50\%$ respectively \cite{wfpevaluation}.
 On top of this, we also need to consider multi-tab browsing, where a client might be loading multiple web pages at the same time.
 Although some papers consider this \cite{naivebayes}, most assume that the attacker know where the trace of a single page starts and ends.
@@ -219,7 +219,7 @@ $$\text{output} = f(\sum_{i} w_i x_i)$$
 
 \newpage
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=0.4\textwidth]{perceptron}
   \caption{Model of a perceptron with three inputs.}
@@ -231,7 +231,7 @@ Essentially, the activation function expresses the idea that a neuron can `fire'
 There are certain different functions such as the \textit{step function}, \textit{sigmoid function} and the \textit{tanh function},
 which are all outlined in figure \ref{fig:activation-functions}.
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \begin{subfigure}[b]{0.32\textwidth}
     \centering
     \resizebox{\linewidth}{!}{
@@ -285,7 +285,7 @@ This specific network, as can be seen in figure \ref{fig:feedforward}, consists 
 All of these layers have an arbitrary number of neurons and the connections between these neurons can only go from left to right and can never form a loop.
 It is known that these kinds of networks can learn to approximate any function \cite{valiant2014learning}.
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=0.6\textwidth]{feedforward}
   \caption{Example of an feedforward neural network with one hidden layer}
@@ -314,7 +314,7 @@ These feedforward neural net can be used to perform feature selection, by using 
 This network tries to learn the \textit{identity function} $f(x) \approx x$ when the number of neurons in the hidden layer is smaller than the ones in the input and output layers.
 Hence, essentially the network is trying to learn to learn how to compress the initial feature vector \cite{autoencoders}.
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=0.6\textwidth]{autoencoder}
   \caption{Example of a simple autoencoder}
@@ -328,7 +328,7 @@ By this we mean that we first train the first layer, just as before.
 Next, the weights of the first layer are used to transform the raw input in a compressed representation.
 This representation is then used to train the second layer and so on.
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=0.6\textwidth]{stacked_autoencoder}
   \caption{Stacked autoencoder}
@@ -352,7 +352,7 @@ $$\text{result}, h_t = f(h_{t - 1}, x_t)$$
 Unlike traditional deep networks, every layer in the unrolled network shares the same weights $W$.
 This greatly reduces the amount of parameters the network needs to learn \cite{britz_2016}.
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=\textwidth]{rnn}
   \caption{Structure of a RNN and an example of the unrolling process \cite{britz_2016}.}
@@ -373,7 +373,7 @@ The cell combines several of the gates and states to minimize the amount of para
 Therefore, GRU allows a model to learn at a faster space.
 Whilst LSTM cells have a greater expressive power \cite{hochreiter1997long,LSTM,cho2014learning}.
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=\textwidth]{lstm}
   \caption{Interactions within a LSTM cell \cite{LSTM}.}
@@ -397,7 +397,7 @@ Next, the decoder is unrolled and run, with the though vector as its initial sta
 Finally, the output of the previous cell is then used as the input to the next cell until the network produces the end of sequence token \cite{cho2014learning}.
 The encoder and the decoder can share the same weights or, as is more common, use a different set of parameters \cite{tensorflowseq2seq}.
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=\textwidth]{seq2seq}
   \caption{Structure of a sequence-to-sequence model \cite{britz_2016_1}.}
@@ -419,7 +419,7 @@ To combat this issue, the encoder consists of two layers, the forward and the ba
 Next, the output is computed, based on the hidden state of both layers \cite{britz_2016}.
 Finally, to extract the thought vector, the last state of both layers are extracted and averaged.
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=\textwidth]{bidirectional-rnn}
   \caption{Structure of a bidirectional RNN. \cite{britz_2016}}
@@ -439,51 +439,70 @@ Hence, they are most often used as a classification task where the model classif
 
 \subsubsection{The Vanishing Gradient Problem}
 
-Since deep learning require a model to learn a vast majority of weights, due to the \textit{curse of dimensionality}.
-This essentially states that the more weights, or dimensions are introduced, the more data is required.
-However, deep learning suffers from an even greater problem, called the \textit{vanishing gradient problem} \cite{nielsen_2017}.
+Deep learning suffers from an problem, called the \textit{vanishing gradient problem} \cite{nielsen_2017}.
 This problem represents the fact that neurons in early layers tend to learn a lot slower than those in the last layers.
-
 The vanishing gradient problem is also the reason why some RNNs are not able to learn long-term dependencies.
 This is due to the fact that the derivatives of both tanh and sigmoid activation functions approach zero near both ends.
 Thus when one of the neurons is saturated, which means that the value of the gradient gets close to zero, it drives the gradients of previous neurons to zero as well \cite{britz_2016}.
 Hence, since those gradients are close to zero, they vanish after a couple of time steps.
 As RNNs tend to be a lot deeper than traditional feed-forward networks, this problems tends to be a lot more common \cite{britz_2016}.
 
+\begin{figure}[ht]
+  \centering
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \resizebox{\linewidth}{!}{
+    \begin{tikzpicture}
+      \draw[->] (-3, 0) -- (3, 0) node[right] {$x$};
+      \draw[->] (-3, 0) -- (-3, 3) node[above] {$y$};
+      \draw[yscale=6,domain=-3:3,smooth,variable=\x,blue] plot ({\x},{(1 / (1 + (e^(-\x)))) * (1 - 1 / (1 + (e^(-\x))))});
+    \end{tikzpicture}
+    }
+    \caption{Derivative of the sigmoid function.}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \resizebox{\linewidth}{!}{
+    \begin{tikzpicture}
+      \draw[->] (-3, 0) -- (3, 0) node[right] {$x$};
+      \draw[->] (-3, 0) -- (-3, 3) node[above] {$y$};
+      \draw[yscale=3,domain=-3:3,smooth,variable=\x,blue] plot ({\x},{1 - ((2 / (1 + (e^(-2 * \x)))) - 1)^2});
+    \end{tikzpicture}
+    }
+    \caption{Derivative of the tanh function.}
+  \end{subfigure}
+  \caption{Derivatives of activation functions}
+\end{figure}
+
 One solution to this problem is to use a ReLU activation function, as the derivative is either $0$ or $1$ \cite{britz_2016}.
 But both LSTM and GRU cells were especially designed to solve this issue in RNNs and therefore we will be using those throughout the rest of this paper \cite{LSTM,hochreiter1997long,cho2014learning}.
 
-- TODO: Add source curse of dimensionality
-- TODO: Plot derivatives of tanh and sigma
-
 \subsubsection{Regularisation}
 
-- TODO: Should I include this?
+% TODO: Should I include this?
 
 \subsection{Software Libraries}
 
-There are various different computation libraries to efficiently implement deep learning algorithms.
-However, the most common ones are \textit{Tensorflow}, \textit{Theano}, \textit{Keras} and \textit{TODO: Include lua model}.
-The first three all provide their API in Python, whilst (TODO: Include) can only be used in Lua.
+There are various different numerical computation libraries to efficiently implement deep learning algorithms.
+However, the most common ones are \textit{Tensorflow}, \textit{Theano}, \textit{Keras} and \textit{Torch} \cite{tensorflow,theano,keras,torch}.
+The first three all provide their API in Python, whilst torch only be used in Lua.
+Although a python API, called \textit{Pytorch} has been open-sourced very recently.
+All of the above allow you to use \textit{cuDNN} to perform GPU-accelerated computations.
 
-Tensorflow has a c++ backend and allows GPU computations to speed up computations.
+Tensorflow has a C\texttt{++} backend and allows GPU computations to speed up computations.
 The low-level API is provides more than enough flexibility to implement a sequence-to-sequence model.
 They do also provide a high-level API that include different RNN cells and even a sequence-to-sequence model.
-However, this model has been specifically designed for NLP tasks and therefore does not support the computations that we are trying to achieve.
+However, this model has been specifically designed for NLP tasks and therefore does not support the computations that we are trying to achieve \cite{tensorflow}.
+Theano is very similar to Tensorflow but it does not provide all of the high-level tools \cite{theano}.
 
-- TODO: Theano
-
-Keras, on the other hand, uses either Tensorflow or Theano as a back-end.
+Keras, on the other hand, runs on top of either Tensorflow or Theano as a back-end.
 Hence, the library provides high-level functions to create different models, rather than the low-level APIs provided by both Tensorflow and Theano.
-Although this library would allow us to quickly prototype a sequence-to-sequence model, it does not provide the low-level access that we might need in order to be able to tune certain hyperparameters.
-
-- TODO: Lua model
+Although this library would allow us to quickly prototype a sequence-to-sequence model, it does not provide the low-level access that we might need in order to be able to tune certain hyperparameters \cite{keras}.
+Finally, Pytorch is also a very attractive option but the current release is still a beta version \cite{torch}.
 
 After a careful analysis, Tensorflow provides us with the highest flexibility whilst still providing tools to easily perform certain calculations with their high-level API.
 Hence, the decision to use Tensorflow for the implementation of our main model.
 On top of Tensorflow, we will also be using sklearn, which provides us with a large amount of machine learning models to perform some of our testing, and numpy for fast data preprocessing.
-
-- TODO: Add references
 
 \subsection{Data Sets}
 
@@ -498,9 +517,6 @@ Next, probabilistic techniques are used to remove SENDMEs \cite{wang_goldberg_20
 After this processing, a cell looks like a list of tuples, each containing a time value and a class label, which represent whether it was an incoming or outgoing packet.
 
 There are several data sets readily available that have already been preprocessing.
-The largest ones are the one used by Wang et al. \cite{wang_cai_johnson_nithyanand_goldberg_2014} and -todo: include who's.
+Some of the largest ones are the one used by Wang et al. \cite{wang_cai_johnson_nithyanand_goldberg_2014}, Greschbach et al. \cite{greschbach2016effect}.
 Wang et al's dataset contain traces for a $100$ monitored websites with $90$ instances each and $8400$ unmonitored sites, all from Alexa's top 10,000.
-
-
-- TODO: Add other data source
-- TODO: Add alexa source
+Greschbach et al. collected an even larger dataset with $100$ sampled of Alexa's top $9,000$ websites and one sample for $909,000$ unmonitored sites \cite{greschbach2016effect}.
