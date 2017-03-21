@@ -27,10 +27,12 @@ connection setup, data movement and connection tear-down \cite{goldschlag1999oni
 
     \begin{figure}[ht]
       \centering
-      \includegraphics[width=0.75\textwidth]{tor_setup}
+      \includegraphics[width=0.6\textwidth]{tor_setup}
       \caption{An example of a connection setup for the onion routing protocol.}
       \label{fig:tor_setup}
     \end{figure}
+
+  \newpage
 
   \item \textbf{Data Movement:}
     \begin{itemize}
@@ -141,6 +143,8 @@ V. Rimmer takes a very similar approach, as she also uses a stacked autoencoder 
 But rather than padding and truncating the cells, she transforms the traces into a fixed-length histogram or \textit{wavelength coefficients}.
 With this, she manages to achieve a $71\%$ accuracy.
 
+\newpage
+
 \subsubsection{Defenses}
 
 Not only has there been research regarding different attacks but there are also various works that describe possible defenses.
@@ -213,8 +217,6 @@ Hence, essentially it weights different evidence by assigning a different weight
 Next, the output of the neuron can be calculated as follows:
 
 $$\text{output} = f(\sum_{i} w_i x_i)$$
-
-\newpage
 
 \begin{figure}[ht]
   \centering
@@ -292,6 +294,7 @@ It is known that these kinds of networks can learn to approximate any function \
 Now that we know how to construct these networks, we still need to manage to assign the appropriate weights to every connection such that the loss function is minimized.
 There weights can be learnt by using an algorithm, called \textit{backpropagation}.
 The optimization process usually starts with initializing all of the weights with a random value and then running backpropagation, which is structured as follows \cite{nielsen_2017}:
+
 \begin{enumerate}
   \item Compute the outputs, given a certain input \textit{(feedforward pass)}.
   \item Calculate the error vector.
@@ -327,11 +330,12 @@ This representation is then used to train the second layer and so on.
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=0.6\textwidth]{stacked_autoencoder}
+  \includegraphics[width=0.55\textwidth]{stacked_autoencoder}
   \caption{Stacked autoencoder.}
   \label{fig:stacked-autoencoder}
 \end{figure}
 
+\newpage
 \subsubsection{Recurrent Neural Networks}
 
 Although stacked autoencoders have successfully been used in several cases \cite{deeplearningthesis,deeplearning2}, they still have a couple of drawbacks.
@@ -346,9 +350,6 @@ Hence, essentially an RNN has `memory' that affects the outcome of the computati
 At every step, you can calculate the output by performing the calculation:
 $$\text{result}, h_t = f(h_{t - 1}, x_t)$$
 
-Unlike traditional deep networks, every layer in the unrolled network shares the same weights $W$.
-This greatly reduces the amount of parameters the network needs to learn \cite{britz_2016}.
-
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\textwidth]{rnn}
@@ -356,14 +357,15 @@ This greatly reduces the amount of parameters the network needs to learn \cite{b
   \label{fig:rnn}
 \end{figure}
 
+Unlike traditional deep networks, every layer in the unrolled network shares the same weights $W$.
+This greatly reduces the amount of parameters the network needs to learn \cite{britz_2016}.
+
 One of the problems with RNNs are that they struggle to learn long-term dependencies \cite{bengio1994learning}.
 But some cells, more specifically \textit{long short term memory} (LSTM) and \textit{gated recurring unit} (GRU) cells do not have this problem \cite{hochreiter1997long,LSTM,cho2014learning}.
 Rather than just having a single neural network layer, LSTMs consist of four different layers, that all interact in a novel way \cite{LSTM}.
 These interactions are outlined in figure \ref{fig:lstm}.
 Although a full description is outside the scope of this paper, essentially the top line remains relatively unchanged and can therefore store long-term dependancies.
 Whilst the bottom line contains more short term information \cite{LSTM,hochreiter1997long}.
-
-\newpage
 
 The \textit{gated recurring unit} (GRU) is a slightly more simple model than an LSTM.
 The cell combines several of the gates and states to minimize the amount of parameters the model needs to learn.
@@ -422,8 +424,6 @@ Finally, to extract the thought vector, the last state of both layers are extrac
   \caption{Structure of a bidirectional RNN \cite{britz_2016}.}
   \label{fig:bidirectional-rnn}
 \end{figure}
-
-\newpage
 
 Some research by Bahdanau et al. has been to improve the performance of encoder-decoder models by introducing \textit{attention mechanisms} \cite{attention_mechanisms}.
 This mechanism allows the decoder to have a more direct access to the input, thereby relieving the encoder by having to embed all the information in a fixed-length vector.
@@ -504,7 +504,7 @@ Each of those neurons will overfit in a different way so the average should redu
   \centering
   \includegraphics[width=0.6\textwidth]{dropout}
   \caption{Feedforward network with dropout.}
-  \label{fig:overfit}
+  \label{fig:dropout}
 \end{figure}
 
 
@@ -512,6 +512,7 @@ Finally, batch normalization is a relatively new technique that also changes the
 Usually this wouldn't be considered a regularization technique.
 However, it has been proven that it acts as a regularizer, and sometimes eliminates the need for dropout layers \cite{ioffe2015batch}.
 
+\newpage
 
 \subsection{Software Libraries}
 
