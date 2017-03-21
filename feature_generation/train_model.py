@@ -10,7 +10,7 @@ from os import path
 from new_model import Seq2SeqModel, train_on_copy_task, get_vector_representations
 from process_data import import_data, store_data
 
-TRAIN_SPLIT = 0.2
+TEST_SIZE = 0.5
 
 def run_model(data, in_memory=False):
     """
