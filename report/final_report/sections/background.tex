@@ -70,7 +70,7 @@ Later requests, however, are given a new circuit \cite{tor_project, tor_project2
 
 \subsection{Related Work}
 
-\subsubsection{Website Fingerprinting}
+\subsubsection{Website Fingerprinting} \label{sec:related-work}
 
 Website fingerprinting (WF) is the process of attempting to identify which web pages a specific client visits by analysing their traffic traces.
 Hence, an attacker is considered to be \textit{local} . By this we mean that they can eavesdrop on the traffic between the client and the first Tor node, as shown in figure \ref{fig:threat_model}.
@@ -181,7 +181,7 @@ since the more web pages there are, the higher the probability that one of the t
 Therefore, the false positive rates, described in the previously mentioned papers, might be higher in real life \cite{wfpcritique}.
 
 Nonetheless, even if those false positive rates are accurate, a very small amount of false negatives could have a large impact on the classification.
-M Perry shows that if the FP rate is as low as $0.2\%$ and just a $100$ page loads, around $18\%$ of the user base would be falsely accused of visiting at least one monitored website.
+M. Perry shows that if the FP rate is as low as $0.2\%$ and just a $100$ page loads, around $18\%$ of the user base would be falsely accused of visiting at least one monitored website.
 Or after $1000$ page loads, this percentage increases to around $86\%$ \cite{wfpcritique}.
 
 There are also a variety of different factors that are often not considered such as the rapidly changing nature of some web pages.

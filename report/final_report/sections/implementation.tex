@@ -1,19 +1,57 @@
 \section{Attack Design and Implementation}
 
+In the following section, we further describe the adversary models.
+From this, we deduce a list of requirements and outline the design of our specific attack.
+
 \subsection{Threat Model}
 
-% Outline the threat model and RESTATE the requirements
-% TODO: Include use cases?
+We consider an adversary, who wants to perform a website fingerprinting attack against Tor.
+Tor, specifically, since it has become one of the most widely used internet privacy tools.
+As specified in figure \ref{fig:threat_model}, the adversary is a \textit{local eavesdropper}.
+Hence, the attacker passively collects encrypted web traffic between the client and the first tor node, or the \textit{entry guard}.
+This is achieved by either monitoring the link itself or a compromised entry node.
+Next, it performs an analysis on that data to classify which specific web pages the client is visiting.
+
+This analysis can be performed with several different goals.
+The first one is to identify whether or not a user visits a web page from a set of monitored web pages.
+Thus the attack is essentially a \textit{binary classification problem}, where you label a web page as \textit{monitored} or \textit{unmonitored}.
+Or the adversary might want to know which specific web pages a user visits, or a \textit{multiclass classification problem}.
+
+Within this adversary model we do make various assumptions.
+First of all, the adversary is not interested in blocking Tor traffic nor in modifying any traffic.
+Next, the adversary is able to replicate the conditions under which the user browses the internet such as download speeds, OS and TBB.
+On top of this, the adversary can also determine the beginning and the end of a user session on a web page and that the attacker has enough resources to collect traffic and train a deep learning model.
+Finally, we also make the adversary is unable to decrypt the traffic and thus only has access to metadata such as traffic direction, length and timing of packets.
+
+This model described above is consistent with previously discussed works in section \ref{sec:related-work}.
+
+\subsection{Problem Statement}
+
+At the time of writing, most WF works make use of machine learning techniques that require a fixed-length input.
+Even though a traffic trace consists of a variable-length sequence of packets.
+Therefore, these works often rely on a laborious, time-consuming process to extract fixed-length representations, or \textit{fingerprints}.
+But there is no guarantee that these fingerprints are the most appropriate ones.
+On top of that, the previously mentioned process often requires domain-specific knowledge, making the attack even more difficult.
+Thus, here we investigate the use of automatic feature generation techniques to extract features automatically, without the need for any domain-specific knowledge.
+
+
+\subsection{Requirements}
+This works aims to provide the code to perform the feature generation process.
+Next, it also and to evaluate its effectiveness.
+Next, it also provides the necessary documentation to reproduce the results and finally we also evaluate the results obtained from several experiments.
 
 \subsection{Design Overview}
+
+- Collect data on web pages you need to monitor
+- Train deep learning model
+- Extract features
+- Train other model
+- Capture traffic
+- Classify new instances
 
 % Figure of how design looks
 % Description of each component
 
 \subsection{Sequence-to-Sequence Model}
 
-\subsection{Website Fingerprinting Models}
-
-% TODO: Include different 5 models as `subsubsection`
-
-\subsection{Hand-picked Features}
+Learns set of features, called a fingerprint.
