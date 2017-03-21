@@ -27,6 +27,9 @@
 % Subfigures
 \usepackage{subcaption}
 
+% Appendices
+\usepackage[title]{appendix}
+\usepackage{titlesec}
 
 \begin{document}
 
@@ -68,5 +71,12 @@
   \newpage
 
   % Include appendices
+  \begin{appendices}
+    \titleformat{\section}[display]{\normalfont\Large\bfseries}{\appendixname\enspace\thesection}{.2em}{}
+    \input{appendices/system_manual.tex}
+    \input{appendices/user_manual.tex}
+    \input{appendices/project_plan.tex}
+    \input{appendices/interim_report.tex}
+  \end{appendices}
 
 \end{document}
