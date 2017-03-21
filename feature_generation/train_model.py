@@ -1,6 +1,6 @@
 from sklearn.model_selection import StratifiedShuffleSplit
 from tensorflow.contrib.rnn import LSTMCell, GRUCell
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import tensorflow as tf
 import numpy as np
 
@@ -47,7 +47,7 @@ def run_model(data, in_memory=False):
                            max_time_diff=args.max_time_diff,
                            verbose=True)
 
-        plt.plot(loss_track)
+        # plt.plot(loss_track)
 
 def main(_):
     paths, labels = None, None
