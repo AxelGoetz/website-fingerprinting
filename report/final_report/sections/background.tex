@@ -477,9 +477,44 @@ As RNNs tend to be a lot deeper than traditional feed-forward networks, this pro
 One solution to this problem is to use a ReLU activation function, as the derivative is either $0$ or $1$ \cite{britz_2016}.
 But both LSTM and GRU cells were especially designed to solve this issue in RNNs and therefore we will be using those throughout the rest of this paper \cite{LSTM,hochreiter1997long,cho2014learning}.
 
-\subsubsection{Regularisation}
+\subsubsection{Regularization}
 
-% TODO: Should I include this?
+Neural networks can easily \textit{overfit}.
+By this we mean that the model learns noise in the training data, rather than learning to generalize.
+For instance, as can be seen in figure \ref{fig:overfit}, the model is generalize when it fits a straight line but overfits otherwise.
+The reason why neural nets often overfit is because of the large amount of free variables \cite{nielsen_2017}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.3\textwidth]{overfit}
+  \caption{Example of overfitting.}
+  \label{fig:overfit}
+\end{figure}
+
+Overfitting can be reduced by performing \textit{regularization} without the need to decrease the size of the network.
+The most popular techniques are \textit{L1}, \textit{L2}, \textit{dropout layers} and \textit{batch normalization} \cite{nielsen_2017}.
+Both L1 and L2 regularization work by penalizing large weights and thus making the functions less complex.
+They do this in a different fashion, for instance L1 adds the sum of the absolute values of the weights to the cost function \cite{nielsen_2017}.
+Whilst L2 has a different \textit{regularization parameter}, which generally performs better in practice \cite{nielsen_2017}.
+
+Dropout, on the other hand, doesn't modify the cost function but it changes the network.
+Essentially, it ignores several neurons while performing an iteration of the backpropagation process.
+After that iteration, it picks a set of different neurons to ignore and repeats the process.
+The effect of this is that the network basically consists of an average of various different networks.
+Each of those neurons will overfit in a different way so the average should reduce the total amount of overfitting \cite{nielsen_2017}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.6\textwidth]{dropout}
+  \caption{Feedforward network with dropout.}
+  \label{fig:overfit}
+\end{figure}
+
+
+Finally, batch normalization is a relatively new technique that also changes the network slightly by making the normalization process part of the network and performing it for every minibatch \cite{ioffe2015batch}.
+Usually this wouldn't be considered a regularization technique.
+However, it has been proven that it acts as a regularizer, and sometimes eliminates the need for dropout layers \cite{ioffe2015batch}.
+
 
 \subsection{Software Libraries}
 
