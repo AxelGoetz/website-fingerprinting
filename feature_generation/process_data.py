@@ -81,8 +81,7 @@ def get_files(data_dir, extension=".cell"):
                 webpage_label = UNKNOWN_WEBPAGE
             else:
                 webpage_label = int(name_split[0])
-
-            labels.append(webpage_label)
+                labels.append(webpage_label)
 
         if i % 100 == 0:
             update_progess(total_files, i)

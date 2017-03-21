@@ -334,6 +334,7 @@ def train_on_copy_task(sess, model, data,
 
     try:
         for batch in range(max_batches):
+            print("Batch {}/{}".format(batch, max_batches))
             fd, _ = model.next_batch(batches, False, max_time_diff)
             _, l = sess.run([model.train_op, model.loss], fd)
             loss_track.append(l)
