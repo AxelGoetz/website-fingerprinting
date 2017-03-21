@@ -58,7 +58,7 @@ def main(_):
         paths, labels = import_data(data_dir=data_dir, in_memory=False, extension=args.extension)
         paths, labels = np.array(paths), np.array(labels)
 
-        sss = StratifiedShuffleSplit(n_splits=1, test_size=TRAIN_SPLIT, random_state=123)
+        sss = StratifiedShuffleSplit(n_splits=1, test_size=TEST_SIZE, random_state=123)
         sss.get_n_splits(paths, labels)
 
 
