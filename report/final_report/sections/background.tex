@@ -369,7 +369,7 @@ Whilst the bottom line contains more short term information \cite{LSTM,hochreite
 
 The \textit{gated recurring unit} (GRU) is a slightly more simple model than an LSTM.
 The cell combines several of the gates and states to minimize the amount of parameters the model needs to learn.
-Therefore, GRU allows a model to learn at a faster space.
+Therefore, GRU allows a model to learn at a faster pace.
 Whilst LSTM cells have a greater expressive power \cite{hochreiter1997long,LSTM,cho2014learning}.
 
 \begin{figure}[ht]
@@ -383,7 +383,7 @@ Recurrent neural nets cannot make use of the same backpropagation algorithm used
 Instead, we use a different optimization method, called \textit{backpropagation through time} (BPTT).
 BPTT is very similar to standard backpropagation with the key difference of summing up the gradients for the weights at every time step \cite{britz_2016}.
 
-\subsubsection{Sequence-to-Sequence Model}
+\subsubsection{Sequence-to-Sequence Model} \label{sec:seq2seq}
 
 One specific type of RNN, that could be used for feature generation, is a \textit{sequence-to-sequence model}, introduced by Cho et al. \cite{cho2014learning}.
 Sometimes called a \textit{encoder-decoder model}, it consists of two RNNs where one RNN encodes a sequence into a fixed-length representation and the other decodes those representations into another variable-length sequence \cite{cho2014learning}.
@@ -512,8 +512,6 @@ Finally, batch normalization is a relatively new technique that also changes the
 Usually this wouldn't be considered a regularization technique.
 However, it has been proven that it acts as a regularizer, and sometimes eliminates the need for dropout layers \cite{ioffe2015batch}.
 
-\newpage
-
 \subsection{Software Libraries}
 
 There are various different numerical computation libraries to efficiently implement deep learning algorithms.
@@ -522,8 +520,9 @@ The first three all provide their API in Python, whilst torch only be used in Lu
 Although a python API, called \textit{Pytorch} has been open-sourced very recently.
 All of the above allow you to use \textit{cuDNN} to perform GPU-accelerated computations.
 
-Tensorflow has a C\texttt{++} backend and allows GPU computations to speed up computations.
-The low-level API is provides more than enough flexibility to implement a sequence-to-sequence model.
+\newpage
+
+Tensorflow has a C\texttt{++} backend and its low-level API is provides more than enough flexibility to implement a sequence-to-sequence model.
 They do also provide a high-level API that include different RNN cells and even a sequence-to-sequence model.
 However, this model has been specifically designed for NLP tasks and therefore does not support the computations that we are trying to achieve \cite{tensorflow}.
 Theano is very similar to Tensorflow but it does not provide all of the high-level tools \cite{theano}.
@@ -547,7 +546,22 @@ After a web-crawler has been set up, data is collected through a TCP dump.
 This data is then often preprocessed and converted into \textit{Tor cells}.
 The reason for this is because Tor pads packets to a fixed-length (512 bytes) \cite{tor_project} hence these cells are a simple representation of the traffic.
 Next, probabilistic techniques are used to remove SENDMEs \cite{wang_goldberg_2013}.
-After this processing, a cell looks like a list of tuples, each containing a time value and a class label, which represent whether it was an incoming or outgoing packet.
+After this processing, a cell looks like a list of tuples, each containing a time value and a direction, which represent whether it was an incoming or outgoing packet.
+
+\begin{table}[ht]
+\centering
+  \begin{tabular}{ c | c }
+    \textbf{Timestamp} & \textbf{Direction} \\ \hline
+      0.0&OUT \\
+      0.0630009174347&OUT \\
+      0.575006008148&IN \\
+      0.575006008148&IN \\
+      0.691473960876&IN \\
+      0.719605922699&OUT \\
+  \end{tabular}
+  \caption{Extract of a cell trace}
+  \label{table:cell-extract}
+\end{table}
 
 There are several data sets readily available that have already been preprocessing.
 Some of the largest ones are the one used by Wang et al. \cite{wang_cai_johnson_nithyanand_goldberg_2014}, Greschbach et al. \cite{greschbach2016effect}.
