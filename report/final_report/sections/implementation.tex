@@ -1,7 +1,7 @@
 % TODO: Remove
 \addbibresource{../report.bib}
 
-\section{Attack Design and Implementation}
+\section{Attack Design}
 
 In this section, we describe the design of our automatic feature generation model, outline the attack strategy and explain certain design decisions.
 Most of this section will be split into two different sections.
@@ -11,8 +11,6 @@ First we describe the feature generation process and then the overall attack.
 
 As described in section \ref{sec:seq2seq}, a sequence-to-sequence model is able to learn how to construct a fixed-length representation from a variable-length sequence.
 However, here we outline the exact structure of the model and show the implementation in Tensorflow.
-
-\subsubsection{Overall Structure}
 
 One of the parameters, which has a large impact on the accuracy of the reconstruction process is the \textit{amount of hidden states} in the RNN cells.
 Every neural network layers within a cell has a given amount of neurons.
@@ -41,9 +39,57 @@ This can be solved by cutting the traces after a couple seconds since it has bee
   \label{fig:full-seq2seq}
 \end{figure}
 
-\subsubsection{Implementation}
+Based on the above, we can construct our \textit{computational graph} in Tensorflow as outlined in figure \ref{fig:full-seq2seq}.
+
+\newpage
 
 \subsection{Attack Strategy}
+
+Here we consider an adversary that relies on deep learning to extract fingerprints for a website fingerprinting attack.
+This adversary can have two different goals in mind, as previously stated in section \ref{sec:threat-model}.
+In this work, the adversary relies on a sequence-to-sequence to extract the fingerprint from Tor cells for both goals.
+The full attack, however, can be split up into four different stages: \textit{data collection}, \textit{fingerprint extraction training}, \textit{classifier training} and \textit{the attack}.
+
+\noindent
+\textbf{Data Collection}
+\begin{enumerate}
+  \item Collect traffic for a set of monitored sites and unmonitored sites.
+  \item Convert the raw TCP data into Tor cells.
+  \item Remove SENDMEs and other noise.
+\end{enumerate}
+
+\noindent
+\textbf{Fingerprint Extraction Training}
+\begin{enumerate}[resume]
+  \item Further process the data into batches and perhaps cut the data of individual traces after several seconds.
+  \item Prepare the sequence-to-sequence model.
+  \item Train the sequence-to-sequence model on a copy task.
+  \item Extract fingerprints from data by using the trained sequence-to-sequence model.
+\end{enumerate}
+
+\noindent
+\textbf{Classifier Training}
+\begin{enumerate}[resume]
+  \item Given a classifier, train it using the extracted fingerprints.
+\end{enumerate}
+
+\noindent
+\textbf{The Attack}
+\begin{enumerate}[resume]
+  \item Passively capture traffic from Tor users.
+  \item Pre-process the collected data.
+  \item Extract fingerprints using the trained sequence-to-sequence model.
+  \item Classification via the trained classifier.
+\end{enumerate}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.7\textwidth]{overall-structure}
+  \caption{Attack strategy.}
+  \label{fig:attack-strategy}
+\end{figure}
+
+
 
 - Collect data on web pages you need to monitor
 - Train deep learning model
