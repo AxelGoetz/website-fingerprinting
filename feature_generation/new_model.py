@@ -51,7 +51,7 @@ class Seq2SeqModel():
         - reverse is also a boolean value that when if true, reversed the traces for training
     """
 
-    def __init__(self, encoder_cell, decoder_cell, seq_width, batch_size=100, bidirectional=False, reverse=False, saved_graph=None, sess=None):
+    def __init__(self, encoder_cell, decoder_cell, seq_width, batch_size=100, bidirectional=False, reverse=False, saved_graph=None, sess=None, learning_rate=0.0006):
         """
         @param saved_graph is a string, representing the path to the saved graph
         """
@@ -62,6 +62,7 @@ class Seq2SeqModel():
         self.reverse = reverse
         self.seq_width = seq_width
         self.batch_size = batch_size
+        self.learning_rate = learning_rate
 
         self.bidirectional = bidirectional
 
@@ -207,7 +208,7 @@ class Seq2SeqModel():
         self.loss = tf.reduce_sum(tf.square(self.decoder_targets - self.decoder_outputs))
 
         # Which optimizer to use? `GradientDescentOptimizer`, `AdamOptimizer` or `RMSProp`?
-        self.train_op = tf.train.AdamOptimizer().minimize(self.loss)
+        self.train_op = tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss)
 
     def projection(self, inputs, projection_size, scope):
         """
@@ -260,7 +261,7 @@ class Seq2SeqModel():
         @param max_time_diff **(should only be defined if `in_memory == False`)**
             specifies what the maximum time different between the first packet in the trace and the last one should be
 
-        @return if in_memory is False, returns a tuple of (dict, [paths]) where paths is a list of paths for each batch
+        @return if in_memory is False, returns a tuple of (dict, [paths], max_length) where paths is a list of paths for each batch
             else it returns a dict for training
         """
         batch = next(batches)
@@ -275,13 +276,13 @@ class Seq2SeqModel():
         decoder_targets_ = helpers.add_EOS(data_batch, encoder_input_lengths_)
 
         train_dict = {
-                self.encoder_inputs: encoder_inputs_,
+            self.encoder_inputs: encoder_inputs_,
             self.encoder_inputs_length: encoder_input_lengths_,
             self.decoder_targets: decoder_targets_,
         }
 
         if not in_memory:
-            return (train_dict, batch)
+            return (train_dict, batch, max(encoder_input_lengths_))
         return train_dict
 
     def save(self, sess, file_name):
@@ -316,7 +317,7 @@ def train_on_copy_task(sess, model, data,
                        max_batches=None,
                        batches_in_epoch=1000,
                        max_time_diff=float("inf"),
-                       verbose=True):
+                       verbose=False):
     """
     Train the `Seq2SeqModel` on a copy task
 
@@ -335,9 +336,9 @@ def train_on_copy_task(sess, model, data,
     try:
         for batch in range(max_batches):
             print("Batch {}/{}".format(batch, max_batches))
-            fd, _ = model.next_batch(batches, False, max_time_diff)
+            fd, _, length = model.next_batch(batches, False, max_time_diff)
             _, l = sess.run([model.train_op, model.loss], fd)
-            loss_track.append(l)
+            loss_track.append(l / length)
 
             if batch == 0 or batch % batches_in_epoch == 0:
                 model.save(sess, 'seq2seq_model')
@@ -369,7 +370,6 @@ def get_vector_representations(sess, model, data, save_dir,
                        max_batches=None,
                        batches_in_epoch=1000,
                        max_time_diff=float("inf"),
-                       verbose=True,
                        extension=".cell"):
     """
     Given a trained model, gets a vector representation for the traces in batch
@@ -389,7 +389,7 @@ def get_vector_representations(sess, model, data, save_dir,
     try:
         for batch in range(max_batches):
             print("Batch {}/{}".format(batch, max_batches))
-            fd, paths = model.next_batch(batches, False, max_time_diff)
+            fd, paths, _ = model.next_batch(batches, False, max_time_diff)
             l = sess.run(model.encoder_final_state, fd)
 
             # Returns a tuple, so we concatenate
