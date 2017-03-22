@@ -344,7 +344,6 @@ def train_on_copy_task(sess, model, data,
                 helpers.save_object(loss_track, 'loss_track.pkl')
 
                 if verbose:
-                    stdout.write('batch {}\n'.format(batch))
                     stdout.write('  minibatch loss: {}\n'.format(sess.run(model.loss, fd)))
                     predict_ = sess.run(model.decoder_outputs, fd)
                     for i, (inp, pred) in enumerate(zip(fd[model.encoder_inputs].swapaxes(0, 1), predict_.swapaxes(0, 1))):

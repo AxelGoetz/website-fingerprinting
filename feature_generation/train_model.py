@@ -8,9 +8,11 @@ from sys import stdin, stdout, exit
 from os import path
 
 from new_model import Seq2SeqModel, train_on_copy_task, get_vector_representations
-from process_data import import_data, store_data
+from process_data import import_data, store_data, split_mon_unmon
 
-TEST_SIZE = 0.5
+import helpers
+
+TEST_SIZE = 0.7
 
 def run_model(data, in_memory=False):
     """
@@ -56,15 +58,25 @@ def main(_):
     try:
         data_dir = dirname + '/../data/cells'
         paths, labels = import_data(data_dir=data_dir, in_memory=False, extension=args.extension)
-        paths, labels = np.array(paths), np.array(labels)
+
+        monitored_data, monitored_label, unmonitored_data = split_mon_unmon(paths, labels)
+        monitored_data, monitored_label, unmonitored_data = np.array(monitored_data), np.array(monitored_label), np.array(unmonitored_data)
+
+        helpers.shuffle_data(unmonitored_data)
+        unmon_train, unmon_test = unmonitored_data[:int((1 - TEST_SIZE) * len(unmonitored_data))], unmonitored_data[int((1 - TEST_SIZE) * len(unmonitored_data)):]
 
         sss = StratifiedShuffleSplit(n_splits=1, test_size=TEST_SIZE, random_state=123)
-        sss.get_n_splits(paths, labels)
+        sss.get_n_splits(monitored_data, monitored_label)
 
+        for train_index, test_index in sss.split(monitored_data, monitored_label):
+            X_train, X_test = monitored_data[train_index], monitored_data[test_index]
+            y_train, y_test = monitored_label[train_index], monitored_label[test_index]
 
-        for train_index, test_index in sss.split(paths, labels):
-            X_train, X_test = paths[train_index], paths[test_index]
-            y_train, y_test = labels[train_index], labels[test_index]
+            X_train = np.append(X_train, unmon_train)
+            X_test = np.append(X_test, unmon_test)
+
+            y_train = np.append(y_train, [-1] * len(unmon_train))
+            y_test = np.append(y_test, [-1] * len(unmon_train))
 
             store_data(X_test, 'X_test')
             store_data(y_test, 'y_test')
@@ -72,6 +84,7 @@ def main(_):
             stdout.write("Training on data...\n")
             run_model(X_train, in_memory=False)
             stdout.write("Finished running model.")
+            break
 
     except KeyboardInterrupt:
         stdout.write("Interrupted, this might take a while...\n")

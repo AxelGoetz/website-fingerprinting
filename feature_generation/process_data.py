@@ -75,13 +75,8 @@ def get_files(data_dir, extension=".cell"):
 
             name_split = name.split('-') # Contains [webpage, index (OPTIONAL)]
 
-            webpage_label = None
-            # If the length is 1, classify as unknown webpage
-            if len(name_split) == 1:
-                webpage_label = UNKNOWN_WEBPAGE
-            else:
-                webpage_label = int(name_split[0])
-                labels.append(webpage_label)
+            webpage_label = int(name_split[0])
+            labels.append(webpage_label)
 
         if i % 100 == 0:
             update_progess(total_files, i)
@@ -119,6 +114,31 @@ def store_data(data, file_name):
     with open(DATA_DIR + '/../' + file_name, 'w') as f:
         string = " ".join([str(x) for x in list(data)])
         f.write(string)
+
+def split_mon_unmon(data, labels):
+    """
+    Splits into monitored and unmonitored data
+    If a data point only happens once, we also consider it unmonitored
+
+    @return monitored_data, monitored_label, unmonitored_data
+    """
+    from collections import Counter
+    occurence = Counter(labels)
+
+    monitored_data, unmonitored_data = [], []
+    monitored_label = []
+
+    for d, l in zip(data, labels):
+        if l == UNKNOWN_WEBPAGE or occurence[l] == 1:
+            unmonitored_data.append(d)
+
+        else:
+            monitored_data.append(d)
+            monitored_label.append(l)
+
+    return monitored_data, monitored_label, unmonitored_data
+
+
 
 if __name__ == '__main__':
     import_data()
