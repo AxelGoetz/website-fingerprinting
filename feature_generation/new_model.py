@@ -5,10 +5,8 @@ We made the choice not to implement an attention mechanism (which means that the
 The reason why is because we are not trying to maximize the output of the decoder but instead the feature selection process.
 (http://suriyadeepan.github.io/2016-06-28-easy-seq2seq/)
 
-We make the assumption that the amount of website we need to classify is only limited (only 110 in our dataset).
-Therefore there is no need to use a sampled softmax to handle a large amount of output classes as is often done for NLP problems.
-
-We will use time-major rather than batch-major as it is slightly more efficient.
+We will use batch-major rather than time-major even though time-major is slightly more efficient
+since it makes the feature extraction process a lot easier.
 
 We will not be using bucketing because traces of the same webpage will have the same length.
 Therefore every batch, we will most likely be training the seq2seq model on one webpage
