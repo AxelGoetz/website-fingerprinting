@@ -49,10 +49,11 @@ Here we consider an adversary that relies on deep learning to extract fingerprin
 This adversary can have two different goals in mind, as previously stated in section \ref{sec:threat-model}.
 In this work, the adversary relies on a sequence-to-sequence to extract the fingerprint from Tor cells for both goals.
 The full attack, however, can be split up into four different stages: \textit{data collection}, \textit{fingerprint extraction training}, \textit{classifier training} and \textit{the attack}.
-
+\\\\
 \noindent
 \textbf{Data Collection}
 \begin{enumerate}
+  \item Choose web pages that the attacker wishes to monitor.
   \item Collect traffic for a set of monitored sites and unmonitored sites.
   \item Convert the raw TCP data into Tor cells.
   \item Remove SENDMEs and other noise.
@@ -63,7 +64,7 @@ The full attack, however, can be split up into four different stages: \textit{da
 \begin{enumerate}[resume]
   \item Further process the data into batches and perhaps cut the data of individual traces after several seconds.
   \item Prepare the sequence-to-sequence model.
-  \item Train the sequence-to-sequence model on a copy task.
+  \item Train the sequence-to-sequence model on a copy task for monitored and some unmonitored web pages.
   \item Extract fingerprints from data by using the trained sequence-to-sequence model.
 \end{enumerate}
 
@@ -71,6 +72,7 @@ The full attack, however, can be split up into four different stages: \textit{da
 \textbf{Classifier Training}
 \begin{enumerate}[resume]
   \item Given a classifier, train it using the extracted fingerprints.
+  \item Measure performance of classifier.
 \end{enumerate}
 
 \noindent
@@ -89,19 +91,24 @@ The full attack, however, can be split up into four different stages: \textit{da
   \label{fig:attack-strategy}
 \end{figure}
 
+\subsubsection{Data Collection}
+
+As previously mentioned, the data collection process first requires the adversary to choose a set of $n$ websites to monitor.
+Next, the adversary crawls these pages a total of $i$ iterations.
+As suggested by Wang et al. when performing page loads, browser caching should be disabled since Tor does not allow caching to disk and therefore the browser cache is cleared every time it is restarted \cite{wang_goldberg_2013}.
+After the collection, the TCP data is converted into Tor cells and probabilistic algorithms are used by Wang et al. \cite{wang_goldberg_2013} to remove SENDMEs.
 
 
-- Collect data on web pages you need to monitor
-- Train deep learning model
-- Extract features
-- Train other model
-- Capture traffic
-- Classify new instances
+% kNN + DNS dataset
 
-% Figure of how design looks
-% Description of each component
+\subsubsection{Fingerprint Extraction Training}
+% List hyperparameters
+
+\subsubsection{Classifier Training}
+
+\subsubsection{The Attack}
+
 % Can I use deep learning to classify
 
-
-
+% TODO: Why python?
 % TODO: Where code is
