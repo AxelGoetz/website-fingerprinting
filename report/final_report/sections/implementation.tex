@@ -156,11 +156,77 @@ But it is used whilst training, to see how the network performs on unseen data d
 
 \subsubsection{Classifier Training}
 
+After the adversary has extracted the fingerprints for websites within the test set, they need to construct a classifier.
+This classifier can then use these fingerprints to learn how to classify web pages.
+Most works so far rely on some sort of \textit{supervised machine learning} techniques such as \textit{support vector classifiers} (SVC), \textit{k-nearest neighbours} (kNN), \textit{random forests} (RF) or \textit{naive bayes} (NB) \cite{panchenko1,panchenko2,wang_cai_johnson_nithyanand_goldberg_2014,kfingerprinting,naivebayes}.
+All of these algorithms rely on different techniques but an explanation of their inner workings is outside the scope of this paper.
+Instead, we will consider them as \textit{black box} models.
+This means that all we know is that we can apply a \texttt{fit} function to the models, which causes them to learn how to classify the fingerprints and a \texttt{predict} function, which predict the class of given inputs.
+However, in reality, an adversary will have to carefully consider which models to use and tune the hyperparameters of that specific model to get the best possible performance.
 
-% Can I use deep learning to classify
+To measure the performance of our black-box models, we use a similar technique as we did in the previous section.
+We split our test set up into two more sets, a \textit{classifier training set} and a \textit{classifier test set}.
+But since training a classifier, requires less time, we can use another technique, called \textit{stratified k-fold validation}.
+Here we split our original test set up into $k$, mutually exclusive, folds.
+Next, one of the folds is chosen to be the classifier test set and all of the other folds form the classifier training set.
+This process is repeated for $k$ iterations, where for each iteration, a different fold is chosen to be a test set.
+However, what is special about stratified k-fold validation is that the class distributions are preserved within the folds.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.7\textwidth]{kfold}
+  \caption{Example of one iterations in a k-fold validation $(k = 7)$.}
+  \label{fig:kfold}
+\end{figure}
+
+For each iteration of the validation process, several statistics can be recorded and then averaged over all iterations.
+This process ensures that every data point will be in the test set at least once and therefore giving us an accurate measure of these statistics.
+
+Some of the statistics that are used for the performance measure of models, are outlined below within the context of a website fingerprinting attacks:
+\begin{itemize}
+  \item \textbf{True Positive Rate (TPR)} is the probability that a monitored page is classified as the correct monitored page \cite{kfingerprinting}.
+
+  \item \textbf{False Positive Rate (FPR)} is the probability that an unmonitored page is incorrectly classified as a monitored page \cite{kfingerprinting}
+    (Often TP, FP, together with false negative (FN) and true negatives (TN) are combined together into what is called a \textit{confusion matrix}).
+
+  \item \textbf{Bayesian Detection Rate (BDR)} is the probability that a page corresponds to the correct monitored page, given that the classifier recognized it as that monitored page \cite{kfingerprinting}.
+    This can be calculated as follows:
+    $$\text{BDR} = \frac{\textit{TPR} \times \Pr(M)}{\textit{TPR} \times \Pr(M) + \textit{FPR} \times \Pr(U)}$$
+    where
+    $$\Pr(M) = \frac{|\text{Monitored}|}{|\text{Total Pages}|}, \quad \Pr(U) = 1 - \Pr(M)$$
+
+    This measure essentially indicates the practical feasibility of the attack, as the adversary is mainly concerned with this specific measure \cite{kfingerprinting}.
+
+  \item \textbf{Accuracy (A)} is the percentage of correctly classified instances.
+    Although it can be used as a rough indicator, it will not be used in the final conclusions because of the \textit{accuracy paradox}, which arises due to class imbalance.
+
+  \item \textbf{F1-Score (F1)} measures the harmonic mean between precision and recall \cite{scikitlearn}.
+    \begin{align*}
+      \text{F1} &= 2 \times \frac{\text{precision} \times \text{recall}}{\text{precision} + \text{recall}}\\
+                &= \frac{2 \times \textit{TP}}{2 \times \textit{TP} + \textit{FP} + \textit{FN}}
+    \end{align*}
+    where
+    $$\text{recall} = \frac{\textit{TP}}{\textit{TP} + \textit{FN}}, \quad \text{precision} = \frac{\textit{TP}}{\textit{TP} + \textit{FP}}$$
+
+    This measure is particularly useful since it is not affected by class imbalance.
+\end{itemize}
+
+Rather than using another classifier, we could also potentially add a \textit{softmax layer} on top of our decoder, like V. Rimmer uses on top of her stacked autoencoder \cite{deeplearningthesis}.
+This process would involve first training the sequence-to-sequence model, then stacking the softmax layer on top of each unrolled cell in the decoder and using it for classification.
+What would be interesting about this approach is that the adversary can analyse how the probability of a trace being classified changes, as it analyses packets from the trace.
+However, this is outside the scope of this paper, as we are focusing on the feature extraction process.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.7\textwidth]{softmax}
+  \caption{Example of decoder with softmax layer for 3 web pages.}
+  \label{fig:softmax}
+\end{figure}
 
 \subsubsection{The Attack}
 
+Finally, after the adversary has trained the required models, the real WF attack can start.
+First, the adversary starts capturing web traffic data between the user and the first Tor node, as shown in figure 
 
 % TODO: Why python?
 % TODO: Where code is
