@@ -4,6 +4,10 @@ Current supports:
 - accuracy
 - confusion-matrix
 - f1-score
+- bayesian detection rate
+
+! All of the scoring methods, need to take `y_pred` and `y_true` as arguments and none other.
+If a scoring method is added, is also needs to be added to `get_scoring_methods`'s return value.
 """
 
 import constants
@@ -75,6 +79,26 @@ def f1_score1(y_pred, y_true):
     check_inputs(y_pred, y_true)
     return f1_score(y_true, y_pred, average='weighted')
 
+def bayesian_detection_rate(y_pred, y_true):
+    """
+    Returns the bayesian detection rate
+
+    $$\text{BDR} = \frac{\text{TPR} \times \Pr(M)}{\text{TPR} \times \Pr(M) + \text{FPR} \times \Pr(U)}$$
+    where
+    $$\Pr(M) = \frac{|\text{Monitored}|}{|\text{Total Pages}|}, \quad \Pr(U) = 1 - \Pr(M)$$
+    """
+    cm = confusion_matrix(y_pred, y_true)
+    PrM = float(len([x for x in x_true if x != constants.UNMONITORED_LABEL]) / len(y_true))
+    PrU = 1 - PrM
+
+    TPR = cm['TP'] / len(y_true)
+    FPR = cm['FP'] / len(y_true)
+
+    nominator =TPR * PrM
+    denominator = nominator + (FPR * PrU)
+
+    return nominator / denominator
+
 def evaluate_model(y_pred, y_true):
     """
     Given a `y_pred` and `y_true`, returns a dictionary with all of the scoring methods
@@ -88,7 +112,7 @@ def evaluate_model(y_pred, y_true):
 
 def get_scoring_methods():
     return {
-        'accuracy': accuracy, 'confusion-matrix': confusion_matrix, 'f1-score': f1_score1
+        'accuracy': accuracy, 'confusion-matrix': confusion_matrix, 'f1-score': f1_score1, 'bayesian_detection_rate', bayesian_detection_rate
     }
 
 SCORING_METHODS = get_scoring_methods()
