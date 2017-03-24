@@ -94,21 +94,73 @@ The full attack, however, can be split up into four different stages: \textit{da
 \subsubsection{Data Collection}
 
 As previously mentioned, the data collection process first requires the adversary to choose a set of $n$ websites to monitor.
-Next, the adversary crawls these pages a total of $i$ iterations.
+Next, the adversary crawls these pages a total of $i$ iterations to ensure that a classifier has enough data to generalize.
 As suggested by Wang et al. when performing page loads, browser caching should be disabled since Tor does not allow caching to disk and therefore the browser cache is cleared every time it is restarted \cite{wang_goldberg_2013}.
 After the collection, the TCP data is converted into Tor cells and probabilistic algorithms are used by Wang et al. \cite{wang_goldberg_2013} to remove SENDMEs.
+This data can be processed further, however we chose not to since the model should be able to learn how to perform this processing.
 
-
-% kNN + DNS dataset
+Most of our analysis will be done using the dataset provided by Greschbach et al. \cite{greschbach2016effect}, which can be used for open-world analysis since it provides us with $100$ samples for Alexa's top $9000$ websites and one sample of one sample for $909,000$ unmonitored sites.
+For the rest of this paper, we will refer to this dataset as \texttt{GRESCHBACH}.
+Next, to see how our model performs on a dataset, whose data is recorded at a different time and under different circumstances, we will also be using the dataset provided by Wang et al. \cite{wang_cai_johnson_nithyanand_goldberg_2014}, which we will call \texttt{WANG14} \cite{panchenko2}.
 
 \subsubsection{Fingerprint Extraction Training}
-% List hyperparameters
+
+In order to truly evaluate the model, we need to split the data up into a training and validation set.
+We do not train the model on any data in the validation set but instead use it to see how well the model performs on unseen data.
+For this split, we use a \textit{stratified shuffle split}, meaning that we shuffle the data and then perform the split, whilst preserving the class distributions.
+On top of training the feature extractor with monitored pages, we also train it on unmonitored pages, as it needs to be able to extract features effectively from both sets.
+
+To gain performance and perhaps even a faster convergence, \textit{mini-batch processing} will be used to train the sequence-to-sequence model.
+Each batch can either be presented in \textit{batch-major} or \textit{time-major} form.
+Although time-major is slightly more efficient \cite{tensorflow}, we opt for a batch-major form, since it makes the fingerprint extraction easier.
+
+When dividing the data up into batches, we also need to determine how big the batches will be.
+The bigger they are, the larger the performance gain will be but the lower the accuracy might be.
+Additionally, the size of the batches also depend on the amount of available memory.
+Next, after the data has been divided, we perform some further processing such as cutting the traces after several seconds.
+Finally, since all of the traces within a batch need to be of the same length, padding is performed as a final preprocessing step.
+
+After collecting and fully preprocessing the data, the adversary can start to construct the sequence-to-sequence model.
+However, in order to do so, there are a variety of different architectures that need to be chosen.
+Some of which that we will consider are outlined below:
+
+\begin{itemize}
+  \item Which sort or RNN cells to use. This can either be a GRU or an LSTM cell.
+    We could also potentially investigate the usefulness of multilayered RNN cells but it would make the network even deeper.
+
+  \item Using a bidirectional encoder to ensure that the output at time $t$ is not only affected by past information but also on future information.
+
+  \item The amount of hidden states within a RNN cell, which affects the length of the fingerprints.
+\end{itemize}
+
+The adversary woulds like to have the amount of learned features to be small enough.
+Since the bigger the amount of features, the more training data is required, due to the \textit{curse of dimensionality}.
+However, if the amount of hidden states within a cell is too low, it might not be able to effectively recreate a trace from a fingerprint, due to the lack of data.
+Hence, the adversary will need to consider this tradeoff when choosing the model architecture.
+
+Now that the model has been constructed, the adversary still has to chose various learning parameters such as:
+
+\begin{itemize}
+  \item The optimizer to use (\textit{adam}, \textit{gradient descent} or \textit{RMSProp}) \cite{tensorflow}.
+  \item Learning rate ($\gamma$) for the previously chosen optimizer.
+  \item Amount of traces within a single mini-batch ($b$).
+  \item Cost, or loss function ($f$) to minimize (\textit{mean squared error} (MSE), \textit{absolute loss} (AL) or \textit{cross-entropy}) \cite{tensorflow}.
+  \item Whether or not to reverse the traces. This parameter does not make a difference when using a bidirectional encoder.
+\end{itemize}
+
+After these parameters have been tuned, the computational graph can be constructed in Tensorflow and the training can be started using the training data.
+When this training has been completed, fingerprints can be extracted for data within the test set.
+
+On top of this, we also often have a small set, called the \textit{validation set}, which is not used for training.
+But it is used whilst training, to see how the network performs on unseen data during the training process.
 
 \subsubsection{Classifier Training}
 
-\subsubsection{The Attack}
 
 % Can I use deep learning to classify
+
+\subsubsection{The Attack}
+
 
 % TODO: Why python?
 % TODO: Where code is

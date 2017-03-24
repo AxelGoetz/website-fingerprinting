@@ -364,8 +364,8 @@ One of the problems with RNNs are that they struggle to learn long-term dependen
 But some cells, more specifically \textit{long short term memory} (LSTM) and \textit{gated recurring unit} (GRU) cells do not have this problem \cite{hochreiter1997long,LSTM,cho2014learning}.
 Rather than just having a single neural network layer, LSTMs consist of four different layers, that all interact in a novel way \cite{LSTM}.
 These interactions are outlined in figure \ref{fig:lstm}.
-Although a full description is outside the scope of this paper, essentially the top line remains relatively unchanged and can therefore store long-term dependancies.
-Whilst the bottom line contains more short term information \cite{LSTM,hochreiter1997long}.
+Although a full description is outside the scope of this paper, essentially the top state remains relatively unchanged and can therefore store long-term dependancies.
+Whilst the bottom state contains more short term information \cite{LSTM,hochreiter1997long}.
 
 The \textit{gated recurring unit} (GRU) is a slightly more simple model than an LSTM.
 The cell combines several of the gates and states to minimize the amount of parameters the model needs to learn.
@@ -567,4 +567,4 @@ After this processing, a cell looks like a list of tuples, each containing a tim
 There are several data sets readily available that have already been preprocessing.
 Some of the largest ones are the one used by Wang et al. \cite{wang_cai_johnson_nithyanand_goldberg_2014}, Greschbach et al. \cite{greschbach2016effect}.
 Wang et al's dataset contain traces for a $100$ monitored websites with $90$ instances each and $8400$ unmonitored sites, all from Alexa's top 10,000.
-Greschbach et al. collected an even larger dataset with $100$ sampled of Alexa's top $9,000$ websites and one sample for $909,000$ unmonitored sites \cite{greschbach2016effect}.
+Greschbach et al. collected an even larger dataset with $100$ samples of each website in Alexa's top $9,000$ and one sample for $909,000$ unmonitored sites \cite{greschbach2016effect}.
