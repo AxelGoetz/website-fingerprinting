@@ -103,7 +103,7 @@ Most of our analysis will be done using the dataset provided by Greschbach et al
 For the rest of this paper, we will refer to this dataset as \texttt{GRESCHBACH}.
 Next, to see how our model performs on a dataset, whose data is recorded at a different time and under different circumstances, we will also be using the dataset provided by Wang et al. \cite{wang_cai_johnson_nithyanand_goldberg_2014}, which we will call \texttt{WANG14} \cite{panchenko2}.
 
-\subsubsection{Fingerprint Extraction Training}
+\subsubsection{Fingerprint Extraction Training} \label{sec:fingerprint-extraction-training}
 
 In order to truly evaluate the model, we need to split the data up into a training and validation set.
 We do not train the model on any data in the validation set but instead use it to see how well the model performs on unseen data.
@@ -226,7 +226,14 @@ However, this is outside the scope of this paper, as we are focusing on the feat
 \subsubsection{The Attack}
 
 Finally, after the adversary has trained the required models, the real WF attack can start.
-First, the adversary starts capturing web traffic data between the user and the first Tor node, as shown in figure 
+First, the adversary starts capturing web traffic data between the user and the first Tor node, as shown in figure \ref{fig:threat_model}.
+Next, the data is processed for the fingerprint extraction process, as described in section \ref{sec:fingerprint-extraction-training}.
+After all processing has been done, fingerprints are extracted using the previously trained sequence-to-sequence model.
+Finally, those fingerprints are used as features for a classifier, which classifies which web pages the adversary is visiting.
+
+The time between data collection for training and performing the WF has to be kept as small as possible since Juarez et al.'s experiments show that website's content changes greatly over time, therefore affecting the accuracy of the attack \cite{wfpevaluation}.
+
 
 % TODO: Why python?
 % TODO: Where code is
+% TODO: Code structure? How modules relate?
