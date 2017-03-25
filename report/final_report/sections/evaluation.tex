@@ -1,13 +1,62 @@
+% TODO: Remove
+\addbibresource{../report.bib}
+
 \section{Evaluation and Testing}
+
+In the following section, we outline how we will be evaluating the suggested model.
+Next, we will perform that evaluation and present the final results.
 
 \subsection{Experimental Setup}
 
-\subsection{Evaluation Techniques}
-% How to evaluate the seq2seq model + how to evaluate individual models
-% Include own training error on copy task
-% Amazon EC2
+Since our deep model requires a large amount of computation, we like to make use of parallelization.
+Hence, all of our experiments that involve the sequence-to-sequence model have been run on an \textit{Amazon EC2 p2.xlarge} instance.
+This VM has a \textit{NVIDIA K80 GPU} with 12 GiB of GPU memory.
+This instance was then setup with \textit{CUDA 8} and \textit{cuDNN v5.1} \cite{tensorflow,nvidia_developer_2017}.
 
-% NOTE THAT THE MODELS HAVE BEEN TUNED FOR THE SPECIFIC HAND-PICKED FEATURES
+The rest of the experiments are run on a 2016 MacBook Pro, with a 2.9GHz Intel Core i5 and 8GB of RAM, running MacOS 10.12.
+To make sure that the same Python environment is used on both these machines, we consistently use \textit{Python 3.6} and a \textit{virtual environment} for the python dependencies.
+
+As previously mentioned, the main dataset that will be used is \texttt{GRESCHBACH} but we will also be using some of the data in the \texttt{WANG14} dataset to see how the model performs on data that was recorded under different circumstances.
+From both these datasets, we will only be using the preprocessed Tor cells and not the raw TCP traffic data.
+
+% TODO: Should I include more here?
+
+\subsection{Evaluation Techniques}
+
+There are several different manners in how we can evaluate the feature selection process.
+First of all, we could analyse the training and test error, as the model learns.
+If the training curve suddenly drops, the learning rate might be too high.
+Or if the space between both the training and the test error increases, the model will clearly be overfitting.
+
+However, these graphs only show us how well the model is at reproducing the trace from a fingerprint but now how well it performs in a WF attack.
+For this we need to train a classifier and see how well it performs by using the metrics described in section \ref{sec:classifier-training}.
+
+To be able to compare these fingerprints with hand-picked ones, we could run the classifier with hand-picked features and with the automatically generated ones.
+These hand-picked features are often chosen by experts and after a careful analysis of what the most appropriate features are.
+Hence, if the classifier with our fingerprints were to get similar results or even outperform the classifiers with the hand-picked features, we know that the sequence-to-sequence model has been successful.
+For these results to be accurate, we do not change any parameters within the classifiers.
+Thus everything, except for the features, stays fixed.
+
+For the classifiers, we pick a small set of five existing models.
+We aim to pick models that have had an influence on the WF field whilst also having a variety of different classifiers.
+This set includes the two \textit{support vector classifiers} (SVCs) used by Panchenko et al. \cite{panchenko1,panchenko2},
+the k-fingerprinting attack, which relies on a \textit{random forest} (RF) used by Hayes et al. \cite{kfingerprinting},
+the \textit{k-nearest neighbours} (kNN) classifier used by Wang et al. \cite{wang_cai_johnson_nithyanand_goldberg_2014} and finally a \textit{naive bayes} (NB) model used by Gu et al. \cite{naivebayes}.
+
+For all of these models, we extract the exact same features as outlined in the respective papers and compare the performance of our generated features compared to the hand-picked ones.
+The code for this feature extraction process can be found in the \texttt{feature\_extraction} module.
+After analysing all of these features, the most important ones seem to be \cite{panchenko1,panchenko2,kfingerprinting,wang_cai_johnson_nithyanand_goldberg_2014,naivebayes}:
+
+\begin{itemize}
+  \item Total number of packets.
+  \item Number of incoming packets.
+  \item Number of outgoing packets.
+  \item Percentage of incoming and outgoing packets.
+  \item Concentration of packets.
+\end{itemize}
+
+We also aim to use the exact same hyperparameters described in the respective papers.
+However, we do need to note that this might have an impact on the performance because these parameters have been specifically tuned for the hand-picked features and not for our fingerprints.
 
 \subsection{Evaluation}
 % Include different models
@@ -28,3 +77,4 @@
 
 \subsection{Unit Tests}
 % Talk about unit tests
+% Travis, test coverage?
