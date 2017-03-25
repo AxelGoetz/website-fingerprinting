@@ -94,14 +94,15 @@ As expected, during our experiments, the \textit{adam optimizer} continuously de
 Next, we also noted that the best quality of data compression was achieved with a \textit{MSE loss functio}n and a learning rate of $0.000002$.
 Hence, we set $\lambda = 0.000002$, $b = 200$ and use an adam optimizer with MSE for the rest of our experiments.
 
+
+% TODO: Reversing traces
+% TODO: Add cutting traces as a learning parameter
+
 \subsection{Architecture Tuning}
 
 Now that we have an average measure of the learning parameters, we can start changing the architecture of the sequence-to-sequence model to see which ones yield the best results.
 
-
-% TODO: Include different 5 models as `subsubsection`
-
-% Binary vs multiclass
+% See how it performs on other dataset
 
 \subsection{Classifier Performance}
 
@@ -110,7 +111,7 @@ Now that we have an average measure of the learning parameters, we can start cha
 % Did the design do the job you intended, or were there problems?
 % Is your solution fit for purpose?
 % How does the resulting system compare against the competition?
-
+% Binary vs multiclass
 
 \section{Unit Tests}
 

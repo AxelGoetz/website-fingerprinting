@@ -143,6 +143,7 @@ Now that the model has been constructed, the adversary still has to chose variou
   \item Amount of traces within a single mini-batch ($b$).
   \item Cost, or loss function ($f$) to minimize (\textit{mean squared error} (MSE), \textit{absolute loss} (AL) or \textit{cross-entropy}) \cite{tensorflow}.
   \item Whether or not to reverse the traces. This parameter does not make a difference when using a bidirectional encoder.
+  \item After how much time the traces are cut.
 \end{itemize}
 
 After these parameters have been tuned, the computational graph can be constructed in Tensorflow and the training can be started using the training data.
@@ -208,15 +209,15 @@ Some of the statistics that are used for the performance measure of models, are 
     This measure is particularly useful since it is not affected by class imbalance.
 \end{itemize}
 
-Rather than using another classifier, we could also potentially add a \textit{softmax layer} on top of our decoder, like V. Rimmer uses on top of her stacked autoencoder \cite{deeplearningthesis}.
-This process would involve first training the sequence-to-sequence model, then stacking the softmax layer on top of each unrolled cell in the decoder and using it for classification.
+Rather than using another classifier, we could also potentially add a \textit{softmax layer} on top of our encoder, like V. Rimmer uses on top of her stacked autoencoder \cite{deeplearningthesis}.
+This process would involve first training the sequence-to-sequence model, then stacking the softmax layer on top of each unrolled cell in the encoder and using it for classification.
 What would be interesting about this approach is that the adversary can analyse how the probability of a trace being classified changes, as it analyses packets from the trace.
 However, this is outside the scope of this paper, as we are focusing on the feature extraction process.
 
 \begin{figure}[ht]
   \centering
   \includegraphics[width=0.6\textwidth]{softmax}
-  \caption{Example of decoder with softmax layer for 3 web pages.}
+  \caption{Example of encoder with softmax layer for 3 web pages.}
   \label{fig:softmax}
 \end{figure}
 

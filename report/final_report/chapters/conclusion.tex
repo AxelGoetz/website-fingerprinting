@@ -1,9 +1,37 @@
+% TODO: Remove
+\addbibresource{../report.bib}
+
 \chapter{Conclusion}
 
+% Model is significantly slower
+
 \section{Future Works}
-- TODO: How it performs against defenses
-- TODO: Regularisation
-- TODO: Tor hidden services
-- TODO: Collecting data over time
-- TODO: More realistic user behavior
-- TODO: Softmax layer for classification
+
+% TODO: Although the classifiers seem to perform better with the hand-picked features,
+There is still much room for future improvements.
+Here we consider several different manners in how we can improve or extend this work.
+Although we definitely will not cover all the different possible extensions, we try to list the most interesting ones.
+
+As previously mentioned in section \ref{sec:classifier-training}, we could add a \textit{softmax layer} on top of a decoder in a trained sequence-to-sequence model.
+Not only would this allow us to perform the classification with the sequence-to-sequence model, but it would also allow us to analyse how evidence affects the classification.
+Since you would technically only need one softmax layer, after the fingerprint has been extracted.
+But having one after every cell, allows us to see how different packets change the prediction of our model.
+This could then be used as a tool for analysis which features the model actually extracts.
+
+There have also been a variety of different defenses, some of which have been outlined in section \ref{sec:defenses}.
+Some works have examined the the effectiveness of their attack, when these defenses were in fact used \cite{kfingerprinting,wang_cai_johnson_nithyanand_goldberg_2014}.
+It would be interesting to see if the sequence-to-sequence model might still be able to effectively extract fingerprints, even with these defenses deployed.
+This could include both training the model on data where the defense was deployed or training it on normal data and analysing whether it can still extract the fingerprints if the defense is deployed during the attack stage.
+
+On top of analysing how defenses impact the attack, we could also potentially analyse how the performance of the fingerprint extraction process is affected over time.
+% TODO: We have already shown that the model is still successful when extracting fingerprints
+
+Due to time constraints and limited Tensorflow support, we also did not examine the use of regularization.
+There are several works that show that several techniques such as \textit{L2 regularization}, \textit{dropout layers} and \textit{batch normalization} are promising techniques \cite{ioffe2015batch,nielsen_2017}.
+Hence, it could potentially help to reduce overfitting within the sequence-to-sequence model.
+
+
+
+% TODO: Tor hidden services
+% TODO: Collecting data over time
+% TODO: More realistic user behavior
