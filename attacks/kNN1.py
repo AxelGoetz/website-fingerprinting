@@ -19,7 +19,7 @@ class kNN():
         - K_RECO is the number of closest neighbours used for weight learning
     """
 
-    def __init__(self, is_multiclass=True, K_CLOSEST_NEIGHBORS=5):
+    def __init__(self, is_multiclass=True, K_CLOSEST_NEIGHBORS=2):
         # Constants
         self.K_RECO = 5.0 # Num of neighbors for weight learning
         self.K_CLOSEST_NEIGHBORS = K_CLOSEST_NEIGHBORS
