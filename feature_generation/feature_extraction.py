@@ -52,6 +52,7 @@ def run_model(data, in_memory=False):
                              batch_size=args.batch_size,
                              bidirectional=args.bidirectional,
                              reverse=args.reverse_traces,
+                             learning_rate=args.learning_rate,
                              saved_graph=args.graph_file,
                              sess=session)
 
@@ -90,6 +91,7 @@ if __name__ == '__main__':
     parser.add_argument('--max_time_diff', metavar='', type=float, help="The time at which you stop considering a packet important (default infinity)", default=float('inf'))
     parser.add_argument('--extension', metavar='', help="Extension of the cell files", default=".cell")
     parser.add_argument('--graph_file', metavar='', help="File name of the graph stores (default seq2seq_model)", default='seq2seq_model')
+    parser.add_argument('--learning_rate', metavar='', type=float, help="Learning rate (default 0.000002)", default=0.000002)
 
     global args
     args = parser.parse_args()
