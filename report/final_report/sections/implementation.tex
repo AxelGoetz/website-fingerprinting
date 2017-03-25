@@ -1,6 +1,3 @@
-% TODO: Remove
-\addbibresource{../report.bib}
-
 \section{Attack Design}
 
 In this section, we describe the design of our automatic feature generation model, outline the attack strategy and explain certain design decisions.
@@ -91,7 +88,7 @@ The full attack, however, can be split up into four different stages: \textit{da
   \label{fig:attack-strategy}
 \end{figure}
 
-\subsubsection{Data Collection}
+\subsubsection{Data Collection} \label{sec:data_collection1}
 
 As previously mentioned, the data collection process first requires the adversary to choose a set of $n$ websites to monitor.
 Next, the adversary crawls these pages a total of $i$ iterations to ensure that a classifier has enough data to generalize.
@@ -233,7 +230,27 @@ Finally, those fingerprints are used as features for a classifier, which classif
 
 The time between data collection for training and performing the WF has to be kept as small as possible since Juarez et al.'s experiments show that website's content changes greatly over time, therefore affecting the accuracy of the attack \cite{wfpevaluation}.
 
+\subsection{Code Structure}
 
-% TODO: Why python?
-% TODO: Where code is
-% TODO: Code structure? How modules relate?
+In the work, we will not be conducting the final stage of a WF attack.
+Instead, we will be reporting the results on the test sets.
+All of this is reflected in the overall structure of the code, which consists of four main components, as can be seen in figure \ref{fig:code-structure}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.7\textwidth]{code-structure}
+  \caption{Diagram of how different components are related.}
+  \label{fig:code-structure}
+\end{figure}
+
+All of the data that is used within this work has already been preprocessed, as described in section \ref{sec:data_collection1}.
+The \texttt{feature\_generation} module contains all of the code to further preprocess the data, train the sequence-to-sequence model defined in \texttt{new\_model.py} and to extract the fingerprints using that new model.
+
+All of the models that will be used for the attack section are defined in the \texttt{attacks} module.
+We tried to pick a variety of models used, to measure how our fingerprints work on different models.
+The logic to actually run the models is defined in the \texttt{run\_models} module, which also does some data preprocessing and defines the logic for the stratified k fold validation and the different scoring methods.
+
+Finally, there is also the \texttt{feature\_extraction} module, whose use will be explained later.
+
+As can be seen, all of the code is written in Python, due to the wide availability of machine learning tools.
+Except for the \texttt{kNN.go} file, in the \texttt{feature\_extraction} module, which is written in \textit{Golang} to gain a performance boost \cite{gokNN}.
