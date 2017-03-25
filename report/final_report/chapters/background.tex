@@ -1,14 +1,14 @@
-\section{Background Information, Related Work and Research}
+\chapter{Background Information and Related Work}
 In the following chapter, we further explore the motivation for undertaking the project,
 analyse the current state of the project domain and outline the research that forms the basis for the rest of the report.
 
-\subsection{The Problem}
+\section{The Problem}
 As previously mentioned, the goal of this project is to automate the feature selection process for a website fingerprinting attack.
 By this we mean that given a specific trace, our model should be able to produce a fixed-length vector that is a close representation of the respective trace.
 However, before we delve into the details of the attack, we first need to gain a greater understanding of some concepts such as
 onion routing, website fingerprinting in general and deep learning.
 
-\subsubsection{Onion Routing}
+\subsection{Onion Routing}
 To preserve privacy, we do not only need to obscure the content of a webpage but also hide who is taking to whom \cite{goldschlag1999onion}.
 Tor achieves both of these by making use of a technique, called \textit{onion routing}, which is a very simple protocol that can be divided up into three phases:
 connection setup, data movement and connection tear-down \cite{goldschlag1999onion}. We show how it works by taking a simple example of Alice trying to communicate with Bob.
@@ -70,9 +70,9 @@ connection setup, data movement and connection tear-down \cite{goldschlag1999oni
 Tor generally uses the same circuit for connections that happen within around 10 minutes after creating a circuit.
 Later requests, however, are given a new circuit \cite{tor_project, tor_project2}.
 
-\subsection{Related Work}
+\section{Related Work}
 
-\subsubsection{Website Fingerprinting} \label{sec:related-work}
+\subsection{Website Fingerprinting} \label{sec:related-work}
 
 Website fingerprinting (WF) is the process of attempting to identify which web pages a specific client visits by analysing their traffic traces.
 Hence, an attacker is considered to be \textit{local} . By this we mean that they can eavesdrop on the traffic between the client and the first Tor node, as shown in figure \ref{fig:threat_model}.
@@ -132,7 +132,7 @@ Finally, Panchenko et al. improved upon their previous attack to create one curr
 including the one used by Wang et al. on their k-NN attack, where they got around 92\% accuracy.
 In an open-world scenario, on the other hand, they got up to 96\% accuracy.
 
-\subsubsection{Automatic Feature Selection}
+\subsection{Automatic Feature Selection}
 
 There are not many works that have examine the use of automatic feature selection techniques in the context of a website fingerprinting attacks.
 First, Abe et al. study the use of a \textit{stacked autoencoder} with a \textit{softmax classifier} \cite{deeplearning}.
@@ -145,7 +145,7 @@ With this, she manages to achieve a $71\%$ accuracy.
 
 \newpage
 
-\subsubsection{Defenses}
+\subsection{Defenses}
 
 Not only has there been research regarding different attacks but there are also various works that describe possible defenses.
 First of all, Tor already implements \textit{padding}, which means that all packets are padded to a fixed-sized cell of $512$ bytes.
@@ -171,7 +171,7 @@ Decoy pages or \textit{camouflage} is a very simple technique that involves load
 This process provides more background noise that makes fingerprinting more difficult \cite{panchenko1}.
 Whilst traffic morphing is a slightly more complex technique that changes certain features in the traffic in order to make it appear as if another page is loaded \cite{wright2009traffic}.
 
-\subsubsection{Critical Analysis}
+\subsection{Critical Analysis}
 
 Most attacks, that have been described above, are based on a set of different assumptions.
 Here we list these assumptions and see if they are reasonable.
@@ -196,7 +196,7 @@ This can decrease the accuracy with $70\%$ and $50\%$ respectively \cite{wfpeval
 On top of this, we also need to consider multi-tab browsing, where a client might be loading multiple web pages at the same time.
 Although some papers consider this \cite{naivebayes}, most assume that the attacker know where the trace of a single page starts and ends.
 
-\subsection{Deep Learning and Automatic Feature Selection}
+\section{Deep Learning and Automatic Feature Selection}
 
 In the following section, we will give a very short introduction to deep learning and describe some of the deep learning solutions that allow us to perform feature extraction.
 We start by introducing deep learning by exploring \textit{artificial neural networks} and \textit{stacked autoencoders}.
@@ -208,7 +208,7 @@ Machine learning models basically take some value as its input and output a valu
 All of the learning models that we explore below are forms of \textit{supervised learning}.
 This means that we know the expected output and minimize the error between the actual output and the expected output.
 
-\subsubsection{Artificial Neural Networks}
+\subsection{Artificial Neural Networks}
 
 \textit{Artificial neural networks} consist of a network of nodes, called \textit{neurons}.
 These neurons are named and modeled after their biological counterparts.
@@ -295,6 +295,8 @@ Now that we know how to construct these networks, we still need to manage to ass
 There weights can be learnt by using an algorithm, called \textit{backpropagation}.
 The optimization process usually starts with initializing all of the weights with a random value and then running backpropagation, which is structured as follows \cite{nielsen_2017}:
 
+\newpage
+
 \begin{enumerate}
   \item Compute the outputs, given a certain input \textit{(feedforward pass)}.
   \item Calculate the error vector.
@@ -308,7 +310,7 @@ If its value is high, the model learns quickly and if the value is low, the mode
 The propagation process is also often done in \textit{batches}, which means that you calculate the propagations of a fixed amount of input vectors and only once this has finished, the weighs are changed.
 The size of these batches is a hyperparameter of the model.
 
-\subsubsection{Stacked autoencoder}
+\subsection{Stacked autoencoder}
 
 These feedforward neural net can be used to perform feature selection, by using a network called an \textit{autoencoder}.
 This network tries to learn the \textit{identity function} $f(x) \approx x$ when the number of neurons in the hidden layer is smaller than the ones in the input and output layers.
@@ -336,7 +338,8 @@ This representation is then used to train the second layer and so on.
 \end{figure}
 
 \newpage
-\subsubsection{Recurrent Neural Networks}
+
+\subsection{Recurrent Neural Networks}
 
 Although stacked autoencoders have successfully been used in several cases \cite{deeplearningthesis,deeplearning2}, they still have a couple of drawbacks.
 First of all, they require a fixed length input, which means that sequential information will need to be preprocessed.
@@ -383,7 +386,7 @@ Recurrent neural nets cannot make use of the same backpropagation algorithm used
 Instead, we use a different optimization method, called \textit{backpropagation through time} (BPTT).
 BPTT is very similar to standard backpropagation with the key difference of summing up the gradients for the weights at every time step \cite{britz_2016}.
 
-\subsubsection{Sequence-to-Sequence Model} \label{sec:seq2seq}
+\subsection{Sequence-to-Sequence Model} \label{sec:seq2seq}
 
 One specific type of RNN, that could be used for feature generation, is a \textit{sequence-to-sequence model}, introduced by Cho et al. \cite{cho2014learning}.
 Sometimes called a \textit{encoder-decoder model}, it consists of two RNNs where one RNN encodes a sequence into a fixed-length representation and the other decodes those representations into another variable-length sequence \cite{cho2014learning}.
@@ -434,7 +437,7 @@ At the time of writing, there hasn't been much research regarding using sequence
 In fact, currently they are most often used for translation and other NLP tasks.
 Hence, they are most often used as a classification task where the model classifies which word is likely to be next \cite{tensorflowseq2seq,cho2014learning,rnnencoder,sutskever_vinyals_le}.
 
-\subsubsection{The Vanishing Gradient Problem}
+\subsection{The Vanishing Gradient Problem}
 
 Deep learning suffers from an problem, called the \textit{vanishing gradient problem} \cite{nielsen_2017}.
 This problem represents the fact that neurons in early layers tend to learn a lot slower than those in the last layers.
@@ -474,7 +477,7 @@ As RNNs tend to be a lot deeper than traditional feed-forward networks, this pro
 One solution to this problem is to use a ReLU activation function, as the derivative is either $0$ or $1$ \cite{britz_2016}.
 But both LSTM and GRU cells were especially designed to solve this issue in RNNs and therefore we will be using those throughout the rest of this paper \cite{LSTM,hochreiter1997long,cho2014learning}.
 
-\subsubsection{Regularization}
+\subsection{Regularization}
 
 Neural networks can easily \textit{overfit}.
 By this we mean that the model learns noise in the training data, rather than learning to generalize.
@@ -512,15 +515,13 @@ Finally, batch normalization is a relatively new technique that also changes the
 Usually this wouldn't be considered a regularization technique.
 However, it has been proven that it acts as a regularizer, and sometimes eliminates the need for dropout layers \cite{ioffe2015batch}.
 
-\subsection{Software Libraries}
+\section{Software Libraries}
 
 There are various different numerical computation libraries to efficiently implement deep learning algorithms.
 However, the most common ones are \textit{Tensorflow}, \textit{Theano}, \textit{Keras} and \textit{Torch} \cite{tensorflow,theano,keras,torch}.
 The first three all provide their API in Python, whilst torch only be used in Lua.
 Although a python API, called \textit{Pytorch} has been open-sourced very recently.
 All of the above allow you to use \textit{cuDNN} to perform GPU-accelerated computations.
-
-\newpage
 
 Tensorflow has a C\texttt{++} backend and its low-level API is provides more than enough flexibility to implement a sequence-to-sequence model.
 They do also provide a high-level API that include different RNN cells and even a sequence-to-sequence model.
@@ -537,7 +538,7 @@ Hence, the decision to use Tensorflow for the implementation of our main model.
 On top of Tensorflow, we will also be using sklearn, which provides us with a large amount of machine learning models to perform some of our testing, and numpy for fast data preprocessing.
 Both of which were chosen since they are in python, therefore allowing easy code-reuse for different modules.
 
-\subsection{Data Sets}
+\section{Data Sets}
 
 In order to collect data, a web crawler needs to visit a large set of website over Tor where the traffic is recorded for every page visited.
 This web crawler can emulate user browsing or just visit websites such as the one constructed by Panchenko et al. \cite{panchenko2} or simply visit web pages in \textit{Alexa’s Top 10,000}, which contains the most commonly visited pages.

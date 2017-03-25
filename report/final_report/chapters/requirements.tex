@@ -1,8 +1,8 @@
-\section{Threat Model and Problem Statement}
+\chapter{Threat Model and Problem Statement}
 
 In the following section, we further describe the adversary models from which we deduce a list of requirements.
 
-\subsection{Threat Model} \label{sec:threat-model}
+\section{Threat Model} \label{sec:threat-model}
 
 We consider an adversary, who wants to perform a website fingerprinting attack against Tor.
 Tor, specifically, since it has become one of the most widely used internet privacy tools.
@@ -22,9 +22,7 @@ Next, the adversary is able to replicate the conditions under which the user bro
 On top of this, the adversary can also determine the beginning and the end of a user session on a web page and that the attacker has enough resources to collect traffic and train a deep learning model.
 Finally, we also make the adversary is unable to decrypt the traffic and thus only has access to metadata such as traffic direction, length and timing of packets.
 
-This model described above is consistent with previously discussed works in section \ref{sec:related-work}.
-
-\subsection{Problem Statement}
+\section{Problem Statement}
 
 At the time of writing, most WF works make use of machine learning techniques that require a fixed-length input.
 Even though a traffic trace consists of a variable-length sequence of packets.

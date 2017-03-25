@@ -1,12 +1,12 @@
 % TODO: Remove
 \addbibresource{../report.bib}
 
-\section{Evaluation and Testing}
+\chapter{Evaluation and Testing}
 
 In the following section, we outline how we will be evaluating the suggested model.
 Next, we will perform that evaluation and present the final results.
 
-\subsection{Experimental Setup}
+\section{Experimental Setup}
 
 Since our deep model requires a large amount of computation, we like to make use of parallelization.
 Hence, all of our experiments that involve the sequence-to-sequence model have been run on an \textit{Amazon EC2 p2.xlarge} instance.
@@ -21,7 +21,7 @@ From both these datasets, we will only be using the preprocessed Tor cells and n
 
 % TODO: Should I include more here?
 
-\subsection{Evaluation Techniques}
+\section{Evaluation Techniques}
 
 There are several different manners in how we can evaluate the feature selection process.
 First of all, we could analyse the training and test error, as the model learns.
@@ -58,23 +58,23 @@ After analysing all of these features, the most important ones seem to be \cite{
 We also aim to use the exact same hyperparameters described in the respective papers.
 However, we do need to note that this might have an impact on the performance because these parameters have been specifically tuned for the hand-picked features and not for our fingerprints.
 
-\subsection{Evaluation}
+\section{Evaluation}
 % Include different models
 
 % Did the design do the job you intended, or were there problems?
 % Is your solution fit for purpose?
 % How does the resulting system compare against the competition?
 
-\subsubsection{Website Fingerprinting Models}
+\subsection{Website Fingerprinting Models}
 
 % TODO: Include different 5 models as `subsubsection`
 
 % Binary vs multiclass
 
-\subsubsection{Hand-picked Features}
+\subsection{Hand-picked Features}
 
 
 
-\subsection{Unit Tests}
+\section{Unit Tests}
 % Talk about unit tests
 % Travis, test coverage?

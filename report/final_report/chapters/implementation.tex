@@ -1,10 +1,10 @@
-\section{Attack Design}
+\chapter{Attack Design}
 
 In this section, we describe the design of our automatic feature generation model, outline the attack strategy and explain certain design decisions.
 Most of this section will be split into two different sections.
 First we describe the feature generation process and then the overall attack.
 
-\subsection{Sequence-to-Sequence Model}
+\section{Sequence-to-Sequence Model}
 
 As described in section \ref{sec:seq2seq}, a sequence-to-sequence model is able to learn how to construct a fixed-length representation from a variable-length sequence.
 However, here we outline the exact structure of the model and show the implementation in Tensorflow.
@@ -38,9 +38,7 @@ This can be solved by cutting the traces after a couple seconds since it has bee
 
 Based on the above, we can construct our \textit{computational graph} in Tensorflow as outlined in figure \ref{fig:full-seq2seq}.
 
-\newpage
-
-\subsection{Attack Strategy}
+\section{Attack Strategy}
 
 Here we consider an adversary that relies on deep learning to extract fingerprints for a website fingerprinting attack.
 This adversary can have two different goals in mind, as previously stated in section \ref{sec:threat-model}.
@@ -72,6 +70,8 @@ The full attack, however, can be split up into four different stages: \textit{da
   \item Measure performance of classifier.
 \end{enumerate}
 
+\newpage
+
 \noindent
 \textbf{The Attack}
 \begin{enumerate}[resume]
@@ -88,7 +88,7 @@ The full attack, however, can be split up into four different stages: \textit{da
   \label{fig:attack-strategy}
 \end{figure}
 
-\subsubsection{Data Collection} \label{sec:data_collection1}
+\subsection{Data Collection} \label{sec:data_collection1}
 
 As previously mentioned, the data collection process first requires the adversary to choose a set of $n$ websites to monitor.
 Next, the adversary crawls these pages a total of $i$ iterations to ensure that a classifier has enough data to generalize.
@@ -100,7 +100,7 @@ Most of our analysis will be done using the dataset provided by Greschbach et al
 For the rest of this paper, we will refer to this dataset as \texttt{GRESCHBACH}.
 Next, to see how our model performs on a dataset, whose data is recorded at a different time and under different circumstances, we will also be using the dataset provided by Wang et al. \cite{wang_cai_johnson_nithyanand_goldberg_2014}, which we will call \texttt{WANG14} \cite{panchenko2}.
 
-\subsubsection{Fingerprint Extraction Training} \label{sec:fingerprint-extraction-training}
+\subsection{Fingerprint Extraction Training} \label{sec:fingerprint-extraction-training}
 
 In order to truly evaluate the model, we need to split the data up into a training and validation set.
 We do not train the model on any data in the validation set but instead use it to see how well the model performs on unseen data.
@@ -151,7 +151,7 @@ When this training has been completed, fingerprints can be extracted for data wi
 On top of this, we also often have a small set, called the \textit{validation set}, which is not used for training.
 But it is used whilst training, to see how the network performs on unseen data during the training process.
 
-\subsubsection{Classifier Training} \label{sec:classifier-training}
+\subsection{Classifier Training} \label{sec:classifier-training}
 
 After the adversary has extracted the fingerprints for websites within the test set, they need to construct a classifier.
 This classifier can then use these fingerprints to learn how to classify web pages.
@@ -171,7 +171,7 @@ However, what is special about stratified k-fold validation is that the class di
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=0.7\textwidth]{kfold}
+  \includegraphics[width=0.6\textwidth]{kfold}
   \caption{Example of one iterations in a k-fold validation $(k = 7)$.}
   \label{fig:kfold}
 \end{figure}
@@ -215,12 +215,14 @@ However, this is outside the scope of this paper, as we are focusing on the feat
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=0.7\textwidth]{softmax}
+  \includegraphics[width=0.6\textwidth]{softmax}
   \caption{Example of decoder with softmax layer for 3 web pages.}
   \label{fig:softmax}
 \end{figure}
 
-\subsubsection{The Attack}
+\newpage
+
+\subsection{The Attack}
 
 Finally, after the adversary has trained the required models, the real WF attack can start.
 First, the adversary starts capturing web traffic data between the user and the first Tor node, as shown in figure \ref{fig:threat_model}.
@@ -230,7 +232,7 @@ Finally, those fingerprints are used as features for a classifier, which classif
 
 The time between data collection for training and performing the WF has to be kept as small as possible since Juarez et al.'s experiments show that website's content changes greatly over time, therefore affecting the accuracy of the attack \cite{wfpevaluation}.
 
-\subsection{Code Structure}
+\section{Code Structure}
 
 In the work, we will not be conducting the final stage of a WF attack.
 Instead, we will be reporting the results on the test sets.
@@ -238,7 +240,7 @@ All of this is reflected in the overall structure of the code, which consists of
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=0.7\textwidth]{code-structure}
+  \includegraphics[width=0.6\textwidth]{code-structure}
   \caption{Diagram of how different components are related.}
   \label{fig:code-structure}
 \end{figure}
