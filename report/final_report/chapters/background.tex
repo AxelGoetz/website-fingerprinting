@@ -428,6 +428,9 @@ Finally, to extract the thought vector, the last state of both layers are extrac
   \label{fig:bidirectional-rnn}
 \end{figure}
 
+This kind of model sounds more appropriate than one with a simple encoder.
+However, Oshri et al. argue that the performance gain is limited, whilst introducing a lot more parameters \cite{rnnencoder}.
+
 Some research by Bahdanau et al. has been to improve the performance of encoder-decoder models by introducing \textit{attention mechanisms} \cite{attention_mechanisms}.
 This mechanism allows the decoder to have a more direct access to the input, thereby relieving the encoder by having to embed all the information in a fixed-length vector.
 Although this technique might work well for translation tasks, our work focuses on the feature extraction process.
@@ -491,6 +494,8 @@ The reason why neural nets often overfit is because of the large amount of free 
   \label{fig:overfit}
 \end{figure}
 
+\newpage
+
 Overfitting can be reduced by performing \textit{regularization} without the need to decrease the size of the network.
 The most popular techniques are \textit{L1}, \textit{L2}, \textit{dropout layers} and \textit{batch normalization} \cite{nielsen_2017}.
 Both L1 and L2 regularization work by penalizing large weights and thus making the functions less complex.
@@ -514,6 +519,8 @@ Each of those neurons will overfit in a different way so the average should redu
 Finally, batch normalization is a relatively new technique that also changes the network slightly by making the normalization process part of the network and performing it for every minibatch \cite{ioffe2015batch}.
 Usually this wouldn't be considered a regularization technique.
 However, it has been proven that it acts as a regularizer, and sometimes eliminates the need for dropout layers \cite{ioffe2015batch}.
+
+\newpage
 
 \section{Software Libraries}
 
@@ -569,3 +576,4 @@ There are several data sets readily available that have already been preprocessi
 Some of the largest ones are the one used by Wang et al. \cite{wang_cai_johnson_nithyanand_goldberg_2014}, Greschbach et al. \cite{greschbach2016effect}.
 Wang et al's dataset contain traces for a $100$ monitored websites with $90$ instances each and $8400$ unmonitored sites, all from Alexa's top 10,000.
 Greschbach et al. collected an even larger dataset with $100$ samples of each website in Alexa's top $9,000$ and one sample for $909,000$ unmonitored sites \cite{greschbach2016effect}.
+Both of these datasets are definitely large enough to train our sequence-to-sequence model.
