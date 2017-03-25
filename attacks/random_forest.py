@@ -24,7 +24,7 @@ class kFingerprinting:
         is_multiclass - Depending on the thread model, we can either have a multiclass problem or a binary, this boolean flag changes that
         unmonitored_label - The label of the unmonitored websites
     """
-    def __init__(self, num_trees=1000, k_neighbours=3, is_multiclass=True, unmonitored_label=-1):
+    def __init__(self, num_trees=20, k_neighbours=3, is_multiclass=True, unmonitored_label=-1):
         self.forest = RandomForestClassifier(n_jobs=2, n_estimators=num_trees, oob_score=True)
         self.k_neighbours = k_neighbours
         self.is_multiclass = is_multiclass
@@ -71,5 +71,5 @@ class kFingerprinting:
 
         return res
 
-def get_random_forest(num_trees=1000, k_neighbours=3, is_multiclass=True, unmonitored_label=-1):
+def get_random_forest(num_trees=20, k_neighbours=3, is_multiclass=True, unmonitored_label=-1):
     return kFingerprinting(num_trees=num_trees, k_neighbours=k_neighbours, is_multiclass=is_multiclass, unmonitored_label=unmonitored_label)
