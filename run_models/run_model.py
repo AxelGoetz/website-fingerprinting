@@ -146,7 +146,7 @@ def make_data_binary(data):
     """
     for i, row in enumerate(data):
         if row[1] != constants.UNMONITORED_LABEL:
-            row = (row[0], constants.MONITORED_LABEL)
+            data[i] = (row[0], constants.MONITORED_LABEL)
 
 def get_models():
     """
@@ -211,7 +211,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--model', help="Select which model to run (kNN, random_forest, svc1, scv2)", default="kNN")
     parser.add_argument('--handpicked', action='store_true', help="Whether to use the hand-picked features or automatically generated ones")
-    parser.add_argument('--is_multiclass', action='store_true', help="If you are training on a multiclass or binary problem.")
+    parser.add_argument('--is_multiclass', action='store_true', help="If you are training on a multiclass or binary problem. (default binary)")
 
     args = parser.parse_args()
 
