@@ -90,6 +90,7 @@ pip install virtualenv
 
 Make sure you are then in the main directory of this project and run:
 ```
+virtualenv venv
 source venv/bin/activate
 ```
 to activate the virtual environment. Once you are in this environment, you will need to install the appropriate packages by running:
@@ -98,7 +99,7 @@ pip install -r requirements.txt
 ```
 
 Some of the code is also written in [go](https://golang.org/), which requires an [installation](https://golang.org/doc/install).
-This depends on your system but if you're running MACOS, I recommend using [homebrew](https://brew.sh/):
+This depends on your system but if you're running macOS, I recommend using [homebrew](https://brew.sh/):
 ```
 brew install go
 ```
