@@ -112,7 +112,7 @@ def evaluate_model(y_pred, y_true):
 
 def get_scoring_methods():
     return {
-        'accuracy': accuracy, 'confusion-matrix': confusion_matrix, 'f1-score': f1_score1, 'bayesian_detection_rate', bayesian_detection_rate
+        'accuracy': accuracy, 'confusion-matrix': confusion_matrix, 'f1-score': f1_score1, 'bayesian_detection_rate': bayesian_detection_rate
     }
 
 SCORING_METHODS = get_scoring_methods()

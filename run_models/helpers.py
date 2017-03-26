@@ -25,6 +25,29 @@ def read_feature_file(path):
 
     return features
 
+def split_mon_unmon(data, labels):
+    """
+    Splits into monitored and unmonitored data
+    If a data point only happens once, we also consider it unmonitored
+
+    @return monitored_data, monitored_label, unmonitored_data
+    """
+    from collections import Counter
+    occurence = Counter(labels)
+
+    monitored_data, unmonitored_data = [], []
+    monitored_label = []
+
+    for d, l in zip(data, labels):
+        if l == constants.UNMONITORED_LABEL or occurence[l] == 1:
+            unmonitored_data.append(d)
+
+        else:
+            monitored_data.append(d)
+            monitored_label.append(l)
+
+    return monitored_data, monitored_label, unmonitored_data
+
 def pull_data_in_memory(data_dir, extension=".cell"):
     """
     Gets the content of all the data in the `data_dir` directory in memory.
@@ -57,5 +80,10 @@ def pull_data_in_memory(data_dir, extension=".cell"):
             if i % 100 == 0:
                 update_progess(total_files, i)
 
+    monitored_data, monitored_label, unmonitored_data = split_mon_unmon(data, labels)
+
+    monitored_data.extend(unmonitored_data)
+    monitored_label.extend([constants.UNMONITORED_LABEL] * len(unmonitored_data))
+
     stdout.write("Finished importing data\n")
-    return list(zip(data, labels))
+    return list(zip(monitored_data, monitored_label))
