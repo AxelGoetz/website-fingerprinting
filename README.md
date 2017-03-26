@@ -110,7 +110,7 @@ If you plan to use the GPU support, you will also need to run some additional in
 
 
 ## Data
-All of the data can be made available upon request, the reason why its not actively available is since some of the datasets are very large.
+All of the data used for our experiments are from two datasets, called [GRESCHBACH](https://nymity.ch/tor-dns/#data) and [WANG14](https://cs.uwaterloo.ca/~t55wang/wf.html).
 
 ## File Structure
 The project is structured as follows:
