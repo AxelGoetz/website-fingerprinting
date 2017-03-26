@@ -62,8 +62,7 @@ def run_model(data, in_memory=False):
                                batch_size=args.batch_size,
                                max_batches=None,
                                batches_in_epoch=100,
-                               max_time_diff=args.max_time_diff,
-                               verbose=True)
+                               max_time_diff=args.max_time_diff)
 
 def main(_):
     paths, labels = [], []
