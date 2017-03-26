@@ -176,7 +176,7 @@ def get_appropriate_dict(name):
 
     return None
 
-def evaluate_model(model_dict, hand_picked_features=True, is_multiclass=True):
+def evaluate_model(model_dict, hand_picked_features=True, is_multiclass=True, extension=".cellf"):
     """
     Given a model, performs the an evaluation.
 
@@ -192,7 +192,7 @@ def evaluate_model(model_dict, hand_picked_features=True, is_multiclass=True):
 
     from helpers import pull_data_in_memory
 
-    data = pull_data_in_memory(data_dir=path, extension=".cellf")
+    data = pull_data_in_memory(data_dir=path, extension=extension)
 
     if not is_multiclass:
         make_data_binary(data)
@@ -212,6 +212,7 @@ if __name__ == '__main__':
     parser.add_argument('--model', help="Select which model to run (kNN, random_forest, svc1, scv2)", default="kNN")
     parser.add_argument('--handpicked', action='store_true', help="Whether to use the hand-picked features or automatically generated ones")
     parser.add_argument('--is_multiclass', action='store_true', help="If you are training on a multiclass or binary problem. (default binary)")
+    parser.add_argument('--extension', metavar='', help="Extension of the cell files (default .cellf)", default=".cellf")
 
     args = parser.parse_args()
 
@@ -221,5 +222,5 @@ if __name__ == '__main__':
         exit(0)
 
     else:
-        res = evaluate_model(model_dict, args.handpicked, args.is_multiclass)
+        res = evaluate_model(model_dict, args.handpicked, args.is_multiclass, args.extension)
         print(res)
