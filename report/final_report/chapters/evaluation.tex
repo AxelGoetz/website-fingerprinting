@@ -1,3 +1,6 @@
+% TODO: Remove
+\addbibresource{../report.bib}
+
 \chapter{Evaluation and Testing}
 
 In the following section, we outline how we will be evaluating the suggested model.
@@ -82,25 +85,24 @@ Whilst the greater the batch size, the easier to spot this trend.
   \label{fig:varying-batch-sizes}
 \end{figure}
 
-% TODO: Change amount of traces processed axis
-
 Preferably we would like to have an even greater batch size than $200$ but due to memory constraints, the model runs out of memory when the amount of hidden states is greater than $100$.
 Thus through the rest of the report we will use a mini-batch size of $200$.
 
 Next, we vary the learning rate $\gamma$ from $0.01$ to $0.000001$ with various optimizers (\textit{adam}, \textit{gradient descent} or \textit{RMSProp}) and loss functions (\textit{mean squared error (MSE)} or \textit{absolute loss} (AL)).
 As expected, during our experiments, the \textit{adam optimizer} continuously demonstrated better results.
 
-Next, we also noted that the best quality of data compression was achieved with a \textit{MSE loss functio}n and a learning rate of $0.000002$.
+Next, we also noted that the best quality of data compression was achieved with a \textit{MSE loss function} and a learning rate of $0.000002$.
 Hence, we set $\lambda = 0.000002$, $b = 200$ and use an adam optimizer with MSE for the rest of our experiments.
 
-% TODO: Reversing traces
-% TODO: Add cutting traces as a learning parameter
+We do not yet make a decision on both the reversing traces and cutting traces parameters, as we will investigate those later.
 
 \subsection{Architecture Tuning}
 
 Now that we have an average measure of the learning parameters, we can start changing the architecture of the sequence-to-sequence model to see which ones yield the best results.
 
 % See how it performs on other dataset
+% TODO: Reversing traces
+% TODO: Add cutting traces as a learning parameter
 
 \subsection{Classifier Performance}
 
@@ -127,4 +129,4 @@ If one of the tests fails, Travis then automatically notifies all the contributo
 Finally, to check if our tests cover our entire codebase, \textit{codecov} is used \cite{codecov}.
 This tool automatically checks how much of the codebase all of the unit tests cover.
 At the time of writing, the coverage is $93\%$.
-The bits that aren't covered by unit tests, such as the Tensorflow implementation of the sequence-to-sequence model, have been carefully examined to see if they behave as expected.
+The bits that aren't covered by unit tests, such as the Tensorflow implementation of the sequence-to-sequence model, have been carefully examined to see if they behave as expected by using the Tensorflow debugger \cite{tensorflow}.
