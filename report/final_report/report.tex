@@ -71,6 +71,18 @@
     tabsize=2
 }
 
+% Straight quotes
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+
+% Straight quotes + line wrapping
+\lstset{
+    frame=single,
+    breaklines=true,
+    postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{red}\hookrightarrow\space}},
+    upquote=true
+}
+
 % For directory tree
 \usepackage{dirtree}
 

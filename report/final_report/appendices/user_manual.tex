@@ -1,1 +1,140 @@
 \chapter{User Manual}
+
+\begingroup
+
+\renewcommand{\thesubsection}{\arabic{subsection}}
+
+\renewcommand{\addcontentsline}[3]{}% Do nothing
+
+In the following section, we explain how the provided code can be used to run the experiments.
+
+Firstly, in order to run the experiments, we require data.
+Any dataset you want can be used, as long as each cell is represented as a Tor cell, where the SENDMEs have been removed (the same format as in table \ref{table:cell-extract}).
+However, for this specific project we will be using two datasets, namely \texttt{GRESCHBACH}\footnote{https://nymity.ch/tor-dns/\#data} and \texttt{WANG14}\footnote{https://cs.uwaterloo.ca/~t55wang/wf.html}.
+Both of these need to be placed in the \texttt{data} directory.
+
+After this, you need to be install and initialize a virtual environment and install the necessary dependencies as outlined in appendix \ref{appendix:system-manual}.
+
+Next, there are four main scripts that need to executed to perform the WF attack:
+\begin{enumerate}
+  \item \texttt{train\_model.py}
+  \item \texttt{feature\_generation.py}
+  \item \texttt{feature\_extraction.py}
+  \item \texttt{run\_models.py}
+\end{enumerate}
+
+All of these scripts take several command-line parameters, which are outlined below.
+These could also be displayed if you run the scripts as follows:
+\begin{lstlisting}[language=Bash]
+python <script_name>.py --help
+\end{lstlisting}
+
+\subsubsection{Train Model}
+
+As previously mentioned, we first need to train the sequence-to-sequence model.
+This can be done by executing the \texttt{train\_model.py}, which takes several command line parameters in order to change the behavior of the model.
+All of these are outlined below:
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{ l | l | l | p{0.5\textwidth} }
+    \textbf{Parameter} & \textbf{Type} & \textbf{Default} & \textbf{Description} \\ \hline \hline
+    batch\_size & Integer & 100 & The size of each mini-batch. \\ \hline
+    bidirectional & Boolean & False & If true, the model will use a bidirectional encoder and a normal one otherwise. \\ \hline
+    encoder\_hidden\_states & Integer & 120 & The amount of hidden states in each RNN cell. The size of the fingerprints depends on this value. \par $\textit{len}(\textit{fingerprint}) = 2 \times \textit{encoder\_hidden\_states}$ \\ \hline
+    cell\_type & String & LSTM & Which specific type of cell to use. Currently only support LSTM and GRU. \\ \hline
+    reverse\_traces & Boolean & False & If true, reverses the traces and leaves them untouched otherwise. This should not be used when \texttt{bidirectional} is true. \\ \hline
+    max\_time\_diff & Float & Infinite & The maximum time difference \textit{(in seconds)} after which you start cutting the traces. For instance, if set to $1$, all of the traces will be cut after one second.\\ \hline
+    extension & String & .cell & The extension of the Tor cell files. We expect that they are in the following format \texttt{webpage\_id-instance.extension}. \\ \hline
+    learning\_rate & Float & 0.000002 & The learning rate used whilst training.
+  \end{tabular}
+  \caption{Parameters for the \texttt{train\_model.py} file.}
+\end{table}
+
+\newpage
+
+\noindent
+For example to run a simple encoder-decoder with GRU cells, a batch size of $200$ and $200$ hidden states, run the following command:
+\begin{lstlisting}[language=Bash]
+python train_model.py --batch_size 200 --encoder_hidden_states 200 --cell_type "GRU"
+\end{lstlisting}
+
+After running this, a couple files should be created in the main directory.
+First of all \texttt{loss\_track.pkl}, which is a pickled file, containing the object that represents the loss over time.
+Next, there should also be a couple \texttt{seq2seq\_model} files with different extensions, which contain the saved computational graph.
+Finally, it also creates a \texttt{X\_test} and \texttt{y\_test} file in the \texttt{data} directiory.
+These contains the paths and the labels to the files, which were not used for training.
+
+\subsubsection{Feature Generation}
+
+After the sequence-to-sequence has been trained, the features need to be extracted, which can be achieved with the \texttt{feature\_generation.py} script.
+Since we do not want to perform any testing on the same data as we trained the model on, it only extracts fingerprints from the traces in the \texttt{X\_test} file.
+
+Next, these features are stored in the \texttt{data/af\_cells} directory with a \texttt{.cellf} extension.
+
+Most of the flags here are the same as in the previous section.
+Hence, we will only list the new ones.
+
+\newpage
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{ l | l | l | p{0.5\textwidth} }
+    \textbf{Parameter} & \textbf{Type} & \textbf{Default} & \textbf{Description} \\ \hline \hline
+    graph\_file & String & seq2seq\_model & The name of where you saved the graph. You should not need to change this, except if you change the graph name in the code.
+  \end{tabular}
+  \caption{Parameters for the \texttt{feature\_generation.py} file.}
+\end{table}
+
+\noindent
+For instance, to extract features from the model that we previously trained, we can run:
+\begin{lstlisting}[language=Bash]
+python feature_generation.py --batch_size 200 --encoder_hidden_states 200 --cell_type "GRU"
+\end{lstlisting}
+
+\subsubsection{Feature Extraction}
+
+We then want to compare these automatically generated features with the hand-picked ones.
+These can be extracted using the \texttt{feature\_extraction.py} script, which again has several parameters.
+After this script is done running, the features should be stored in the appropriate folders within the \texttt{data} directory.
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{ l | l | l | p{0.5\textwidth} }
+    \textbf{Parameter} & \textbf{Type} & \textbf{Default} & \textbf{Description} \\ \hline \hline
+    all\_files & Boolean & False & If true, it generates features for all cells and otherwise just the ones in the \texttt{X\_test} file. \\ \hline
+    extension & String & .cell & Represents the extension of the cell files.
+  \end{tabular}
+  \caption{Parameters for the \texttt{feature\_extraction.py} file.}
+\end{table}
+
+\noindent
+For example:
+\begin{lstlisting}[language=Bash]
+python feature_extraction.py --extension ".cells"
+\end{lstlisting}
+
+\subsubsection{Run Models}
+
+Finally, we can run the classifiers on all the extracted features using the \texttt{run\_model.py} script.
+After finishing the k fold validation, the model then prints out the different scoring statistics.
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{ l | l | l | p{0.5\textwidth} }
+    \textbf{Parameter} & \textbf{Type} & \textbf{Default} & \textbf{Description} \\ \hline \hline
+    model & String & kNN & Which model to run, the options are \textit{kNN}, \textit{random\_forest}, \textit{svc1} and \textit{svc2}. \\ \hline
+    handpicked & Boolean & True & If true, the handpicked features for that model are used and otherwise the automatically generated ones. \\ \hline
+    is\_multiclass & Boolean & True & If true, trains the classifier on a multiclass task and binary otherwise. \\ \hline
+    extension & String & .cell & Represents the extension of the cell files.
+  \end{tabular}
+  \caption{Parameters for the \texttt{run\_model.py} file.}
+\end{table}
+
+\noindent
+For example, to run a random forest model with automatically generated ones on a multiclass problem:
+\begin{lstlisting}[language=Bash]
+python run_model.py --model "random_forest" --handpicked "False"
+\end{lstlisting}
+
+\endgroup
