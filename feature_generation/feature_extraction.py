@@ -56,7 +56,7 @@ def run_model(data, in_memory=False):
                              saved_graph=args.graph_file,
                              sess=session)
 
-        session.run(tf.global_variables_initializer())
+        # session.run(tf.global_variables_initializer())
 
         get_vector_representations(session, model, data, DATA_DIR + '/../af_cells',
                                batch_size=args.batch_size,

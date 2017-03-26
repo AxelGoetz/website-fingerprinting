@@ -304,7 +304,7 @@ class Seq2SeqModel():
         """
 
         # Get the graph
-        saver = tf.train.import_meta_graph(file_name + '.meta')
+        saver = tf.train.Saver()
 
         # Restore the variables
         saver.restore(sess, file_name)
