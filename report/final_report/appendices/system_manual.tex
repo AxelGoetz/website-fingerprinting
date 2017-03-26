@@ -85,13 +85,46 @@ Hence, here we describe the same using a \textit{directory tree}.
 
 \subsection{Components}
 
+Here how the individual components work and how to potentially extend them.
+
 \subsubsection{Attacks}
+
+This components implements all of the classifiers that are used to compare the hand-picked features with the automatically generated ones.
+Each of these classes needs to implement the interface, which has a \texttt{fit} and \texttt{predict} method.
+This is similar to the machine learning models provided in \textit{sklearn} \cite{scikitlearn}.
+The fit method takes an $X$ and $y$ input and changes its internal structure such that it minimizes the error.
+The predict method on the other hand just takes $X$ as its input and returns a vector $y$ of what it predicts the input represents.
+
+The models should also have a \texttt{is\_multiclass} flag, which represents the fact whether the classifier performs a binary or multiclass classification task.
 
 \subsubsection{Feature Extraction}
 
+All of the logic to extract the hand-picked features for different attacks is in this module.
+If a new attack is added, a new file should be created in this directory, with the code to extract all the required features from a given trace.
+Next, this function needs to be added to the list in the \texttt{feature\_extraction.py} file.
+This file essentially goes over all the traces within the \texttt{data/cells} directory and stores the extracted features within the \texttt{data} directory.
+
 \subsubsection{Feature Generation}
 
+This is one of the main components of this work, containing the code to automatically generate features.
+The model is defined in the \texttt{new\_model.py} file, where you can construct the sequence-to-sequence and train it.
+The main infrastructure to actually import the data, do all of the preprocessing and train the model is defined within \texttt{train\_model.py}.
+
+After every epoch, the infrastructure will save the computational graph such that training can be continued even if it is interrupted.
+
+Finally, all of the logic to actually extract the features is in the \texttt{feature\_extraction.py} file, which again stores the fingerprints in the \texttt{data} directory.
+
+If you wish to implement a new model, it just needs to implement two main functions such that it can be used by the rest of the infrastructure.
+These are \texttt{train\_on\_copy\_task} and \texttt{get\_vector\_representations}, which both take some data as their input and either train the model or extract features.
+
 \subsubsection{Run Models}
+
+All of the infrastructure to actually run the classifiers is defined within this module.
+First, it defines the logic to preprocess all of the necessary data and perform the \textit{k-fold validation}.
+Next, it also defines all of the scoring methods and how to actually run the models.
+The main logic is actually in the \texttt{run\_models.py} file, which allows the user to tune certain parameters such that they can run different models.
+
+Whenever a new classifier is added to the \texttt{attacks} directory, it should also be added within the \texttt{run\_models.py} file such that a user knows that it can be run.
 
 \subsubsection{Unit Tests}
 
@@ -104,13 +137,15 @@ Then to run all of the unit tests within the \texttt{tests} directory, simply ru
 python -m unittest discover
 \end{lstlisting}
 
+\newpage
+
 \subsection{Contributing}
 
 There are a variety of different extensions possible, some of which are outlined in section \ref{sec:future-works}.
 If you decide to implement one of these, we use a very standard git workflow so if you would like to contribute, follow these steps:
 
 \begin{enumerate}
-  \item Forks the project repo.
+  \item Fork the project repo.
   \item Create a branch with the name of the particular improvement/extension that you will be working on.
   \item After you are done, make sure that you run all of the tests and check if everything still works.
   \item Submit a pull request from your branch to the master branch and make sure all of the tests pass on Travis.
