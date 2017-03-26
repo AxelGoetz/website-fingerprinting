@@ -5,9 +5,6 @@ echo "Training with hand-picked features"
 echo "kNN"
 python run_models/run_model.py --model "kNN"
 
-echo "Naive Bayes"
-python run_models/run_model.py --model "naive_bayes"
-
 echo "Random forest"
 python run_models/run_model.py --model "random_forest"
 
@@ -23,9 +20,6 @@ echo "Now training with automatically generated features:"
 echo "kNN"
 python run_models/run_model.py --model "kNN" --handpicked
 
-echo "Naive Bayes"
-python run_models/run_model.py --model "naive_bayes" --handpicked
-
 echo "Random forest"
 python run_models/run_model.py --model "random_forest" --handpicked
 
@@ -40,9 +34,6 @@ echo "Now trying as a binary classification task"
 echo "kNN"
 python run_models/run_model.py --model "kNN" --is_multiclass
 
-echo "Naive Bayes"
-python run_models/run_model.py --model "naive_bayes" --is_multiclass
-
 echo "Random forest"
 python run_models/run_model.py --model "random_forest" --is_multiclass
 
@@ -56,9 +47,6 @@ python run_models/run_model.py --model "svc2" --is_multiclass
 echo "Binary classification with automatically generated features"
 echo "kNN"
 python run_models/run_model.py --model "kNN" --handpicked --is_multiclass
-
-echo "Naive Bayes"
-python run_models/run_model.py --model "naive_bayes" --handpicked --is_multiclass
 
 echo "Random forest"
 python run_models/run_model.py --model "random_forest" --handpicked --is_multiclass
