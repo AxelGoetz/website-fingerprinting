@@ -1,5 +1,121 @@
+% TODO: Remove
+\addbibresource{../report.bib}
+
 \chapter{System Manual}
-% This should include all the technical details that would
-% enable a student to continue your project next year, and be able to amend
-% or extend your code. For example, Where is the code?, What do you do
-% to compile and install it?
+
+\begingroup
+
+\renewcommand{\thesubsection}{\arabic{subsection}}
+
+\renewcommand{\addcontentsline}[3]{}% Do nothing
+
+Here, we outline the technical details of the project such that the development of the system could be continued by a third party.
+
+First, we will look at the tools required to run the system then we will look at the overall system and how specific modules connect together.
+Finally, we explain the specific components and outline how you can contribute to this project.
+
+All of the code is hosted in a private repository on Github.
+If given access, it can be cloned from the following url (https://github.com/AxelGoetz/website-fingerprinting.git).
+
+\subsection{Tools Required and Installation Instructions}
+
+Most of the project has been written in Python, more specifically, everything has been designed and tested with version 3.6.
+Our Travis build has also been configured to run all of the tests with Python 3.5, which means that we still get notified if anything breaks under a specific Python version.
+Some of the code has also been written in Golang, those parts have been adapted from an implementation of Wang et al.'s kNN attack for performance reasons \cite{wang_cai_johnson_nithyanand_goldberg_2014,gokNN}.
+
+Next, after the correct version of Python and Golang are installed, we also require a \textit{virtual environment} to manage all of our python dependencies.
+If you have \texttt{pip} on your system, this can easily installed as follows:
+
+\begin{lstlisting}[language=Bash]
+pip install virtualenv
+\end{lstlisting}
+
+After the virtual environment is installed, go to the project directory and run the following commands to first create the environment and then activate it.
+
+\begin{lstlisting}[language=Bash]
+virtualenv venv
+source venv/bin/activate
+\end{lstlisting}
+
+At any time, you can go out of the virtual environment by running \texttt{deactivate}.
+After you are in the environment, we need to install a list of dependencies, which can be found in the \texttt{requirements.txt} file.
+This can be done by running:
+\begin{lstlisting}[language=Bash]
+pip install -r requirements.txt
+\end{lstlisting}
+
+This will install a list of dependencies but the main ones are \textit{Tensorflow v1.1}, \textit{numpy}, \textit{sklearn} and \textit{scipy}.
+There are a couple others but they are not used for major components.
+
+If you plan to use the GPU support on Tensorflow, there are a couple more steps that need to be taken such as installing \textit{CUDA 8} and \textit{cuDNN v5.1}.
+These instructions can be found on the Tensorflow site\footnote{https://www.tensorflow.org/install}.
+Our project relied on an Amazon EC2 p2.xlarge with one NVIDIA K80 GPU but the code can be run on any GPU card with CUDA compute capability 3.0 or higher \cite{tensorflow}.
+
+\newpage
+
+In order to run the experiments, the datasets will have to be downloaded next.
+The main dataset used is \texttt{GRESCHBACH}\footnote{https://nymity.ch/tor-dns/\#data} but we also use \texttt{WANG14}\footnote{https://cs.uwaterloo.ca/~t55wang/wf.html}.
+These should be put in a data folder in the main directory where the directory containing the \texttt{GRESCHBACH} data, should be renamed to \texttt{cells} and the \texttt{WANG14} data to \texttt{WANG14\_cells}.
+
+\subsection{System Overview}
+
+Figure \ref{fig:code-structure} already shows the overall structure of the and how different components interact.
+Next, in section \ref{sec:code-structure} we also explain what the individual sections do.
+Hence, here we describe the same using a \textit{directory tree}.
+
+\dirtree{%
+.1 /.
+.2 attacks - Contains the code for all of the classifiers.
+.2 data.
+.3 cells - All of the individual cell files from the GRESCHBACH dataset.
+.2 feature\_extraction - All of the code to extract the hand-picked features from different models.
+.2 feature\_generation - Perform automatic feature generation.
+.3 new\_model - The Tensorflow implementation of the sequence-to-sequence model.
+.3 train\_model - Used to train the model.
+.3 feature\_extraction - After the model is trained, can be used to extract the features.
+.2 report - The latex and pdf files for this report.
+.2 run\_models - Provides the infrastructure to run a specific attack in the attacks directory.
+.2 tests - The unit tests to test everything.
+.2 gitignore.
+.2 travis.
+.2 LICENSE.
+.2 README - More information on the project and how to install/run everything.
+.2 requirements - The python packages required.
+}
+
+\subsection{Components}
+
+\subsubsection{Attacks}
+
+\subsubsection{Feature Extraction}
+
+\subsubsection{Feature Generation}
+
+\subsubsection{Run Models}
+
+\subsubsection{Unit Tests}
+
+For unit testing, we use the standard \texttt{unittest} module, which is very simple to use.
+To create more tests, create a new file in the \texttt{tests} directory, which starts with test and then the name of what you will be testing.
+Next, create a class within that file, which extends the \texttt{unittest.TestCase} class and add the methods of what you would like to test.
+
+Then to run all of the unit tests within the \texttt{tests} directory, simply run:
+\begin{lstlisting}[language=Bash]
+python -m unittest discover
+\end{lstlisting}
+
+\subsection{Contributing}
+
+There are a variety of different extensions possible, some of which are outlined in section \ref{sec:future-works}.
+If you decide to implement one of these, we use a very standard git workflow so if you would like to contribute, follow these steps:
+
+\begin{enumerate}
+  \item Forks the project repo.
+  \item Create a branch with the name of the particular improvement/extension that you will be working on.
+  \item After you are done, make sure that you run all of the tests and check if everything still works.
+  \item Submit a pull request from your branch to the master branch and make sure all of the tests pass on Travis.
+\end{enumerate}
+
+If you discover an issue or want to work on an extension, please create an issue on our Github issues page to let people know that you are working on this particular extension.
+
+\endgroup
