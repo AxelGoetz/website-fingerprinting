@@ -7,8 +7,7 @@
 
 \section{Future Works}
 
-% TODO: Although the classifiers seem to perform better with the hand-picked features,
-There is still much room for future improvements.
+This work shows that the classifiers seem to perform better with the hand-picked features but there is still much room for future improvements.
 Here we consider several different manners in how we can improve or extend this work.
 Although we definitely will not cover all the different possible extensions, we try to list the most interesting ones.
 
@@ -23,15 +22,28 @@ Some works have examined the the effectiveness of their attack, when these defen
 It would be interesting to see if the sequence-to-sequence model might still be able to effectively extract fingerprints, even with these defenses deployed.
 This could include both training the model on data where the defense was deployed or training it on normal data and analysing whether it can still extract the fingerprints if the defense is deployed during the attack stage.
 
-On top of analysing how defenses impact the attack, we could also potentially analyse how the performance of the fingerprint extraction process is affected over time.
-% TODO: We have already shown that the model is still successful when extracting fingerprints
+Juarez et al. have already shown that WF attacks suffer from the rapid changing nature of the content of web pages \cite{wfpevaluation}.
+Thus on top of analysing how defenses impact the attack, we could also potentially analyse how the performance of the fingerprint extraction process is affected over time.
+We have already shown that the model is still successful when extracting fingerprints from other datasets. % TODO: Check if correct
+However, this is not fully show that the sequence-to-sequence model is not affected by content changes within web pages.
+This could be fully examined by collecting our own data over a period of time and see how the performance of a trained sequence-to-sequence model changes.
+If the performance is not affected, we could save a large amount of time retraining the fingerprint extractor.
+
+We could also potentially research the possibility that training our model with data collected over time and under different circumstances would also make the model more robust.
+Since technically, the more different training instances it sees, the better it should get at identifying features.
+Additionally, we could also investigate how well the sequence-to-sequence model performs when collecting features when given more realistic user behavior.
+Hence, rather than visiting one page and waiting a certain amount of time before loading the next one, the data can be more realistic such as where the user has multiple tabs open at the same time.
+
+On top of training the model with more realistic browsing data, we could also evaluate its performance for \textit{Tor hidden services}.
+This is a protocol for Tor users to hide their location while offering a service such as hosting a website \cite{tor_hidden_services}.
+There is already evidence that these services can be classifier using a WF attack \cite{kfingerprinting} but it would be interesting to see how our model would perform on this data.
+
+On top of extending this work by using more of different kinds of data, we could also improve the sequence-to-sequence model.
+Currently, one of the main weaknesses is that the traces can be very long, which in turn makes our model very deep.
+We solved this issue here by cutting the traces after a certain amount of time since most the first part of the trace carries more information than the latter.
+However, this might not be the ideal solution.
+There might be another solution or perhaps even another model that does not have this weakness but still manages to map variable-length sequences into a fixed-length representation.
 
 Due to time constraints and limited Tensorflow support, we also did not examine the use of regularization.
 There are several works that show that several techniques such as \textit{L2 regularization}, \textit{dropout layers} and \textit{batch normalization} are promising techniques \cite{ioffe2015batch,nielsen_2017}.
 Hence, it could potentially help to reduce overfitting within the sequence-to-sequence model.
-
-
-
-% TODO: Tor hidden services
-% TODO: Collecting data over time
-% TODO: More realistic user behavior
