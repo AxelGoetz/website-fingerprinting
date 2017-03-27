@@ -162,19 +162,39 @@ Since we aim to compromise between computational complexity and the time it take
 
 \subsubsection{Bidirectional Encoder}
 
-% TODO: Finish
+Rather than using a normal encoder, a bidirectional might be more appropriate for this task.
+The reasoning behind this is that for a normal encoder, the output at every cell depends on the past.
+However, there might also be important information in the future that could in fact impact the output at that cell.
+Thus a bidirectional encoder parses the data in both directions, which means that the output of every cell depends on both the past and the future.
+
+The problem with this method is that it essentially introduces double the amount of free parameters as a normal encoder.
+Hence, when we perform the analysis, we need to consider whether or not we should take more time waiting to train this model or whether the performance gain is not worth it.
+
+For these experiments, we consider a smaller range of hidden state values from $80$ to $120$ in steps of $20$.
+Again, for all of these we will be using LSTM cells without cutting or reversing the traces and all of the learning parameters described above and the training set will remain exactly the same.
+
+% TODO: Add figure + conclusion
 
 \subsubsection{LSTM or GRU Cells}
 
-% TODO: Finish
+So far we've only experimented with LSTM cells since they are the most commonly used ones.
+However, GRU cells have been introduced more recently.
+They essentially combine several of the gates and states within LSTM cells to minimize the amount of free parameters and therefore making the model less complex.
+Consequently, the model should also be able to learn fixed-length representations faster than LSTM cells.
+But LSTM cells still have a greater expressive power, meaning that they could learn more complex functions.
 
-\subsubsection{Other Datasets}
+Here, we train a sequence-to-sequence model with both a unidirectional and bidirectional encoder.
+These will both have GRU cells with $100$ and $TODO: Fill in$ hidden states respectively.
 
-% TODO: See how it performs on other dataset
+Furthermore, we recreate the exact same training conditions as previously.
+This means that we will not be cutting the traces nor reversing them whilst training on the same dataset of $120,000$ web pages with the previously chosen learning parameters.
+
+% TODO: Add figure + conclusion
 
 \subsection{Classifier Performance}
 
-To analyse how well our model performs at automatically generating fingerprints, we compare its performance on different existing classifiers with hand-picked features.
+We have previously analysed the model's performance based on how well it copies the original input from a fingerprint.
+But to examine how well our model performs at automatically generating fingerprints, we compare its performance on different existing classifiers with hand-picked features.
 This means that we choose a set of existing WF attacks and recreate them.
 Next we run the exact same attack but with the automatically generated features and various scoring statistics.
 
@@ -200,8 +220,7 @@ Whilst we refer the k-fingerprinting attack by Hayes et al. \cite{kfingerprintin
 
 \subsubsection{Binary Classification}
 
-
-
+% TODO: Finish
 
 \begin{table}[ht]
   \centering
@@ -225,6 +244,8 @@ Whilst we refer the k-fingerprinting attack by Hayes et al. \cite{kfingerprintin
 
 \subsubsection{Multiclass Classification}
 
+% TODO: Finish
+
 \begin{table}[ht]
   \centering
   \begin{tabular}{ r  r  r  r  r  r } \hline
@@ -245,9 +266,24 @@ Whilst we refer the k-fingerprinting attack by Hayes et al. \cite{kfingerprintin
   \caption{Performance statistics hand-picked features on a binary classification task.}
 \end{table}
 
-% Did the design do the job you intended, or were there problems?
-% Is your solution fit for purpose?
-% How does the resulting system compare against the competition?
+\subsubsection{Different Circumstances}
+
+Beside analysing how the sequence-to-sequence model performs on data that was recorded under the same circumstances, it would be interesting to examine how it performs on other data.
+It has already been shown that the performance of the classifiers is greatly impacted by the network, time and a different TBB version.
+But that doesn't necessarily mean that our fingerprint extraction model is impacted similarly.
+
+If our sequence-to-sequence model is not impacted by these flaws, an adversary would only need to train the model once and then it could continue to use it and only retrain the classifiers.
+But if it were to be impacted, the retraining process would become significantly slower.
+
+To test this premise, we use a model that we previously trained on the same $120,000$ web pages within the \texttt{GRESCHBACH} dataset.
+% TODO: State architecture.
+Next, we extract the fingerprints from the Tor cells within the \texttt{WANG14} dataset using this model, train a set of classifiers on these fingerprints and note down their performance.
+
+% TODO: Include learning curve
+
+% TODO: Classifier analysis
+
+% TODO: Conclusion
 
 \section{Unit Tests}
 
