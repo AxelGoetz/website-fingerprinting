@@ -46,14 +46,12 @@ def get_cumulative_representation(trace, features, n):
 
         if i % sample == 0:
             amount += 1
-            features.append(c)
-            features.append(a)
+            features.append(c + a)
 
             if amount == n:
                 break
 
     for i in range(amount, n):
-        features.append(0)
         features.append(0)
 
 

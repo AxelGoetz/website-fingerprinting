@@ -117,8 +117,7 @@ def extract_partial_features(file_path, save_dir, data_dir=DATA_DIR, extension="
         '-new_path', save_dir + '/knn_cells/', '-extension', extension, 'all-files']
     )
 
-
-    extract_features_from_files(extract_nb_features, paths, save_dir + '/nb_cells', extension=extension, model_name="naive bayes")
+    # extract_features_from_files(extract_nb_features, paths, save_dir + '/nb_cells', extension=extension, model_name="naive bayes")
     extract_features_from_files(extract_rf_features, paths, save_dir + '/rf_cells', extension=extension, model_name="random forest")
     extract_features_from_files(extract_svc1_features, paths, save_dir + '/svc1_cells', extension=extension, model_name="svc1")
     extract_features_from_files(extract_svc2_features, paths, save_dir + '/svc2_cells', extension=extension, model_name="svc2")
