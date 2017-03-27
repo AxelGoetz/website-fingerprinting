@@ -19,6 +19,11 @@ To make sure that the same Python environment is used on both these machines, we
 As previously mentioned, the main dataset that will be used is \texttt{GRESCHBACH} but we will also be using some of the data in the \texttt{WANG14} dataset to see how the model performs on data that was recorded under different circumstances.
 From both these datasets, we will only be using the preprocessed Tor cells and not the raw TCP traffic data.
 
+For all of the experiments that will be conducted below, we only consider an \textit{open-world scenario}.
+This means that the test set will contain unmonitored pages that the sequence-to-sequence model or the classifier have never seen before.
+For this to work, we train the models on a large set of monitored web pages but also on a small percentage of unmonitored web pages such the classifiers can distinguish between both.
+We will keep the ratio of unmonitored web pages within the training set around $4\%$ of the total amount of unmonitored pages since we want to be able to classify unmonitored web pages but we do not want to introduce too much noise for the classifiers.
+
 % TODO: Should I include more here?
 
 \section{Evaluation Techniques}
@@ -73,14 +78,15 @@ As mentioned in section \ref{sec:fingerprint-extraction-training}, there are a c
 We first try to aim to get the appropriate values for the learning parameters within a simple encoder and decoder with LSTM cells and $120$ hidden states.
 
 First, we start by varying the mini-batch sizes from $20$ to $400$ in steps of $20$.
-The higher this value, the longer it takes before making a weight update and the lower the value, the more noise in the training data.
-For instance, as can be seen in figure \ref{fig:varying-batch-sizes}, there is clearly a trend of the training error decreases over time.
+The higher the batch size, the longer it takes before making a weight update and the lower the value, the more noise in the training data.
+For instance, as can be seen in figure \ref{fig:varying-batch-sizes}, there is clearly a trend of the training error decreasing over time.
 However, since the batch size is low for the first case, there is a higher probability of having a batch where the training error is high for all of the samples within that batch.
 Hence, the data will look very noisy.
-Whilst the greater the batch size, the easier to spot this trend.
+Whilst the greater the batch size, the less noise there is in the data and therefore the easier it is to spot trends.
+
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=0.9\textwidth]{varying-batch-sizes}
+  \includegraphics[width=\textwidth]{varying-batch-sizes}
   \caption{Scaled MSE over traces processed for different batch sizes.}
   \label{fig:varying-batch-sizes}
 \end{figure}
@@ -89,29 +95,159 @@ Preferably we would like to have an even greater batch size than $200$ but due t
 Thus through the rest of the report we will use a mini-batch size of $200$.
 
 Next, we vary the learning rate $\gamma$ from $0.01$ to $0.000001$ with various optimizers (\textit{adam}, \textit{gradient descent} or \textit{RMSProp}) and loss functions (\textit{mean squared error (MSE)} or \textit{absolute loss} (AL)).
-As expected, during our experiments, the \textit{adam optimizer} continuously demonstrated better results.
+For this, we aim to get a learning curve that gradually decreases, the more traces the model processes and eventually slows down once the model reaches a minimum.
 
-Next, we also noted that the best quality of data compression was achieved with a \textit{MSE loss function} and a learning rate of $0.000002$.
+After trying a wide variety of different permutations, an \textit{adam optimizer} continuously demonstrated better results.
+We expected this since adam optimizers are computationally efficient, require a relatively little amount of memory and tend to perform very well with problems that have a large amount of parameters \cite{kingma2014adam},
+which is ideal since our network can be unrolled to a very large lengths.
+
+Next, we also note that the best quality of data compression was achieved with a \textit{MSE loss function} and a learning rate of $0.000002$.
 Hence, we set $\lambda = 0.000002$, $b = 200$ and use an adam optimizer with MSE for the rest of our experiments.
 
-We do not yet make a decision on both the reversing traces and cutting traces parameters, as we will investigate those later.
+% TODO: Reversing traces
+% TODO: Cutting traces
 
 \subsection{Architecture Tuning}
 
-Now that we have an average measure of the learning parameters, we can start changing the architecture of the sequence-to-sequence model to see which ones yield the best results.
+Now that we have made a decision on which learning parameters to use, we can start changing the architecture of the sequence-to-sequence model to see which ones yield the best results.
+We do need to note that we might slightly deviate from the previously chosen learning parameters for different models due to memory constraints.
+But when we do, we will clearly state that this is the case.
 
-% See how it performs on other dataset
-% TODO: Reversing traces
-% TODO: Add cutting traces as a learning parameter
+\subsubsection{Hidden States}
+
+We first start by examining the amount of hidden states in the network.
+These directly affects the size of the fingerprints that will be extracted.
+We do not want these values to be too large since this makes the network more complex and requires more computation.
+On the other hand, we do not want these values to be too small either since the state vector might be too small for the network to learn anything useful.
+
+Moreover, we also need to consider the classifiers.
+The more features we introduce, the more time and data they require to learn the classification task.
+Whilst if the amount of features is too low, the classifier might not be able to learn how to effectively classify any of the web pages.
+Hence, we base the amount of hidden states on the amount of features used in previous WF attacks.
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{ r r } \hline
+    \multicolumn{1}{c}{\textbf{Model}} & \multicolumn{1}{c}{\textbf{Features}} \\ \hline
+    SVC \cite{panchenko1} & $305$ \\
+    SVC \cite{panchenko2} & $104$ \\
+    RF \cite{kfingerprinting} & $150$ \\
+    kNN \cite{wang_cai_johnson_nithyanand_goldberg_2014} & $3737$ \\
+    \hline
+  \end{tabular}
+  \caption{Amount of features for existing attacks.}
+  \label{table:feature-wf-attacks}
+\end{table}
+
+As can be seen in table \ref{table:feature-wf-attacks}, most attacks tend to have between $100$ and $300$ features if we do not consider Wang et al.'s attack.
+Thus we vary the amount of hidden states between $60$ to $140$ in steps of $20$ to see which ones yield the most appropriate results.
+
+For these experiments we train a sequence-to-sequence model with a unidirectional encoder, LSTM cells and without cutting or reversing the traces.
+The training data consists $120,000$ monitored and unmonitored web pages, which are shuffled to avoid overfitting on any specific web page.
+We only train the model for one epoch, as we seem to have enough data for the model to converge within that epoch.
+Hence, every sample that the model sees in the figure below is one that it has never seen before.
+So we can easily determine if the model overfits on specific data.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\textwidth]{varying-hidden-states}
+  \caption{MSE over the amount of traces processed for varying hidden states.}
+  \label{fig:varying-hidden-states}
+\end{figure}
+
+Figure \ref{fig:varying-hidden-states} clearly shows us that the smaller the amount of hidden states, the faster the network seems to learn the reconstruction task.
+This was expected because the less hidden states, the less complex the internal representation of the network is.
+On the other hand, the higher the amount of states, the lower the final error seems to be.
+Since we aim to compromise between computational complexity and the time it takes to train the model, around $100$ hidden states seems to be the most appropriate since it manages to a MSE that is very close to the networks with a higher amount of hidden states.
+
+\subsubsection{Bidirectional Encoder}
+
+% TODO: Finish
+
+\subsubsection{LSTM or GRU Cells}
+
+% TODO: Finish
+
+\subsubsection{Other Datasets}
+
+% TODO: See how it performs on other dataset
 
 \subsection{Classifier Performance}
 
-% Include different models
+To analyse how well our model performs at automatically generating fingerprints, we compare its performance on different existing classifiers with hand-picked features.
+This means that we choose a set of existing WF attacks and recreate them.
+Next we run the exact same attack but with the automatically generated features and various scoring statistics.
+
+Note that our results might be slightly lower than in their respective papers since we do not aim to recreate the full attack.
+Rather than optimizing different hyperparameters, we aim to use these classifiers and the hand-picked features as an indicator as to how well the sequence-to-sequence model performs.
+
+We expect that the automatically generated features will perform worse than the hand-picked ones due to the complexity of the task.
+To effectively compress a variable-length trace into a fixed-length representation is a very difficult to achieve task and due to the depth of the network, we expect that it got stuck in a local minima.
+However, we still hope to show that it is in fact possible to automate this feature selection process.
+
+As mentioned in section \ref{sec:threat-model}, there are two main threat models that we need to consider.
+The first one is a binary classification task, where the adversary wants to see whether or not a user is visiting any webpages within a given set.
+The other threat model involves the adversary having a set of monitored pages, and it wants to know which specific pages the user is visiting in that set.
+Hence, it is a multiclass classification problem.
+
+Although there are different techniques for evaluating binary and multiclass classification models, we will only use the scoring statistics outlined in section \ref{sec:classifier-training}.
+This allows us for easy comparisons between the different threat models.
+We do expect that the binary classification models will perform better than the multiclass ones due to the larger amount of options available.
+
+Aforementioned, we have already selected a total of four different existing attacks.
+We will refer to the first SVC attack by Panchenko et al. \cite{panchenko1} as \texttt{svc1} and the second one \cite{panchenko2} as \texttt{svc2}.
+Whilst we refer the k-fingerprinting attack by Hayes et al. \cite{kfingerprinting} as \texttt{RF} and finally the attack by Wang et al. \cite{wang_cai_johnson_nithyanand_goldberg_2014} as \texttt{kNN}.
+
+\subsubsection{Binary Classification}
+
+
+
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{ r  r  r  r  r  r } \hline
+    \multicolumn{1}{c}{\textbf{Model}} & \multicolumn{1}{c}{\textbf{Accuracy}} & \multicolumn{1}{c}{\textbf{BDR}} & \multicolumn{1}{c}{\textbf{TPR}} &
+      \multicolumn{1}{c}{\textbf{FPR}} & \multicolumn{1}{c}{\textbf{F1}} \\ \hline
+
+    \texttt{svc1} & $0.64 \pm 0.008$ & $0.87 \pm 0.009$ & $0.48 \pm 0.008$ & $0.09 \pm 0.004$ & $0.62 \pm 0.008$ \\
+
+    \texttt{svc2} & $0.63 \pm 0.018$ & $0.84 \pm 0.014$ & $0.50 \pm 0.025$ & $0.13 \pm 0.009$ & $0.61 \pm 0.017$ \\
+
+    \texttt{RF} & $0.70 \pm 0.009$ & $0.98 \pm 0.005$ & $0.49 \pm 0.014$ & $0.01 \pm 0.005$ & $0.65 \pm 0.009$ \\
+
+    \texttt{kNN} & & & & & \\
+
+    % TODO: Fill in kNN
+    \hline
+  \end{tabular}
+  \caption{Performance statistics hand-picked features on a multiclass classification task.}
+\end{table}
+
+\subsubsection{Multiclass Classification}
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{ r  r  r  r  r  r } \hline
+    \multicolumn{1}{c}{\textbf{Model}} & \multicolumn{1}{c}{\textbf{Accuracy}} & \multicolumn{1}{c}{\textbf{BDR}} & \multicolumn{1}{c}{\textbf{TPR}} &
+      \multicolumn{1}{c}{\textbf{FPR}} & \multicolumn{1}{c}{\textbf{F1}} \\ \hline
+
+    \texttt{svc1} & $0.73 \pm 0.005$ & $0.81 \pm 0.007$ & $0.81 \pm 0.010$ & $0.22 \pm 0.015$ & $0.73 \pm 0.005$ \\
+
+    \texttt{svc2} & $0.74 \pm 0.013$ & $0.84 \pm 0.006$ & $0.76 \pm 0.016$ & $0.16 \pm 0.009$ & $0.74 \pm 0.013$ \\
+
+    \texttt{RF} & $0.83 \pm 0.014$ & $0.93 \pm 0.014$ & $0.80 \pm 0.007$ & $0.06 \pm 0.01$ & $0.83 \pm 0.014$\\
+
+    \texttt{kNN} & & & & & \\
+
+    % TODO: Fill in kNN
+    \hline
+  \end{tabular}
+  \caption{Performance statistics hand-picked features on a binary classification task.}
+\end{table}
 
 % Did the design do the job you intended, or were there problems?
 % Is your solution fit for purpose?
 % How does the resulting system compare against the competition?
-% Binary vs multiclass
 
 \section{Unit Tests}
 
