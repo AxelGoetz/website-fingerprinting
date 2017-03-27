@@ -20,24 +20,22 @@ class Svc1FeaturesTests(unittest.TestCase):
     def test_get_cumulative_representation1(self):
         svc2.get_cumulative_representation(self.trace, self.features, 100)
 
-        self.assertEqual(len(self.features), 200)
+        self.assertEqual(len(self.features), 100)
 
-        self.assertEqual(self.features[0], -1)
-        self.assertEqual(self.features[1], 1)
+        self.assertEqual(self.features[0], 0)
+        self.assertEqual(self.features[1], 6)
 
-        self.assertEqual(self.features[2], 1)
-        self.assertEqual(self.features[3], 5)
 
     def test_get_cumulative_representation2(self):
         svc2.get_cumulative_representation([], self.features, 100)
 
-        self.assertEqual(len(self.features), 200)
+        self.assertEqual(len(self.features), 100)
 
-        for i in range(200):
+        for i in range(100):
             self.assertEqual(self.features[i], 0)
 
 
     def test_total(self):
         self.features = svc2.extract_svc2_features(self.trace)
 
-        self.assertEqual(len(self.features), 203)
+        self.assertEqual(len(self.features), 103)
