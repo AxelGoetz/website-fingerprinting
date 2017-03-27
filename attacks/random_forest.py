@@ -12,6 +12,7 @@ For now we assume that the data fits in memory.
 """
 
 from sklearn.ensemble import RandomForestClassifier
+from sys import stdout
 
 class kFingerprinting:
     """
@@ -30,9 +31,11 @@ class kFingerprinting:
         self.is_multiclass = is_multiclass
         self.fingerprints = []
 
+        self.unmonitored_label = unmonitored_label
+
     def fit(self, X, y):
         self.forest.fit(X, y)
-        self.fingerprints = list(zip(forest.apply(X), y))
+        self.fingerprints = list(zip(self.forest.apply(X), y))
 
     def get_closest_neighbours(self, x):
         """
@@ -58,7 +61,8 @@ class kFingerprinting:
         """
         new_fingerprints = self.forest.apply(X)
         res = []
-        for elem in new_fingerprints:
+        for i, elem in enumerate(new_fingerprints):
+            update_progess(len(new_fingerprints), i)
             neighbours = self.get_closest_neighbours(elem)
 
             # Checks if the `k_neighbours` closest neightbours have the same label
@@ -67,9 +71,14 @@ class kFingerprinting:
             if neighbours_match:
                 res.append(neighbours[0][1])
             else:
-                res.append(unmonitored_label) # Classify as unseen website
+                res.append(self.unmonitored_label) # Classify as unseen website
 
         return res
+
+def update_progess(total, current):
+    """Prints a percentage of how far the process currently is"""
+    stdout.write("{:.2f} %\r".format((current/total) * 100))
+    stdout.flush()
 
 def get_random_forest(num_trees=20, k_neighbours=3, is_multiclass=True, unmonitored_label=-1):
     return kFingerprinting(num_trees=num_trees, k_neighbours=k_neighbours, is_multiclass=is_multiclass, unmonitored_label=unmonitored_label)

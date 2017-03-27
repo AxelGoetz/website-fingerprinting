@@ -168,30 +168,33 @@ class kNN():
         training = min(len(data), 8000)
 
         for i in range(training):
-            update_progess(training, i)
+            try:
+                update_progess(training, i)
 
-            row = data[i]
-            distances, indexes = self.kNN_finder.kneighbors([row], n_neighbors=int(self.K_RECO * 3), return_distance=True)
-            new_data = [{'point': data[y], 'distance': x, 'label': labels[y]} for (x, y) in zip(distances[0], indexes[0])]
+                row = data[i]
+                distances, indexes = self.kNN_finder.kneighbors([row], n_neighbors=int(self.K_RECO * 3), return_distance=True)
+                new_data = [{'point': data[y], 'distance': x, 'label': labels[y]} for (x, y) in zip(distances[0], indexes[0])]
 
-            same_label, different_label = self._find_closest_reco_points(labels[i], new_data)
+                same_label, different_label = self._find_closest_reco_points(labels[i], new_data)
 
-            features_badness = []
+                features_badness = []
 
-            # Go over all features
-            for j, feature in enumerate(row):
-                diff_label_distances = self._calculate_all_dist_for_feature(row, different_label, j)
-                same_label_distances = self._calculate_all_dist_for_feature(row, same_label, j)
+                # Go over all features
+                for j, feature in enumerate(row):
+                    diff_label_distances = self._calculate_all_dist_for_feature(row, different_label, j)
+                    same_label_distances = self._calculate_all_dist_for_feature(row, same_label, j)
 
-                diff_label_distances = [{'distance': x} for x in diff_label_distances]
-                same_label_distances = [{'distance': x} for x in same_label_distances]
+                    diff_label_distances = [{'distance': x} for x in diff_label_distances]
+                    same_label_distances = [{'distance': x} for x in same_label_distances]
 
-                point_badness_feature = self._get_point_baddness(same_label_distances, diff_label_distances)
+                    point_badness_feature = self._get_point_baddness(same_label_distances, diff_label_distances)
 
-                features_badness.append(point_badness_feature)
+                    features_badness.append(point_badness_feature)
 
-            point_badness = self._get_point_baddness(same_label, different_label)
-            self._update_weights(point_badness, features_badness)
+                point_badness = self._get_point_baddness(same_label, different_label)
+                self._update_weights(point_badness, features_badness)
+            except:
+                import pdb; pdb.set_trace()
 
     def _majority_vote(self, points):
         votes = {}
