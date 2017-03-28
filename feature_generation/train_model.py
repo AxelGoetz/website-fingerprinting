@@ -7,7 +7,7 @@ import numpy as np
 from sys import stdin, stdout, exit
 from os import path
 
-from new_model import Seq2SeqModel, train_on_copy_task, get_vector_representations
+from seq2seq import Seq2SeqModel, train_on_copy_task, get_vector_representations
 from process_data import import_data, store_data, split_mon_unmon
 
 import helpers

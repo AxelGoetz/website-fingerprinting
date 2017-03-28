@@ -9,7 +9,7 @@ from tensorflow.contrib.rnn import LSTMCell, GRUCell
 from os import scandir, makedirs, path as ospath
 from sys import stdout, path, exit
 
-from new_model import Seq2SeqModel, get_vector_representations
+from seq2seq import Seq2SeqModel, get_vector_representations
 
 dirname, _ = ospath.split(ospath.abspath(__file__))
 DATA_DIR = dirname + '/../data/cells'
