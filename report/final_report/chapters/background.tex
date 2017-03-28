@@ -572,6 +572,9 @@ After this processing, a cell looks like a list of tuples, each containing a tim
   \label{table:cell-extract}
 \end{table}
 
+All of there individual Tor cells are then stored within different files.
+The names of these files will have the following format for monitored pages \texttt{<page\_id>-<instance\_id>.cell} and \texttt{<page\_id>.cell} for unmonitored pages.
+
 There are several data sets readily available that have already been preprocessing.
 Some of the largest ones are the one used by Wang et al. \cite{wang_cai_johnson_nithyanand_goldberg_2014}, Greschbach et al. \cite{greschbach2016effect}.
 Wang et al's dataset contain traces for a $100$ monitored websites with $90$ instances each and $8400$ unmonitored sites, all from Alexa's top 10,000.
