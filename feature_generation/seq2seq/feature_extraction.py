@@ -12,7 +12,7 @@ from sys import stdout, path, exit
 from seq2seq import Seq2SeqModel, get_vector_representations
 
 dirname, _ = ospath.split(ospath.abspath(__file__))
-DATA_DIR = dirname + '/../data/cells'
+DATA_DIR = dirname + '/../../data/cells'
 
 def create_dir_if_not_exists(directory):
     """
@@ -58,11 +58,12 @@ def run_model(data, in_memory=False):
 
         # session.run(tf.global_variables_initializer())
 
-        get_vector_representations(session, model, data, DATA_DIR + '/../af_cells',
+        get_vector_representations(session, model, data, DATA_DIR + '/../seq2seq_cells',
                                batch_size=args.batch_size,
                                max_batches=None,
                                batches_in_epoch=100,
-                               max_time_diff=args.max_time_diff)
+                               max_time_diff=args.max_time_diff
+                               extension=args.extension)
 
 def main(_):
     paths, labels = [], []
@@ -73,14 +74,14 @@ def main(_):
         labels = f.readline().split(' ')
 
 
-    create_dir_if_not_exists(DATA_DIR + '/../af_cells')
+    create_dir_if_not_exists(DATA_DIR + '/../seq2seq_cells')
 
     run_model(paths)
 
 if __name__ == '__main__':
     import argparse
 
-    parser = argparse.ArgumentParser(description="Runs a seq2seq model that learns to extract a fixed-length vector representation of data in the `data` directory")
+    parser = argparse.ArgumentParser(description="Runs a seq2seq model that extracts a fixed-length vector representation of data in the `data` directory")
 
     parser.add_argument('--batch_size', metavar='', type=int, help="Batch size (default 100)", default=100)
     parser.add_argument('--bidirectional', action='store_true', help="Whether to use the a bidirectional encoder or not (default not bidirectional)")
@@ -95,7 +96,7 @@ if __name__ == '__main__':
     global args
     args = parser.parse_args()
 
-    args.graph_file = dirname + '/../' + args.graph_file
+    args.graph_file = dirname + '/../../' + args.graph_file
 
     args.decoder_hidden_states = 2 * args.encoder_hidden_states if args.bidirectional else args.encoder_hidden_states
 

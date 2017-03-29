@@ -4,12 +4,15 @@ from tensorflow.contrib.rnn import LSTMCell, GRUCell
 import tensorflow as tf
 import numpy as np
 
-from sys import stdin, stdout, exit
-from os import path
+from sys import stdin, stdout, exit, path
+from os import path as ospath
 
 from seq2seq import Seq2SeqModel, train_on_copy_task, get_vector_representations
-from process_data import import_data, store_data, split_mon_unmon
 
+# Add parent dir to path
+path.append(ospath.dirname(ospath.dirname(ospath.abspath(__file__))))
+
+from process_data import import_data, store_data, split_mon_unmon
 import helpers
 
 TEST_SIZE = 0.7
@@ -54,10 +57,10 @@ def run_model(data, in_memory=False):
 
 def main(_):
     paths, labels = None, None
-    dirname, _ = path.split(path.abspath(__file__))
+    dirname, _ = ospath.split(ospath.abspath(__file__))
 
     try:
-        data_dir = dirname + '/../data/cells'
+        data_dir = dirname + '/../../data/cells'
         paths, labels = import_data(data_dir=data_dir, in_memory=False, extension=args.extension)
 
         monitored_data, monitored_label, unmonitored_data = split_mon_unmon(paths, labels)
@@ -105,9 +108,9 @@ if __name__ == '__main__':
     parser.add_argument('--extension', metavar='', help="Extension of the cell files", default=".cell")
     parser.add_argument('--learning_rate', metavar='', type=float, help="Learning rate (default 0.000002)", default=0.000002)
 
-
     global args
     args = parser.parse_args()
+
     args.decoder_hidden_states = 2 * args.encoder_hidden_states if args.bidirectional else args.encoder_hidden_states
 
     if args.cell_type == 'LSTM':

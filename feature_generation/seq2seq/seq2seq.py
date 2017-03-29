@@ -25,11 +25,15 @@ Hyperparameters to tune:
 """
 import numpy as np
 import tensorflow as tf
-import helpers
 
-from sys import stdout
+from sys import stdout, path
+from os import path as ospath
 
 from tensorflow.contrib.rnn import LSTMStateTuple
+
+path.append(ospath.dirname(ospath.dirname(ospath.abspath(__file__))))
+import helpers
+
 
 class Seq2SeqModel():
     """
@@ -378,8 +382,6 @@ def get_vector_representations(sess, model, data, save_dir,
     """
     batches = helpers.get_batches(data, batch_size=batch_size)
 
-    results = None
-
     batches_in_data = len(data) // batch_size
     if max_batches is None or batches_in_data < max_batches:
         max_batches = batches_in_data - 1
@@ -393,14 +395,9 @@ def get_vector_representations(sess, model, data, save_dir,
             # Returns a tuple, so we concatenate
             l = np.concatenate((l.c, l.h), axis=1)
 
-            if results is None:
-                results = l
-            else:
-                results = np.concatenate((results, l), axis=0)
-
             file_names = [helpers.extract_filename_from_path(path, extension) for path in paths]
 
-            for file_name, features in zip(file_names, list(results)):
+            for file_name, features in zip(file_names, list(l)):
                 helpers.write_to_file(features, save_dir, file_name, new_extension=".cellf")
 
     except KeyboardInterrupt:
