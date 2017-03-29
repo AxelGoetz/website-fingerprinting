@@ -67,9 +67,14 @@ Hence, here we describe the same using a \textit{directory tree}.
 .3 cells - All of the individual cell files from the GRESCHBACH dataset.
 .2 feature\_extraction - All of the code to extract the hand-picked features from different models.
 .2 feature\_generation - Perform automatic feature generation.
-.3 new\_model - The Tensorflow implementation of the sequence-to-sequence model.
-.3 train\_model - Used to train the model.
-.3 feature\_extraction - After the model is trained, can be used to extract the features.
+.3 autoencoder - Implementation of the autoencoder, how to run it and how to extract features.
+.4 autoencoder - Autoencoder class.
+.4 feature\_extraction - Used to extract features after model has been trained.
+.4 train\_autoencoder - Runnable file for training.
+.3 seq2seq - Implementation of the sequence-to-sequence model, how to run it and how to extract features.
+.4 seq2seq - Sequence-to-sequence class.
+.4 feature\_extraction - Used to extract features after model has been trained.
+.4 train\_seq2seq - Runnable file for training.
 .2 report - The latex and pdf files for this report.
 .2 run\_models - Provides the infrastructure to run a specific attack in the attacks directory.
 .2 tests - The unit tests to test everything.
@@ -104,14 +109,17 @@ This file essentially goes over all the traces within the \texttt{data/cells} di
 \subsubsection{Feature Generation}
 
 This is one of the main components of this work, containing the code to automatically generate features.
-The model is defined in the \texttt{new\_model.py} file, where you can construct the sequence-to-sequence and train it.
-The main infrastructure to actually import the data, do all of the preprocessing and train the model is defined within \texttt{train\_model.py}.
+Currently, we have two models defined, namely a sequence-to-sequence model, which can be found in \texttt{seq2seq} and an autoencoder in \texttt{autoencoder}.
+In these directories, we first have a file, containing a class that defines a model and then two more files, which are executables, used to train and extract the features (\texttt{train\_<model\_name>.py} and \texttt{feature\_extraction.py}).
 
-After every epoch, the infrastructure will save the computational graph such that training can be continued even if it is interrupted.
+When running the training files, after every epoch, the infrastructure will save the computational graph such that training can be continued even if it is interrupted.
+The name of these files depend on the Tensorflow version and the model you are training but generally look like \texttt{<model\_name>-model.meta}.
 
-Finally, all of the logic to actually extract the features is in the \texttt{feature\_extraction.py} file, which again stores the fingerprints in the \texttt{data} directory.
+Finally, all of the logic to actually extract the features is in the \texttt{feature\_extraction.py} files, which again stores the fingerprints in the \texttt{data} directory.
 
-If you wish to implement a new model, it just needs to implement two main functions such that it can be used by the rest of the infrastructure.
+If you wish to implement a new model, add a new directory within the \texttt{feature_generation} folder with the model name.
+Then create three new files, which contain the model definition, training and extracting code.
+The model  just needs to implement two main functions such that it can be used by the rest of the infrastructure.
 These are \texttt{train\_on\_copy\_task} and \texttt{get\_vector\_representations}, which both take some data as their input and either train the model or extract features.
 
 \subsubsection{Run Models}
@@ -149,5 +157,13 @@ If you decide to implement one of these, we use a very standard git workflow so 
 \end{enumerate}
 
 If you discover an issue or want to work on an extension, please create an issue on our Github issues page to let people know that you are working on this particular extension.
+
+\subsubsection{Style Guide}
+
+When contributing, please do note that we try to adhere to the \textit{PEP 8}\footnote{https://www.python.org/dev/peps/pep-0008/} style guide for our python code \cite{pythonpep8}.
+This is done for consistency reasons and readability of the code.
+
+Although it is not necessary to adhere to all of the guidelines, we strongly suggest for you to adhere to the basics.
+If the code within a pull request is unreadable or does not adhere to any of the standards, there is a very strong change that it will not be merged.
 
 \endgroup
