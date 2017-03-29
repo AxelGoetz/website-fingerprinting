@@ -85,6 +85,8 @@ Hence, here we describe the same using a \textit{directory tree}.
 .2 requirements - The python packages required.
 }
 
+\newpage
+
 \subsection{Components}
 
 Here how the individual components work and how to potentially extend them.
@@ -113,14 +115,16 @@ Currently, we have two models defined, namely a sequence-to-sequence model, whic
 In these directories, we first have a file, containing a class that defines a model and then two more files, which are executables, used to train and extract the features (\texttt{train\_<model\_name>.py} and \texttt{feature\_extraction.py}).
 
 When running the training files, after every epoch, the infrastructure will save the computational graph such that training can be continued even if it is interrupted.
-The name of these files depend on the Tensorflow version and the model you are training but generally look like \texttt{<model\_name>-model.meta}.
+The name of these files depend on the Tensorflow version and the model you are training but generally look like \texttt{<model\_name>\_model.meta}.
 
 Finally, all of the logic to actually extract the features is in the \texttt{feature\_extraction.py} files, which again stores the fingerprints in the \texttt{data} directory.
 
-If you wish to implement a new model, add a new directory within the \texttt{feature_generation} folder with the model name.
+If you wish to implement a new model, add a new directory within the \texttt{feature\_generation} folder with the model name.
 Then create three new files, which contain the model definition, training and extracting code.
 The model  just needs to implement two main functions such that it can be used by the rest of the infrastructure.
 These are \texttt{train\_on\_copy\_task} and \texttt{get\_vector\_representations}, which both take some data as their input and either train the model or extract features.
+
+\newpage
 
 \subsubsection{Run Models}
 
@@ -141,8 +145,6 @@ Then to run all of the unit tests within the \texttt{tests} directory, simply ru
 \begin{lstlisting}[language=Bash]
 python -m unittest discover
 \end{lstlisting}
-
-\newpage
 
 \subsection{Contributing}
 

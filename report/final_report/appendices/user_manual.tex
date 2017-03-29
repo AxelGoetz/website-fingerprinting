@@ -17,7 +17,7 @@ After this, you need to be install and initialize a virtual environment and inst
 
 Next, there are four main scripts that need to executed to perform the WF attack:
 \begin{enumerate}
-  \item \texttt{train\_model.py}
+  \item \texttt{train\_<model\_name>.py}
   \item \texttt{feature\_generation.py}
   \item \texttt{feature\_extraction.py}
   \item \texttt{run\_models.py}
@@ -31,9 +31,18 @@ python <script_name>.py --help
 
 \subsubsection{Train Model}
 
-As previously mentioned, we first need to train the sequence-to-sequence model.
-This can be done by executing the \texttt{train\_model.py}, which takes several command line parameters in order to change the behavior of the model.
+As previously mentioned, we first need to train the fingerprint extraction model.
+This can be done by executing either of the commands below in the virtual environment, depending on which model you would like to train:
+
+\begin{lstlisting}[language=Bash]
+python feature_generation/seq2seq/train_seq2seq.py
+python feature_generation/autoencoder/train_autoencoder.py
+\end{lstlisting}
+
+Both of these take several command line parameters in order to change the behavior of the models.
 All of these are outlined below:
+
+\newpage
 
 \begin{table}[ht]
   \centering
@@ -48,48 +57,59 @@ All of these are outlined below:
     extension & String & .cell & The extension of the Tor cell files. We expect that they are in the following format \texttt{webpage\_id-instance.extension}. \\ \hline
     learning\_rate & Float & 0.000002 & The learning rate used whilst training.
   \end{tabular}
-  \caption{Parameters for the \texttt{train\_model.py} file.}
+  \caption{Parameters for the \texttt{train\_seq2seq.py} file.}
 \end{table}
-
-\newpage
-
-\noindent
-For example to run a simple encoder-decoder with GRU cells, a batch size of $200$ and $200$ hidden states, run the following command:
-\begin{lstlisting}[language=Bash]
-python train_model.py --batch_size 200 --encoder_hidden_states 200 --cell_type "GRU"
-\end{lstlisting}
-
-After running this, a couple files should be created in the main directory.
-First of all \texttt{loss\_track.pkl}, which is a pickled file, containing the object that represents the loss over time.
-Next, there should also be a couple \texttt{seq2seq\_model} files with different extensions, which contain the saved computational graph.
-Finally, it also creates a \texttt{X\_test} and \texttt{y\_test} file in the \texttt{data} directiory.
-These contains the paths and the labels to the files, which were not used for training.
-
-\subsubsection{Feature Generation}
-
-After the sequence-to-sequence has been trained, the features need to be extracted, which can be achieved with the \texttt{feature\_generation.py} script.
-Since we do not want to perform any testing on the same data as we trained the model on, it only extracts fingerprints from the traces in the \texttt{X\_test} file.
-
-Next, these features are stored in the \texttt{data/af\_cells} directory with a \texttt{.cellf} extension.
-
-Most of the flags here are the same as in the previous section.
-Hence, we will only list the new ones.
-
-\newpage
 
 \begin{table}[ht]
   \centering
   \begin{tabular}{ l | l | l | p{0.5\textwidth} }
     \textbf{Parameter} & \textbf{Type} & \textbf{Default} & \textbf{Description} \\ \hline \hline
-    graph\_file & String & seq2seq\_model & The name of where you saved the graph. You should not need to change this, except if you change the graph name in the code.
+    batch\_size & Integer & 100 & The size of each mini-batch. \\ \hline
+    extension & String & .cell & The extension of the Tor cell files. We expect that they are in the following format \texttt{webpage\_id-instance.extension}. \\ \hline
+    learning\_rate & Float & 0.0001 & The learning rate used whilst training. \\ \hline
+    activation\_func & String & sigmoid & The activation function used for the neurons. \\ \hline
+    layers & List & \texttt{[1500, 500, 100]} & The sizes of the respective layers in the encoder and decoder.
   \end{tabular}
-  \caption{Parameters for the \texttt{feature\_generation.py} file.}
+  \caption{Parameters for the \texttt{train\_autoencoder.py} file.}
+\end{table}
+
+\noindent
+For example to run a simple encoder-decoder with GRU cells, a batch size of $200$ and $200$ hidden states, run the following command:
+\begin{lstlisting}[language=Bash]
+python feature_generation/seq2seq/train_seq2seq.py --batch_size 200 --encoder_hidden_states 200 --cell_type "GRU"
+\end{lstlisting}
+
+After running this, a couple files should be created in the main directory.
+First of all \texttt{loss\_track.pkl}, which is a pickled file, containing the object that represents the loss over time.
+Next, there should also be a couple \texttt{<model\_name>\_model} files with different extensions, which contain the saved computational graph.
+Finally, it also creates a \texttt{X\_test} and \texttt{y\_test} file in the \texttt{data} directiory.
+These contains the paths and the labels to the files, which were not used for training.
+
+\newpage
+
+\subsubsection{Feature Generation}
+
+After the fingerprint extraction has been trained, the features need to be extracted, which can be achieved with the \texttt{feature\_generation.py} module.
+Since we do not want to perform any testing on the same data as we trained the model on, it only extracts fingerprints from the traces in the \texttt{X\_test} file.
+
+Next, these features are stored in either the \texttt{data/seq2seq\_cells} or \texttt{data/ae\_cells} directory with a \texttt{.cellf} extension.
+
+Most of the flags here are the same as in the previous section.
+Hence, we will only list the new arguments.
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{ l | l | l | p{0.5\textwidth} }
+    \textbf{Parameter} & \textbf{Type} & \textbf{Default} & \textbf{Description} \\ \hline \hline
+    graph\_file & String & <model\_name>\_model & The name of where you saved the graph. You should not need to change this, except if you change the graph name in the code.
+  \end{tabular}
+  \caption{Extra parameters for the \texttt{feature\_generation.py} file.}
 \end{table}
 
 \noindent
 For instance, to extract features from the model that we previously trained, we can run:
 \begin{lstlisting}[language=Bash]
-python feature_generation.py --batch_size 200 --encoder_hidden_states 200 --cell_type "GRU"
+python feature_generation/seq2seq/train_seq2seq.py --batch_size 200 --encoder_hidden_states 200 --cell_type "GRU"
 \end{lstlisting}
 
 \subsubsection{Feature Extraction}
@@ -115,6 +135,8 @@ For example:
 python feature_extraction.py --extension ".cells"
 \end{lstlisting}
 
+\newpage
+
 \subsubsection{Run Models}
 
 Finally, we can run the classifiers on all the extracted features using the \texttt{run\_model.py} script.
@@ -125,7 +147,7 @@ After finishing the k fold validation, the model then prints out the different s
   \begin{tabular}{ l | l | l | p{0.5\textwidth} }
     \textbf{Parameter} & \textbf{Type} & \textbf{Default} & \textbf{Description} \\ \hline \hline
     model & String & kNN & Which model to run, the options are \textit{kNN}, \textit{random\_forest}, \textit{svc1} and \textit{svc2}. \\ \hline
-    handpicked & Boolean & True & If true, the handpicked features for that model are used and otherwise the automatically generated ones. \\ \hline
+    dir\_name & String & Name of handpicked directory & If specified, it will use the features in the given directory, otherwise the standard ones for a specific model. \\ \hline
     is\_multiclass & Boolean & True & If true, trains the classifier on a multiclass task and binary otherwise. \\ \hline
     extension & String & .cell & Represents the extension of the cell files.
   \end{tabular}
@@ -133,9 +155,9 @@ After finishing the k fold validation, the model then prints out the different s
 \end{table}
 
 \noindent
-For example, to run a random forest model with automatically generated ones on a multiclass problem:
+For example, to run a random forest model with automatically generated fingerprints from the sequence-to-sequence model on a multiclass problem:
 \begin{lstlisting}[language=Bash]
-python run_model.py --model "random_forest" --handpicked "False"
+python run_model.py --model "random_forest" --dir_name "seq2seq_cells"
 \end{lstlisting}
 
 \endgroup
