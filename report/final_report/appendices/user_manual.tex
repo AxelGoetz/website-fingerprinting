@@ -54,7 +54,7 @@ All of these are outlined below:
     cell\_type & String & LSTM & Which specific type of cell to use. Currently only support LSTM and GRU. \\ \hline
     reverse\_traces & Boolean & False & If true, reverses the traces and leaves them untouched otherwise. This should not be used when \texttt{bidirectional} is true. \\ \hline
     max\_time\_diff & Float & Infinite & The maximum time difference \textit{(in seconds)} after which you start cutting the traces. For instance, if set to $1$, all of the traces will be cut after one second.\\ \hline
-    extension & String & .cell & The extension of the Tor cell files. We expect that they are in the following format \texttt{webpage\_id-instance.extension}. \\ \hline
+    extension & String & .cell & The extension of the Tor cell files. We expect that they are in the following format \texttt{<webpage\_id>-<instance>.<extension>}. \\ \hline
     learning\_rate & Float & 0.000002 & The learning rate used whilst training.
   \end{tabular}
   \caption{Parameters for the \texttt{train\_seq2seq.py} file.}
@@ -65,7 +65,7 @@ All of these are outlined below:
   \begin{tabular}{ l | l | l | p{0.5\textwidth} }
     \textbf{Parameter} & \textbf{Type} & \textbf{Default} & \textbf{Description} \\ \hline \hline
     batch\_size & Integer & 100 & The size of each mini-batch. \\ \hline
-    extension & String & .cell & The extension of the Tor cell files. We expect that they are in the following format \texttt{webpage\_id-instance.extension}. \\ \hline
+    extension & String & .cell & The extension of the Tor cell files. We expect that they are in the following format \texttt{<webpage\_id>-<instance>.<extension>}. \\ \hline
     learning\_rate & Float & 0.0001 & The learning rate used whilst training. \\ \hline
     activation\_func & String & sigmoid & The activation function used for the neurons. \\ \hline
     layers & List & \texttt{[1500, 500, 100]} & The sizes of the respective layers in the encoder and decoder.

@@ -4,6 +4,18 @@ In this section, we describe the design of our automatic feature generation mode
 Most of this section will be split into two different sections.
 First we describe the feature generation process and then the overall attack.
 
+\section{Stacked Autoencoder}
+
+A stacked autoencoder takes a fixed-length input and tries to learn how to compress that vector.
+Thus if we were to use it for our fingerprinting extraction model, we will need to manner to map the variable-length traces into a fixed-length one.
+There are various different manners of doing this.
+One of the most naive ones is to find the longest length trace and pad all of the other traces up to that length.
+However, in Greschbach et al.'s dataset, this length is around $250,000$ \cite{greschbach2016effect}, which means that our network will need to be incredibly deep.
+
+Instead, we pick the average length of the traces, which is around $3,000$ and cut or pad traces which are longer or shorter.
+On top of that, we deal with the fact that each packet is represented by a tuple, by just multiplying the time by the direction.
+Therefore, all of the outgoing packets are positive and the incoming ones will be negative.
+
 \section{Sequence-to-Sequence Model}
 
 As described in section \ref{sec:seq2seq}, a sequence-to-sequence model is able to learn how to construct a fixed-length representation from a variable-length sequence.
@@ -25,9 +37,11 @@ Therefore, if the amount of hidden cells is not equal to two, we will also need 
   \label{fig:lstm-projection}
 \end{figure}
 
+\newpage
+
 Some of the traces can be particularly long and therefore the network needs to be unrolled to extreme lengths \cite{greschbach2016effect}.
 In fact, given memory constraints, this issue can become a major problem.
-This can be solved by cutting the traces after a couple seconds since it has been shown that the first part of a trace carries more information than the latter \cite{TODO: Include}.
+This can be solved by cutting the traces after a couple seconds since it has been shown that the first part of a trace carries more information than the latter.
 
 \begin{figure}[ht]
   \centering
@@ -44,7 +58,7 @@ Here we consider an adversary that relies on deep learning to extract fingerprin
 This adversary can have two different goals in mind, as previously stated in section \ref{sec:threat-model}.
 In this work, the adversary relies on a sequence-to-sequence to extract the fingerprint from Tor cells for both goals.
 The full attack, however, can be split up into four different stages: \textit{data collection}, \textit{fingerprint extraction training}, \textit{classifier training} and \textit{the attack}.
-\\\\
+
 \noindent
 \textbf{Data Collection}
 \begin{enumerate}
@@ -57,10 +71,10 @@ The full attack, however, can be split up into four different stages: \textit{da
 \noindent
 \textbf{Fingerprint Extraction Training}
 \begin{enumerate}[resume]
-  \item Further process the data into batches and perhaps cut the data of individual traces after several seconds.
-  \item Prepare the sequence-to-sequence model.
-  \item Train the sequence-to-sequence model on a copy task for monitored and some unmonitored web pages.
-  \item Extract fingerprints from data by using the trained sequence-to-sequence model.
+  \item Further process the data into batches and perform any other preprocessing required by the model such as cutting or padding the traces.
+  \item Prepare the fingerprint extraction model.
+  \item Train the fingerprint extraction model on a copy task for monitored and some unmonitored web pages.
+  \item Extract fingerprints from data by using the trained model.
 \end{enumerate}
 
 \noindent
@@ -70,14 +84,12 @@ The full attack, however, can be split up into four different stages: \textit{da
   \item Measure performance of classifier.
 \end{enumerate}
 
-\newpage
-
 \noindent
 \textbf{The Attack}
 \begin{enumerate}[resume]
   \item Passively capture traffic from Tor users.
   \item Pre-process the collected data.
-  \item Extract fingerprints using the trained sequence-to-sequence model.
+  \item Extract fingerprints using the trained fingerprint extraction model.
   \item Classification via the trained classifier.
 \end{enumerate}
 
@@ -108,14 +120,49 @@ We do not train the model on any data in the validation set but instead use it t
 For this split, we use a \textit{stratified shuffle split}, meaning that we shuffle the data and then perform the split, whilst preserving the class distributions.
 On top of training the feature extractor with monitored pages, we also train it on unmonitored pages, as it needs to be able to extract features effectively from both sets.
 
-To gain performance and perhaps even a faster convergence, \textit{mini-batch processing} will be used to train the sequence-to-sequence model.
+Whilst training and extracting the fingerprints, \textit{mini-batch processing} will always be used.
+This will allow us to gain a performance boost and perhaps even have a faster convergence.
+
+When dividing the data up into these batches, we also need to determine how big they will be.
+The bigger they are, the larger the performance gain will be but the lower the accuracy might be.
+Additionally, the size of the batches also depend on the amount of available memory since we cannot have the VM run out of memory whilst training.
+
+On top of determining the batch size, the individual models require different preprocessing steps and tuning of different parameters to get a performance gain.
+
+\subsubsection{Stacked Autoencoder}
+
+As previously mentioned, after dividing the data up into batches, we either need to cut or pad the traces such that they all are of a fixed-length.
+Next, we know that the first layer needs to have the same amount of neurons than the length of the input.
+But after that, there are a variety of different architectures that need to be chosen.
+Some of which are outlined below:
+
+\newpage
+
+\begin{itemize}
+  \item How many hidden layers we want.
+    The more there are, the more complex the functions are that the model can learn but the harder it is to train.
+
+  \item The amount of hidden neurons in each layer.
+    This number should gradually decrease to the number of features we would like to extract.
+
+  \item The activation function of the neurons.
+    The most popular ones being \textit{sigmoid}, \textit{ReLu} and an \textit{atan}.
+\end{itemize}
+
+Now that the model has been constructed, there are still several learning parameters that need to be tuned:
+
+\begin{itemize}
+    \item The optimizer to use (\textit{adam}, \textit{gradient descent} or \textit{RMSProp}) \cite{tensorflow}.
+    \item Learning rate ($\gamma$) for the previously chosen optimizer.
+    \item Amount of traces within a single mini-batch ($b$).
+    \item Cost, or loss function ($f$) to minimize (\textit{mean squared error} (MSE), \textit{absolute loss} (AL) or \textit{cross-entropy}) \cite{tensorflow}.
+\end{itemize}
+
+\subsubsection{Sequence-to-Sequence Model}
+
 Each batch can either be presented in \textit{batch-major} or \textit{time-major} form.
 Although time-major is slightly more efficient \cite{tensorflow}, we opt for a batch-major form, since it makes the fingerprint extraction easier.
-
-When dividing the data up into batches, we also need to determine how big the batches will be.
-The bigger they are, the larger the performance gain will be but the lower the accuracy might be.
-Additionally, the size of the batches also depend on the amount of available memory.
-Next, after the data has been divided, we perform some further processing such as cutting the traces after several seconds.
+Next, after the data has been divided into mini-batches, we perform some further processing such as cutting the traces after several seconds.
 Finally, since all of the traces within a batch need to be of the same length, padding is performed as a final preprocessing step.
 
 After collecting and fully preprocessing the data, the adversary can start to construct the sequence-to-sequence model.
@@ -138,6 +185,8 @@ Hence, the adversary will need to consider this tradeoff when choosing the model
 
 Now that the model has been constructed, the adversary still has to chose various learning parameters such as:
 
+\newpage
+
 \begin{itemize}
   \item The optimizer to use (\textit{adam}, \textit{gradient descent} or \textit{RMSProp}) \cite{tensorflow}.
   \item Learning rate ($\gamma$) for the previously chosen optimizer.
@@ -148,10 +197,7 @@ Now that the model has been constructed, the adversary still has to chose variou
 \end{itemize}
 
 After these parameters have been tuned, the computational graph can be constructed in Tensorflow and the training can be started using the training data.
-When this training has been completed, fingerprints can be extracted for data within the test set.
-
-On top of this, we also often have a small set, called the \textit{validation set}, which is not used for training.
-But it is used whilst training, to see how the network performs on unseen data during the training process.
+When this training has been completed, fingerprints can be extracted for data all the data in the test set.
 
 \subsection{Classifier Training} \label{sec:classifier-training}
 
@@ -210,6 +256,8 @@ Some of the statistics that are used for the performance measure of models, are 
 \end{itemize}
 
 Rather than using another classifier, we could also potentially add a \textit{softmax layer} on top of our encoder, like V. Rimmer uses on top of her stacked autoencoder \cite{deeplearningthesis}.
+We could also use this idea for both our autoencoder and the sequence-to-sequence model.
+
 This process would involve first training the sequence-to-sequence model, then stacking the softmax layer on top of each unrolled cell in the encoder and using it for classification.
 What would be interesting about this approach is that the adversary can analyse how the probability of a trace being classified changes, as it analyses packets from the trace.
 However, this is outside the scope of this paper, as we are focusing on the feature extraction process.
@@ -228,7 +276,7 @@ However, this is outside the scope of this paper, as we are focusing on the feat
 Finally, after the adversary has trained the required models, the real WF attack can start.
 First, the adversary starts capturing web traffic data between the user and the first Tor node, as shown in figure \ref{fig:threat_model}.
 Next, the data is processed for the fingerprint extraction process, as described in section \ref{sec:fingerprint-extraction-training}.
-After all processing has been done, fingerprints are extracted using the previously trained sequence-to-sequence model.
+After all processing has been done, fingerprints are extracted using the previously trained model.
 Finally, those fingerprints are used as features for a classifier, which classifies which web pages the adversary is visiting.
 
 The time between data collection for training and performing the WF has to be kept as small as possible since Juarez et al.'s experiments show that website's content changes greatly over time, therefore affecting the accuracy of the attack \cite{wfpevaluation}.
@@ -241,13 +289,13 @@ All of this is reflected in the overall structure of the code, which consists of
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=0.6\textwidth]{code-structure}
+  \includegraphics[width=\textwidth]{code-structure}
   \caption{Diagram of how different components are related.}
   \label{fig:code-structure}
 \end{figure}
 
 All of the data that is used within this work has already been preprocessed, as described in section \ref{sec:data_collection1}.
-The \texttt{feature\_generation} module contains all of the code to further preprocess the data, train the sequence-to-sequence model defined in \texttt{new\_model.py} and to extract the fingerprints using that new model.
+The \texttt{feature\_generation} module contains all of the code to further preprocess the data, train the fingerprint extraction models defined and to extract the fingerprints using the respective model.
 
 All of the models that will be used for the attack section are defined in the \texttt{attacks} module.
 We tried to pick a variety of models used, to measure how our fingerprints work on different models.

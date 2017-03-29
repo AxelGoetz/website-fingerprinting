@@ -22,7 +22,6 @@ From both these datasets, we will only be using the preprocessed Tor cells and n
 For all of the experiments that will be conducted below, we only consider an \textit{open-world scenario}.
 This means that the test set will contain unmonitored pages that the sequence-to-sequence model or the classifier have never seen before.
 For this to work, we train the models on a large set of monitored web pages but also on a small percentage of unmonitored web pages such the classifiers can distinguish between both.
-We will keep the ratio of unmonitored web pages within the training set around $4\%$ of the total amount of unmonitored pages since we want to be able to classify unmonitored web pages but we do not want to introduce too much noise for the classifiers.
 
 % TODO: Should I include more here?
 
@@ -104,7 +103,10 @@ which is ideal since our network can be unrolled to a very large lengths.
 Next, we also note that the best quality of data compression was achieved with a \textit{MSE loss function} and a learning rate of $0.000002$.
 Hence, we set $\lambda = 0.000002$, $b = 200$ and use an adam optimizer with MSE for the rest of our experiments.
 
+\subsubsection{Reversing Traces}
 % TODO: Reversing traces
+
+\subsubsection{Cutting Traces}
 % TODO: Cutting traces
 
 \subsection{Architecture Tuning}
@@ -220,7 +222,18 @@ Whilst we refer the k-fingerprinting attack by Hayes et al. \cite{kfingerprintin
 
 \subsubsection{Binary Classification}
 
-% TODO: Finish
+We first start by analysing the simplest threat model, namely binary classification.
+For all of the models below, we aimed to extract the exact same hand-picked features as were described in the respective papers to the best of our knowledge.
+
+For training these models, we use an extract from the \texttt{GRESCHBACH} dataset with a total of $100$ monitored web pages with $70$ instances each and $5000$ unmonitored web pages.
+We then split this set into a training and validation set using a stratified split.
+The training set will contain $90\%$ of the monitored web pages whilst we vary the amount of unmonitored pages to see how the models perform.
+
+After the set is split up into a training and validation set, we perform a \textit{stratified k-fold validation} with $k = 3$ on the training set
+Then finally we train the classifiers on all of the training data and evaluate them on the test set.
+
+The results for the k-fold validation on the training set for the hand-picked features are outlined in table \ref{table:hand-picked-bin}.
+Here, we used a total of $10\%$ of the unmonitored data for training.
 
 \begin{table}[ht]
   \centering
@@ -228,24 +241,30 @@ Whilst we refer the k-fingerprinting attack by Hayes et al. \cite{kfingerprintin
     \multicolumn{1}{c}{\textbf{Model}} & \multicolumn{1}{c}{\textbf{Accuracy}} & \multicolumn{1}{c}{\textbf{BDR}} & \multicolumn{1}{c}{\textbf{TPR}} &
       \multicolumn{1}{c}{\textbf{FPR}} & \multicolumn{1}{c}{\textbf{F1}} \\ \hline
 
-    \texttt{svc1} & $0.64 \pm 0.008$ & $0.87 \pm 0.009$ & $0.48 \pm 0.008$ & $0.09 \pm 0.004$ & $0.62 \pm 0.008$ \\
+    \texttt{svc1} & $0.91 \pm 0.003$ & $0.99 \pm 0.001$ & $0.97 \pm 0.001$ & $0.07 \pm 0.002$ & $0.90 \pm 0.005$ \\
 
-    \texttt{svc2} & $0.63 \pm 0.018$ & $0.84 \pm 0.014$ & $0.50 \pm 0.025$ & $0.13 \pm 0.009$ & $0.61 \pm 0.017$ \\
+    \texttt{svc2} & $0.91 \pm 0.008$ & $0.99 \pm 0.001$ & $0.95 \pm 0.003$ & $0.06 \pm 0.004$ & $0.90 \pm 0.008$ \\
 
-    \texttt{RF} & $0.70 \pm 0.009$ & $0.98 \pm 0.005$ & $0.49 \pm 0.014$ & $0.01 \pm 0.005$ & $0.65 \pm 0.009$ \\
+    \texttt{RF} & $0.93 \pm 0.003$ & $0.99 \pm 0.001$ & $0.97 \pm 0.006$ & $0.05 \pm 0.003$ & $0.92 \pm 0.005$ \\
 
-    \texttt{kNN} & & & & & \\
+    \texttt{kNN} & $0.90 \pm 0.007$ $0.97 \on 0.003$ & $0.94 \pm 0.004$ & $0.09 \pm 0.002$ & $0.89 \pn 0.004$ & \\
 
-    % TODO: Fill in kNN
     \hline
   \end{tabular}
-  \caption{Performance statistics hand-picked features on a multiclass classification task.}
+  \caption{Performance statistics hand-picked features on a binary classification task with k-fold validation.} % 10 % unmonitored
+  \label{table:hand-picked-bin}
 \end{table}
+
+As expected, the results on the individual folds is relatively high.
+However, now we will measure their performance when training on the full training set and evaluating on the validation set, whilst changing the amount of unmonitored pages we train the model on.
+Since bayesian detection rate ultimately determines the feasibility of an attack, we will use that measure for comparison.
+
 
 \subsubsection{Multiclass Classification}
 
 % TODO: Finish
 
+% TODO: Change table
 \begin{table}[ht]
   \centering
   \begin{tabular}{ r  r  r  r  r  r } \hline
@@ -263,7 +282,7 @@ Whilst we refer the k-fingerprinting attack by Hayes et al. \cite{kfingerprintin
     % TODO: Fill in kNN
     \hline
   \end{tabular}
-  \caption{Performance statistics hand-picked features on a binary classification task.}
+  \caption{Performance statistics hand-picked features on a multiclass classification task.}
 \end{table}
 
 \subsubsection{Different Circumstances}

@@ -8,7 +8,7 @@
 
 \section{Future Works} \label{sec:future-works}
 
-This work shows that the classifiers currently still seem to perform better the hand-picked features rather than automatically generated ones but there is still much room for future improvements.
+This work shows that the classifiers currently still seem to perform better with hand-picked features rather than automatically generated ones but there is still much room for future improvements.
 Here we consider several different manners in how we can improve or extend this work.
 Although we definitely will not cover all the different possible extensions, we try to list the most interesting ones.
 
@@ -39,7 +39,7 @@ On top of training the model with more realistic browsing data, we could also ev
 This is a protocol for Tor users to hide their location while offering a service such as hosting a website \cite{tor_hidden_services}.
 There is already evidence that these services can be classifier using a WF attack \cite{kfingerprinting} but it would be interesting to see how our model would perform on this data.
 
-On top of extending this work by using more of different kinds of data, we could also improve the sequence-to-sequence model.
+Rather than extending this work by using more of different kinds of data, we could also improve the sequence-to-sequence model.
 Currently, one of the main weaknesses is that the traces can be very long, which in turn makes our model very deep.
 We solved this issue here by cutting the traces after a certain amount of time since most the first part of the trace carries more information than the latter.
 However, this might not be the ideal solution.
@@ -48,5 +48,7 @@ There might be another solution or perhaps even another model that does not have
 Due to time constraints and limited Tensorflow support, we also did not examine the use of regularization.
 There are several works that show that several techniques such as \textit{L2 regularization}, \textit{dropout layers} and \textit{batch normalization} are promising techniques \cite{ioffe2015batch,nielsen_2017}.
 Hence, it could potentially help to reduce overfitting within the sequence-to-sequence model.
+
+% TODO: Which hand-picked features are the best?
 
 \section{Final Thoughts}
