@@ -113,6 +113,7 @@ def evaluate(model, monitored_data, unmonitored_data, random_state=123):
 
     print("Calculating test error")
     model.fit(X_train, y_train)
+    print("Predicting")
     prediction = model.predict(X_test)
 
     test_evaluation = scoring_methods.evaluate_model(prediction, y_test)
@@ -176,19 +177,21 @@ def get_appropriate_dict(name):
 
     return None
 
-def evaluate_model(model_dict, hand_picked_features=True, is_multiclass=True, extension=".cellf"):
+def evaluate_model(model_dict, data_dir_name="", is_multiclass=True, extension=".cellf"):
     """
     Given a model, performs the an evaluation.
 
     @param model_dict is a dictionary, as described in `[{'model_name': ..., 'model_constructor': ..., 'path_to_features': ...}]`
-    @param hand_picked_features is a boolean value that decides whether to use the hand-picked features or the auto generated once.
+    @param data_dir_name is a string that contains the dir name of the directory which contains the cells.
+        Just the name, cause we assume it is in the data dir.
+        If empty, we will use the standard ones
 
     @return a dictionary structured as follows: `{'training_error': [scoring_methods], 'test_error': scoring_methods}`
         where each scoring method is a dict of scoring methods with as key the name and as value the actual score.
     """
     path = model_dict['path_to_features']
-    if hand_picked_features:
-        path = DATA_DIR + 'af_cells'
+    if data_dir_name != "":
+        path = DATA_DIR + data_dir_name
 
     from helpers import pull_data_in_memory
 
@@ -210,7 +213,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Runs a specific machine learning model on the appropriate data.")
 
     parser.add_argument('--model', help="Select which model to run (kNN, random_forest, svc1, scv2)", default="kNN")
-    parser.add_argument('--handpicked', action='store_true', help="Whether to use the hand-picked features or automatically generated ones")
+    parser.add_argument('--dir_name', metavar='', help="Where to search for the features, if not specified will use the standard, hand-picked features (ae_cells or seq2seq_cells),", default="")
     parser.add_argument('--is_multiclass', action='store_true', help="If you are training on a multiclass or binary problem. (default binary)")
     parser.add_argument('--extension', metavar='', help="Extension of the cell files (default .cellf)", default=".cellf")
 
@@ -222,5 +225,5 @@ if __name__ == '__main__':
         exit(0)
 
     else:
-        res = evaluate_model(model_dict, args.handpicked, args.is_multiclass, args.extension)
+        res = evaluate_model(model_dict, args.dir_name, args.is_multiclass, args.extension)
         print(res)

@@ -88,7 +88,7 @@ def bayesian_detection_rate(y_pred, y_true):
     $$\Pr(M) = \frac{|\text{Monitored}|}{|\text{Total Pages}|}, \quad \Pr(U) = 1 - \Pr(M)$$
     """
     cm = confusion_matrix(y_pred, y_true)
-    PrM = float(len([y for y in y_true if y != constants.UNMONITORED_LABEL]) / len(y_true))
+    PrM = len([y for y in y_true if y != constants.UNMONITORED_LABEL]) / float(len(y_true))
     PrU = 1 - PrM
 
     TPR = cm['TP'] / len(y_true)
