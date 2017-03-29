@@ -132,35 +132,20 @@ class AutoEncoder():
         # Which optimizer to use? `GradientDescentOptimizer`, `AdamOptimizer` or `RMSProp`?
         self.train_op = tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss)
 
-    def _get_cumulative_representation(self, trace, n):
+    def _process_trace(self, trace, n):
         """
-        Gets a cumulative representation of a trace, described in the "Website Fingerprinting at Internet Scale" paper.
-
-        @param n is the amount of features to be added.
-            It affects how often and the places where you sample
-
-        @return a fixed-length list of features (`len(features) == n`)
+        Cuts the traces after `n` steps or pads them such that they are of length `n`.
         """
         features = []
 
-        a, c = 0, 0
+        for packet in trace:
+            # Either positive or negative depending on whether its incoming or outgoing.
+            features.append(packet[0] * packet[1])
 
-        sample = (len(trace) // n)
-        sample = 1 if sample == 0 else sample
-        amount = 0
+            if len(features) == n:
+                break
 
-        for i, packet in enumerate(trace):
-            c += packet[1]
-            a += abs(packet[1])
-
-            if i % sample == 0:
-                amount += 1
-                features.append(c + a)
-
-                if amount == n:
-                    break
-
-        for i in range(amount, n):
+        for i in range(len(features), n):
             features.append(0)
 
         return features
@@ -188,7 +173,7 @@ class AutoEncoder():
         if not in_memory:
             data_batch = [helpers.read_cell_file(path) for path in batch]
 
-        data_batch = [self._get_cumulative_representation(trace, self.layers[0]) for trace in data_batch]
+        data_batch = [self._process_trace(trace, self.layers[0]) for trace in data_batch]
 
         encoder_inputs_ = data_batch
         decoder_targets_ = data_batch
