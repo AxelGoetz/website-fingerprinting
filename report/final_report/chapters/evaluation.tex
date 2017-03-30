@@ -129,8 +129,8 @@ We aim to pick the sizes of the rest of the layers such that the step size is ar
 
 We try to aim to get the appropriate values for the learning parameters within a simple encoder and decoder with LSTM cells and $120$ hidden states.
 
-After experimentation, the maximum batch size that our EC2 instance could handle memory-wise is around $200$.
-Thus through the rest of the report we will use a mini-batch size of $200$.
+After experimentation, the maximum batch size that our EC2 instance could handle memory-wise is around $400$.
+Thus through the rest of the report we will use a mini-batch size of $400$.
 
 Next, we vary the learning rate $\gamma$ from $0.01$ to $0.000001$ with various optimizers (\textit{adam}, \textit{gradient descent} or \textit{RMSProp}) and loss functions (\textit{mean squared error (MSE)} or \textit{absolute loss} (AL)).
 After trying a wide variety of different permutations, an \textit{adam optimizer} continuously demonstrated better results.
