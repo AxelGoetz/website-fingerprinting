@@ -4,6 +4,9 @@ from tensorflow.contrib.rnn import LSTMCell, GRUCell
 import tensorflow as tf
 import numpy as np
 
+from bn_lstm import BNLSTMCell
+from bn_gru import BNGRUCell
+
 from sys import stdin, stdout, exit, path
 from os import path as ospath
 
@@ -39,7 +42,7 @@ def run_model(data, in_memory=False):
         # 2x encoder state size
         model = Seq2SeqModel(encoder_cell=args.cell(args.encoder_hidden_states),
                              decoder_cell=args.cell(args.decoder_hidden_states),
-                             seq_width=2,
+                             seq_width=1,
                              batch_size=args.batch_size,
                              bidirectional=args.bidirectional,
                              reverse=args.reverse_traces,
@@ -49,7 +52,7 @@ def run_model(data, in_memory=False):
 
         loss_track = train_on_copy_task(session, model, data,
                            batch_size=args.batch_size,
-                           batches_in_epoch=100,
+                           batches_in_epoch=1,
                            max_time_diff=args.max_time_diff,
                            verbose=True)
 
@@ -107,6 +110,8 @@ if __name__ == '__main__':
     parser.add_argument('--max_time_diff', metavar='', type=float, help="The time at which you stop considering a packet important (default infinity)", default=float('inf'))
     parser.add_argument('--extension', metavar='', help="Extension of the cell files", default=".cell")
     parser.add_argument('--learning_rate', metavar='', type=float, help="Learning rate (default 0.000002)", default=0.000002)
+    parser.add_argument('--batch_norm', action="store_true", help="Whether or not to use batch normalization (default False)",)
+
 
     global args
     args = parser.parse_args()
@@ -114,9 +119,15 @@ if __name__ == '__main__':
     args.decoder_hidden_states = 2 * args.encoder_hidden_states if args.bidirectional else args.encoder_hidden_states
 
     if args.cell_type == 'LSTM':
-        args.cell = LSTMCell
+        if args.batch_norm:
+            args.cell = BNLSTMCell
+        else:
+            args.cell = LSTMCell
     elif args.cell_type == 'GRU':
-        args.cell = GRUCell
+        if args.batch_norm:
+            args.cell = BNGRUCell
+        else:
+            args.cell = GRUCell
     else:
         print("Cell type not found, try again (LSTM or GRU)")
         exit(0)

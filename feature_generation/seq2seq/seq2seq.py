@@ -271,8 +271,10 @@ class Seq2SeqModel():
 
         if not in_memory:
             data_batch = [helpers.read_cell_file(path, max_time_diff=max_time_diff) for path in batch]
+            for i, cell in enumerate(data_batch):
+                data_batch[i] = [packet[0] * packet[1] for packet in cell]
 
-        data_batch, encoder_input_lengths_ = helpers.pad_traces(data_batch, reverse=self.reverse)
+        data_batch, encoder_input_lengths_ = helpers.pad_traces(data_batch, reverse=self.reverse, seq_width=self.seq_width)
         encoder_inputs_ = data_batch
 
         decoder_targets_ = helpers.add_EOS(data_batch, encoder_input_lengths_)

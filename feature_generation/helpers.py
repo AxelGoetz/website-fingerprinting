@@ -66,7 +66,7 @@ def get_batches(data, batch_size=100):
         yield data[start_index: end_index]
 
 
-def pad_traces(data, extra_padding=1, reverse=False):
+def pad_traces(data, extra_padding=1, reverse=False, seq_width=1):
 
     """
     Pad the traces such that they have the same length
@@ -86,12 +86,11 @@ def pad_traces(data, extra_padding=1, reverse=False):
 
     max_sequence_length = max(sequence_lengths) + extra_padding
 
-    inputs_batch_major = np.zeros(shape=[batch_size, max_sequence_length, 2], dtype=np.float32)
+    inputs_batch_major = np.zeros(shape=[batch_size, max_sequence_length, seq_width], dtype=np.float32)
 
     for i, seq in enumerate(data):
         for j, element in enumerate(seq):
-            inputs_batch_major[i][j][0] = element[0]
-            inputs_batch_major[i][j][1] = element[1]
+            inputs_batch_major[i][j] = element
 
     return inputs_batch_major, sequence_lengths
 
