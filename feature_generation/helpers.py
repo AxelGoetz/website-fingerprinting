@@ -66,7 +66,7 @@ def get_batches(data, batch_size=100):
         yield data[start_index: end_index]
 
 
-def pad_traces(data, extra_padding=1, reverse=False, seq_width=1):
+def pad_traces(data, extra_padding=1, reverse=False, seq_width=2):
 
     """
     Pad the traces such that they have the same length
