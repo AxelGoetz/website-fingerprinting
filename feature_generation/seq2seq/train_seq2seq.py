@@ -52,7 +52,7 @@ def run_model(data, in_memory=False):
 
         loss_track = train_on_copy_task(session, model, data,
                            batch_size=args.batch_size,
-                           batches_in_epoch=1,
+                           batches_in_epoch=100,
                            max_time_diff=args.max_time_diff,
                            verbose=True)
 

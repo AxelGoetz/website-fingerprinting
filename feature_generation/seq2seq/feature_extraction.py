@@ -10,7 +10,7 @@ from os import scandir, makedirs, path as ospath
 from sys import stdout, path, exit
 
 from bn_lstm import BNLSTMCell
-from bn_gru import BN
+from bn_gru import BNGRUCell
 
 from seq2seq import Seq2SeqModel, get_vector_representations
 
@@ -47,10 +47,20 @@ def run_model(data, in_memory=False):
 
     with tf.Session() as session:
 
+        encoder_cell, decoder_cell = None, None
+
+        if args.batch_norm:
+            encoder_cell = args.cell(args.encoder_hidden_states, is_training=False)
+            decoder_cell= args.cell(args.decoder_hidden_states, is_training=False)
+
+        else:
+            encoder_cell = args.cell(args.encoder_hidden_states)
+            decoder_cell= args.cells(args.decoder_hidden_states)
+
         # with bidirectional encoder, decoder state size should be
         # 2x encoder state size
-        model = Seq2SeqModel(encoder_cell=args.cell(args.encoder_hidden_states),
-                             decoder_cell=args.cell(args.decoder_hidden_states),
+        model = Seq2SeqModel(encoder_cell=encoder_cell,
+                             decoder_cell=decoder_cell,
                              seq_width=1,
                              batch_size=args.batch_size,
                              bidirectional=args.bidirectional,
@@ -65,7 +75,7 @@ def run_model(data, in_memory=False):
                                batch_size=args.batch_size,
                                max_batches=None,
                                batches_in_epoch=100,
-                               max_time_diff=args.max_time_diff
+                               max_time_diff=args.max_time_diff,
                                extension=args.extension)
 
 def main(_):

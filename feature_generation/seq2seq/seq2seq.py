@@ -395,7 +395,8 @@ def get_vector_representations(sess, model, data, save_dir,
             l = sess.run(model.encoder_final_state, fd)
 
             # Returns a tuple, so we concatenate
-            l = np.concatenate((l.c, l.h), axis=1)
+            if isinstance(l, LSTMStateTuple):
+                l = np.concatenate((l.c, l.h), axis=1)
 
             file_names = [helpers.extract_filename_from_path(path, extension) for path in paths]
 
