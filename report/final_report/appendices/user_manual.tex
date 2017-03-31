@@ -55,7 +55,8 @@ All of these are outlined below:
     reverse\_traces & Boolean & False & If true, reverses the traces and leaves them untouched otherwise. This should not be used when \texttt{bidirectional} is true. \\ \hline
     max\_time\_diff & Float & Infinite & The maximum time difference \textit{(in seconds)} after which you start cutting the traces. For instance, if set to $1$, all of the traces will be cut after one second.\\ \hline
     extension & String & .cell & The extension of the Tor cell files. We expect that they are in the following format \texttt{<webpage\_id>-<instance>.<extension>}. \\ \hline
-    learning\_rate & Float & 0.000002 & The learning rate used whilst training.
+    learning\_rate & Float & 0.000002 & The learning rate used whilst training. \\ \hline
+    batch\_norm & Boolean & False & If true, will use batch normalization within the RNN cells and otherwise the normal Tensorflow cells.
   \end{tabular}
   \caption{Parameters for the \texttt{train\_seq2seq.py} file.}
 \end{table}
@@ -68,10 +69,13 @@ All of these are outlined below:
     extension & String & .cell & The extension of the Tor cell files. We expect that they are in the following format \texttt{<webpage\_id>-<instance>.<extension>}. \\ \hline
     learning\_rate & Float & 0.0001 & The learning rate used whilst training. \\ \hline
     activation\_func & String & sigmoid & The activation function used for the neurons. \\ \hline
-    layers & List & \texttt{[1500, 500, 100]} & The sizes of the respective layers in the encoder and decoder.
+    layers & List & \texttt{[1500, 500, 100]} & The sizes of the respective layers in the encoder and decoder. \\ \hline
+    batch\_norm & Boolean & False & If true, will use batch normalization for the individual layers and does not perform any normalization otherwise.
   \end{tabular}
   \caption{Parameters for the \texttt{train\_autoencoder.py} file.}
 \end{table}
+
+\newpage
 
 \noindent
 For example to run a simple encoder-decoder with GRU cells, a batch size of $200$ and $200$ hidden states, run the following command:
