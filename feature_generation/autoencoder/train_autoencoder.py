@@ -35,7 +35,8 @@ def run_model(data, in_memory=False):
 
         model = AutoEncoder(args.layers, args.batch_size,
                             activation_func=args.activation_func,
-                            learning_rate=args.learning_rate)
+                            learning_rate=args.learning_rate,
+                            batch_norm=args.batch_norm)
 
         session.run(tf.global_variables_initializer())
 
@@ -94,6 +95,7 @@ if __name__ == '__main__':
     parser.add_argument('--learning_rate', metavar='', type=float, help="Learning rate (default 0.000002)", default=0.0001)
     parser.add_argument('--activation_func', metavar='', help="Which activation function to use (sigmoid, relu or atan)", default='sigmoid')
     parser.add_argument('--layers', metavar='', nargs='+', type=int, help="List of how big the layers in the encoder are (e.g: 1000 800 600)", default=[1500, 500, 100])
+    parser.add_argument('--batch_norm', action="store_true", help="Whether or not to use batch normalization (default False)",)
 
     global args
     args = parser.parse_args()

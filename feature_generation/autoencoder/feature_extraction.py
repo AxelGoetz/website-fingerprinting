@@ -49,7 +49,10 @@ def run_model(data, in_memory=False):
                             activation_func=args.activation_func,
                             learning_rate=args.learning_rate,
                             saved_graph=args.graph_file,
-                            sess=session)
+                            sess=session,
+                            batch_norm=args.batch_norm)
+
+        model.set_is_training(False)
 
         # session.run(tf.global_variables_initializer())
 
@@ -82,6 +85,7 @@ if __name__ == '__main__':
     parser.add_argument('--activation_func', metavar='', help="Which activation function to use (sigmoid, relu or atan)", default='sigmoid')
     parser.add_argument('--layers', metavar='', nargs='+', type=int, help="List of how big the layers in the encoder are (e.g: 1000 800 600)", default=[1500, 500, 100])
     parser.add_argument('--graph_file', metavar='', help="File name of the graph stores (default autoencoder_model)", default='autoencoder_model')
+    parser.add_argument('--batch_norm', action="store_true", help="Whether or not to use batch normalization (default False)",)
 
 
     global args

@@ -30,11 +30,12 @@ class AutoEncoder():
         - loss is the operation for the mean squared error (MSE)
         - train_op is the train operation (`RMSProp`)
         - layers is a list of integerrs, determining the amount of layers and their size
+        - is_training is a boolean representing whether you are training the autoencoder or not *(used in the batch_norm layer)*.
         - batch_size
         - learning_rate
     """
 
-    def __init__(self, layers, batch_size, activation_func=tf.nn.sigmoid, saved_graph=None, sess=None, learning_rate=0.0001):
+    def __init__(self, layers, batch_size, activation_func=tf.nn.sigmoid, saved_graph=None, sess=None, learning_rate=0.0001, batch_norm=False):
         """
         @param layers is a list of integers, determining the amount of layers and their size
             starting with the input size
@@ -46,6 +47,9 @@ class AutoEncoder():
         self.batch_size = batch_size
         self.learning_rate = learning_rate
         self.activation_func = activation_func
+        self.batch_norm = batch_norm
+
+        self.is_training = True
 
         # Use this in data preprocessing
         self.layers = layers
@@ -79,6 +83,28 @@ class AutoEncoder():
         self.decoder_targets = tf.placeholder(tf.float32, [self.batch_size, first_layer])
 
 
+    def _get_layer(self, layer_input, size_last_layer, size_current_layer):
+        """
+        Returns a layer with a batch normalized input, depending on the `batch_norm flag`
+
+        @param layer_input is the value used as an input to the layer.
+        @param size_last_layer is the size of the last layer (used in weight) or the size of the input
+        @param size_current_layer is the size of the current layer (used in weight and bias)
+        """
+        weight = tf.Variable(tf.random_normal([size_last_layer, size_current_layer]))
+        bias = tf.Variable(tf.random_normal([size_current_layer]))
+
+        if not self.batch_norm:
+            return self.activation_func(tf.add(tf.matmul(layer_input, weight), bias))
+
+
+        layer_input = tf.contrib.layers.batch_norm(layer_input,
+                                                   center=True, scale=True,
+                                                   is_training=self.is_training,
+                                                   scope='bn{}-{}'.format(size_last_layer, size_current_layer))
+
+        return self.activation_func(tf.add(tf.matmul(layer_input, weight), bias))
+
     def _init_encoder(self, layers):
         """
         Creates the layers of the decoder and returns the last layer.
@@ -87,14 +113,11 @@ class AutoEncoder():
 
         # We don't want to enumerate over the last one
         for i in range(len(layers) - 1):
-            weight = tf.Variable(tf.random_normal([layers[i], layers[i + 1]]))
-            bias = tf.Variable(tf.random_normal([layers[i + 1]]))
-
             current_layer = None
             if previous_layer is None:
-                current_layer = self.activation_func(tf.add(tf.matmul(self.encoder_inputs, weight), bias))
+                current_layer = self._get_layer(self.encoder_inputs, layers[i], layers[i + 1])
             else:
-                current_layer = self.activation_func(tf.add(tf.matmul(previous_layer, weight), bias))
+                current_layer = self._get_layer(previous_layer, layers[i], layers[i + 1])
 
             previous_layer = current_layer
 
@@ -109,14 +132,11 @@ class AutoEncoder():
 
         # We don't want to enumerate over the last one
         for i in range(len(layers) - 1, 0, -1):
-            weight = tf.Variable(tf.random_normal([layers[i], layers[i - 1]]))
-            bias = tf.Variable(tf.random_normal([layers[i - 1]]))
-
             current_layer = None
             if previous_layer is None:
-                current_layer = self.activation_func(tf.add(tf.matmul(self.encoder, weight), bias))
+                current_layer = self._get_layer(self.encoder, layers[i], layers[i - 1])
             else:
-                current_layer = self.activation_func(tf.add(tf.matmul(previous_layer, weight), bias))
+                current_layer = self._get_layer(previous_layer, layers[i], layers[i - 1])
 
             previous_layer = current_layer
 
@@ -131,6 +151,22 @@ class AutoEncoder():
 
         # Which optimizer to use? `GradientDescentOptimizer`, `AdamOptimizer` or `RMSProp`?
         self.train_op = tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss)
+
+    def _init_batch_norm(self):
+        """
+        Adds a batch normalization layer.
+        """
+        self.decoder = tf.contrib.layers.batch_norm(self.decoder,
+                                                    center=True, scale=True,
+                                                    is_training=self.is_training,
+                                                    scope='bn')
+
+    def set_is_training(is_training):
+        """
+        Sets the `is_training` class variable, used in th batch normalization layer.
+        If `batch_norm == False`, this does not make a difference but if it is true, this variable should be set to false after training.
+        """
+        self.is_training = is_training
 
     def _process_trace(self, trace, n):
         """
