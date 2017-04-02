@@ -11,7 +11,7 @@ Next, we will perform that evaluation and present the final results.
 Since our deep model requires a large amount of computation, we like to make use of parallelization.
 Hence, all of our experiments that involve deep learning have been run on an \textit{Amazon EC2 p2.xlarge} instance.
 This VM has a \textit{NVIDIA K80 GPU} with 12 GiB of GPU memory.
-This instance was then setup with \textit{CUDA 8} and \textit{cuDNN v5.1} \cite{tensorflow,nvidia_developer_2017}.
+All of the instances used were setup with both \textit{CUDA 8} and \textit{cuDNN v5.1} \cite{tensorflow,nvidia_developer_2017}.
 
 The rest of the experiments are run on a 2016 MacBook Pro, with a 2.9GHz Intel Core i5 and 8GB of RAM, running MacOS 10.12.
 To make sure that the same Python environment is used on both these machines, we consistently use \textit{Python 3.6} and a \textit{virtual environment} for the python dependencies.
@@ -20,7 +20,7 @@ As previously mentioned, the main dataset that will be used is \texttt{GRESCHBAC
 From both these datasets, we will only be using the preprocessed Tor cells and not the raw TCP traffic data.
 
 For all of the experiments that will be conducted below, we only consider an \textit{open-world scenario}.
-This means that the test set will contain unmonitored pages that the sequence-to-sequence model or the classifier have never seen before.
+This means that the test set will contain unmonitored pages that the fingerprint extraction models and the classifier have never seen before.
 For this to work, we train the models on a large set of monitored web pages but also on a small percentage of unmonitored web pages such the classifiers can distinguish between both.
 
 \section{Evaluation Techniques}
@@ -29,16 +29,16 @@ There are several different manners in how we can evaluate the feature selection
 First of all, we could analyse how the model performs on unseen traces, as it learns.
 If the difference between both the training error and the error on an unseen instance increases, the model will clearly be overfitting.
 
-However, these graphs only show us how well the model is at reproducing the trace from a fingerprint but now how well it performs in a WF attack.
+However, this data only show us how well the model is at reproducing the trace from a fingerprint but now how well it performs in a WF attack.
 For this we need to train a classifier and see how well it performs by using the metrics described in section \ref{sec:classifier-training}.
 
-To be able to compare these fingerprints with hand-picked ones, we could run the classifier with hand-picked features and with the automatically generated ones.
-These hand-picked features are often chosen by experts and after a careful analysis of what the most appropriate features are.
+To be able to compare these fingerprints with hand-picked ones, we could run the classifiers with the hand-picked features and with the automatically generated ones.
+These hand-picked features are often chosen by experts and after a careful analysis.
 Hence, if the classifier with our fingerprints were to get similar results or even outperform the classifiers with the hand-picked features, we know that the fingerprint extraction model has been successful.
-For these results to be accurate, we do not change any parameters within the classifiers.
-Thus everything, except for the features, stays fixed.
+For these results to be accurate, we do not change any (hyper)parameters within the classifiers.
+Thus everything, except for the features, remains the same.
 
-For the classifiers, we pick a small set of five existing models.
+For the classifiers, we pick a small set of four existing models.
 We aim to pick models that have had an influence on the WF field whilst also having a variety of different classifiers.
 This set includes the two \textit{support vector classifiers} (SVCs) used by Panchenko et al. \cite{panchenko1,panchenko2},
 the k-fingerprinting attack, which relies on a \textit{random forest} (RF) used by Hayes et al. \cite{kfingerprinting}
@@ -55,10 +55,11 @@ We also aim to use the exact same hyperparameters described in the respective pa
   \item \textbf{kNN} \cite{wang_cai_johnson_nithyanand_goldberg_2014} - also shows that the best accuracy/time tradoff is made when $k = 2$ and $k_{\textit{reco}} = 5$.
 \end{itemize}
 
-However, we do need to note that this might have an impact on the performance because these parameters have been specifically tuned for the hand-picked features and not for our fingerprints.
+We do need to note that these parameters have been specifically tuned for the hand-picked features and not for our fingerprints.
 
 \section{Evaluation}
 As mentioned in section \ref{sec:fingerprint-extraction-training}, for both models. we need to make a couple design decisions regarding different architectures and learning parameters.
+We perform several experiments here to see which ones are the most appropriate.
 
 \subsection{Stacked Autoencoder}
 
@@ -82,27 +83,21 @@ Whilst the greater the batch size, the less noise there is in the data and there
 
 \subsubsection{Architecture Tuning}
 
-First, we perform several experiments with different architectures to find the most appropriate activation function.
-These show that a \textit{sigmoid} activation function continuously results in better learning.
+Our experiments show that a \textit{sigmoid} activation function continuously results in better learning with a variety of different hidden layers with different sizes.
+Hence, we will be using it for the rest of our experiments with stacked autoencoders.
 
-Next, we aim to examine the amount of hidden layers and their respective sizes that yield the best results for a reconstruction task.
+The amount of hidden layers is a slightly more difficult challenge.
+Since we want the simplest network possible that is able to learn a representation
+Hence, we experiment with networks with a total of $2$ up to $5$ hidden layers.
+For each of these, the input layer will consist of $3000$ nodes and we will attempt to extract $200$ features, which means that the sizes of the hidden layers will gradually decrease to $200$ neurons.
 
-\noindent
-\textbf{Hidden Layers}
+% TODO: Fill in amount of hidden layers
 
-% TODO: Fill in
-
-\noindent
-\textbf{Size of Hidden Layers}
-
-The size of the final hidden layer, represents the amount of features that will be extracted
-We do not want these values to be too large since this makes the network more complex and requires more computation.
-On the other hand, we do not want these values to be too small either since the network might not be able to learn anything useful.
-
-Moreover, we also need to consider the classifiers.
+% We already know that our network will be $x$ layers deep.
+But we haven't considered changing the size of the final hidden layer since it represents the amount of features that will be extracted.
 The more features we introduce, the more time and data they require to learn the classification task.
 Whilst if the amount of features is too low, the classifier might not be able to learn how to effectively classify any of the web pages.
-Hence, we base the amount of hidden states on the amount of features used in previous WF attacks.
+Hence, we base the size of the final state on the amount of features used in previous WF attacks.
 
 \begin{table}[ht]
   \centering
@@ -118,7 +113,7 @@ Hence, we base the amount of hidden states on the amount of features used in pre
   \label{table:feature-wf-attacks}
 \end{table}
 
-Therefore, we vary the amount of features between $100$ and $300$ in steps of $40$.
+Based on table \ref{table:feature-wf-attacks}, we vary the amount of features between $100$ and $300$ in steps of $40$.
 We aim to pick the sizes of the rest of the layers such that the step size is around the same value.
 
 % TODO: FIll in what is the best?
@@ -140,9 +135,9 @@ which is ideal since our network can be unrolled to a very large lengths.
 Next, we also note that the best quality of data compression was achieved with a \textit{MSE loss function} and a learning rate of $0.000002$.
 Hence, we set $\lambda = 0.000002$, $b = 200$ and use an adam optimizer with MSE for the rest of our experiments.
 
-Since some of the traces are relatively long, it might be worth cutting the traces after a certain amount of time.
-However, to compare which amount of time seems to be the most appropriate, we cannot simply use the learning curve because the shorter the trace, the smaller the error is likely to be.
-Therefore, we will cut the traces after $2$, $6$ and $10$ seconds, use these values to train a sequence-to-sequence model and train the binary classifiers on the extracted fingerprints.
+Since some of the traces are relatively long, it might be worth cutting the them after a certain amount of time.
+However, to compare which time seems to be the most appropriate, we cannot simply use the learning curve because the shorter the trace, the smaller the error is likely to be.
+Therefore, we will cut the traces after $2$, $6$ and $10$ seconds, use these values to train a sequence-to-sequence model and train binary classifiers on the extracted fingerprints.
 Next, we can compare the performance of these classifiers to analyse how much information each part of the trace carries.
 
 % TODO: Add performance
@@ -152,14 +147,12 @@ Next, we can compare the performance of these classifiers to analyse how much in
 \subsubsection{Architecture Tuning}
 
 Now that we have made a decision on which learning parameters to use, we can start changing the architecture of the sequence-to-sequence model to see which ones yield the best results.
-We do need to note that we might slightly deviate from the previously chosen learning parameters for different models due to memory constraints.
-But when we do, we will clearly state that this is the case.
 
 \noindent
 \textbf{Hidden States}
 
 We first start by examining the amount of hidden states in the network.
-These directly affects the size of the fingerprints that will be extracted.
+These directly affect the size of the fingerprints that will be extracted.
 In fact, the amount of features extracted is exactly double the amount of hidden states.
 Thus we vary the amount of hidden states between $60$ to $140$ in steps of $20$ to see which ones yield the most appropriate results.
 
@@ -167,7 +160,7 @@ For these experiments we train a sequence-to-sequence model with a unidirectiona
 The training data consists $120,000$ monitored and unmonitored web pages, which are shuffled to avoid overfitting on any specific web page.
 We only train the model for one epoch, as we seem to have enough data for the model to converge within that epoch.
 Hence, every sample that the model sees in the figure below is one that it has never seen before.
-So we can easily determine if the model overfits on specific data.
+So we can easily determine that the model is not overfitting.
 
 \begin{figure}[ht]
   \centering
@@ -178,7 +171,7 @@ So we can easily determine if the model overfits on specific data.
 
 Figure \ref{fig:varying-hidden-states} clearly shows us that the smaller the amount of hidden states, the faster the network seems to learn the reconstruction task.
 On the other hand, the higher the amount of states, the lower the final error seems to be.
-Since we aim to compromise between computational complexity and the time it takes to train the model, around $100$ hidden states seems to be the most appropriate since it manages to a MSE that is very close to the networks with a higher amount of hidden states.
+Since we aim to compromise between computational complexity and the time it takes to train the model, around $100$ hidden states seems to be the most appropriate.
 
 \noindent
 \textbf{Bidirectional}
@@ -204,23 +197,22 @@ This means that we will not be cutting the traces nor reversing them whilst trai
 We have previously analysed the models' performance based on how well it copies the original input from a fingerprint.
 But to examine how well our model performs at automatically generating fingerprints, we compare its performance on different existing classifiers with hand-picked features.
 This means that we choose a set of existing WF attacks and recreate them.
-Next we run the exact same attack but with the automatically generated features and various scoring statistics.
+Next we run the exact same attack but with both the hand-picked and automatically generated features.
 
 Note that our results might be slightly lower than in their respective papers since we do not aim to recreate the full attack.
 Rather than optimizing different hyperparameters, we aim to use these classifiers and the hand-picked features as an indicator as to how well the fingerprint extraction models perform.
 
 We expect that the automatically generated features will perform worse than the hand-picked ones due to the complexity of the task.
-To effectively compress a variable-length trace into a fixed-length representation is a very difficult to achieve task and due to the depth of the network, we expect that it got stuck in a local minima.
-However, we still hope to show that it is in fact possible to automate this feature selection process.
+However, we still hope to show that it is in fact possible to automate this feature selection process till a certain extent.
 
 As mentioned in section \ref{sec:threat-model}, there are two main threat models that we need to consider.
 The first one is a binary classification task, where the adversary wants to see whether or not a user is visiting any webpages within a given set.
-The other threat model involves the adversary having a set of monitored pages, and it wants to know which specific pages the user is visiting in that set.
+Whilst the other threat model involves the adversary having a set of monitored pages, and wants to know which specific pages the user is visiting in that set.
 Hence, it is a multiclass classification problem.
 
 Although there are different techniques for evaluating binary and multiclass classification models, we will only use the scoring statistics outlined in section \ref{sec:classifier-training}.
 This allows us for easy comparisons between the different threat models.
-We do expect that the binary classification models will perform better than the multiclass ones due to the larger amount of options available.
+We do expect that the binary classification models will perform better than the multiclass ones due to the smaller amount of options available.
 
 Aforementioned, we have already selected a total of four different existing attacks.
 We will refer to the first SVC attack by Panchenko et al. \cite{panchenko1} as \texttt{svc1} and the second one \cite{panchenko2} as \texttt{svc2}.
@@ -257,14 +249,14 @@ Here, we used a total of $10\%$ of the unmonitored data for training.
 
     \hline
   \end{tabular}
-  \caption{Performance statistics hand-picked features on a binary classification task with k-fold validation.} % 10 % unmonitored
+  \caption{Performance statistics hand-picked features on a binary classification task with k-fold validation whilst training on $10\%$ of the unmonitored pages.}
   \label{table:hand-picked-bin}
 \end{table}
 
 As expected, the results on the individual folds is relatively high.
 However, now we will measure their performance when training the classifiers on the full training set and evaluating on the validation set, whilst changing the amount of unmonitored pages we train the model on.
 Clearly, the models suffer if we introduce a large amount of unmonitored pages in the test set.
-But the more unmonitored instances we train on, the better the hand-picked features seem to perform.
+But the more unmonitored instances we train on, the better the classifiers seem to perform.
 
 \begin{figure}[ht]
   \centering
@@ -297,7 +289,7 @@ Hence, we also expect considerably lower results, especially on the test set wit
 
     \hline
   \end{tabular}
-  \caption{Performance statistics hand-picked features on a multiclass classification task.}
+  \caption{Performance statistics hand-picked features on a multiclass classification task with k-fold validation whilst training on $10\%$ of the unmonitored pages.}
   \label{table:mult-handpicked-test-error}
 \end{table}
 
@@ -314,7 +306,7 @@ Especially when given enough unmonitored pages to train them on, as can be seen 
 
 \subsubsection{Different Circumstances}
 
-Beside analysing how the fingerprint extraction models perform on data that was recorded under the same circumstances, it would be interesting to examine how it performs on other data.
+Beside analysing how the fingerprint extraction models perform on data within the same dataset, it would be interesting to examine how it performs on data recorded under different circumstances.
 It has already been shown that the performance of the classifiers is greatly impacted by the network, time and a different TBB version.
 But that doesn't necessarily mean that our fingerprint extraction model is impacted similarly.
 
@@ -322,10 +314,8 @@ If our models are not impacted by these flaws, an adversary would only need to t
 Hence, it would be some sort of \textit{transfer learning}
 .
 To test this premise, we use the models that we previously trained on the same $120,000$ web pages within the \texttt{GRESCHBACH} dataset.
-More specifically, % TODO: State architecture.
+% More specifically, % TODO: State architecture.
 Next, we extract the fingerprints from the Tor cells within the \texttt{WANG14} dataset using this model, train a set of classifiers on these fingerprints and note down their performance.
-
-% TODO: Include learning curve
 
 % TODO: Classifier analysis
 
@@ -333,9 +323,9 @@ Next, we extract the fingerprints from the Tor cells within the \texttt{WANG14} 
 
 \section{Unit Tests}
 
-On top of evaluating the results, we also needed to ensure that the results were in fact the the code behaves as we expect it to.
+On top of evaluating the results, we also needed to ensure that the code behaves as we expect it to.
 For this we use unit tests.
-Some of the code, such as the Tensorflow models is difficult to test but we can still test all of the preprocessing to see if that is correct.
+Some bits of the code, such as the Tensorflow models are difficult to test but we can still test all of the preprocessing to see if that is correct.
 For this we use Python's standard \texttt{unittest} module \cite{python_unittest_documentation}.
 The reason for this choice is that it is flexible and the standard unit testing framework, which means it is commonly used.
 
