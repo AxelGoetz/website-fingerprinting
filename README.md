@@ -33,8 +33,7 @@ Given time constraints, we will only test our automatically generated features o
 - k-fingerprinting attack *(Random Forest)* [1]
 - Website Fingerprinting in Onion Routing Based Anonymization Networks *(SVC)* [2]
 - Website Fingerprinting at Internet Scale *(SVM with RBF kernel)* [3]
-- A Novel Website Fingerprinting Attack against Multi-tab Browsing Behavior *(Naive Bayes)* [4]
-- Effective Attacks and Provable Defenses for Website Fingerprinting *(kNN)* [5]
+- Effective Attacks and Provable Defenses for Website Fingerprinting *(kNN)* [4]
 
 More information on the hand-picked features can be found [here](./feature_extraction/features.md).
 
@@ -75,8 +74,7 @@ python run_models/run_model.py
 
 with the appropriate parameters.
 
-// TODO: Add system manual
-
+To see how to run the system, checkout the `user_manual.md` file.
 ## Installation
 
 The seq2seq model mainly relies on tensorflow whilst we use sk-learn for the primitive machine learning tasks.
@@ -137,6 +135,4 @@ The project is structured as follows:
 
 [3] Panchenko, Andriy, Fabian Lanze, Andreas Zinnen, Martin Henze, Jan Pennekamp, Klaus Wehrle, and Thomas Engel. "Website fingerprinting at internet scale." In Network & Distributed System Security Symposium (NDSS). IEEE Computer Society. 2016.
 
-[4] Gu, Xiaodan, Ming Yang, and Junzhou Luo. "A novel website fingerprinting attack against multi-tab browsing behavior." In Computer Supported Cooperative Work in Design (CSCWD), 2015 IEEE 19th International Conference on, pp. 234-239. IEEE, 2015.
-
-[5] Wang, Tao, Xiang Cai, Rishab Nithyanand, Rob Johnson, and Ian Goldberg. "Effective Attacks and Provable Defenses for Website Fingerprinting." In USENIX Security, pp. 143-157. 2014.
+[4] Wang, Tao, Xiang Cai, Rishab Nithyanand, Rob Johnson, and Ian Goldberg. "Effective Attacks and Provable Defenses for Website Fingerprinting." In USENIX Security, pp. 143-157. 2014.
