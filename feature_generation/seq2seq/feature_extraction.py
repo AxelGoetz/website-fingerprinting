@@ -55,7 +55,7 @@ def run_model(data, in_memory=False):
 
         else:
             encoder_cell = args.cell(args.encoder_hidden_states)
-            decoder_cell= args.cells(args.decoder_hidden_states)
+            decoder_cell= args.cell(args.decoder_hidden_states)
 
         # with bidirectional encoder, decoder state size should be
         # 2x encoder state size

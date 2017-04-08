@@ -132,18 +132,23 @@ class Seq2SeqModel():
                                                 dtype=tf.float32, time_major=False)
                 )
 
-            self.encoder_outputs = tf.concat((encoder_fw_outputs, encoder_fw_outputs), 2)
+            self.encoder_outputs = tf.concat((encoder_fw_outputs, encoder_bw_outputs), 2)
 
-            encoder_final_state_c = tf.concat(
-                (encoder_fw_final_state.c, encoder_bw_final_state.c), 1)
+            if isinstance(l, LSTMStateTuple):
+                encoder_final_state_c = tf.concat(
+                    (encoder_fw_final_state.c, encoder_bw_final_state.c), 1)
 
-            encoder_final_state_h = tf.concat(
-                (encoder_fw_final_state.h, encoder_bw_final_state.h), 1)
+                encoder_final_state_h = tf.concat(
+                    (encoder_fw_final_state.h, encoder_bw_final_state.h), 1)
 
-            self.encoder_final_state = LSTMStateTuple(
-                c=encoder_final_state_c,
-                h=encoder_final_state_h
-            )
+                self.encoder_final_state = LSTMStateTuple(
+                    c=encoder_final_state_c,
+                    h=encoder_final_state_h
+                )
+
+            else:
+                self.encoder_final_state = tf.concat(
+                    (encoder_fw_final_state, encoder_bw_final_state), 1)
 
     def _init_decoder(self):
         """
