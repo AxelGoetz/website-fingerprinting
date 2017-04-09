@@ -411,5 +411,3 @@ def get_vector_representations(sess, model, data, save_dir,
     except KeyboardInterrupt:
         stdout.write('Interrupted')
         exit(0)
-
-    return results

@@ -15,6 +15,8 @@ import tensorflow as tf
 from sys import stdout, path
 from os import path as ospath
 
+from sklearn.preprocessing import MinMaxScaler
+
 path.append(ospath.dirname(ospath.dirname(ospath.abspath(__file__))))
 import helpers
 
@@ -210,6 +212,9 @@ class AutoEncoder():
             data_batch = [helpers.read_cell_file(path) for path in batch]
 
         data_batch = [self._process_trace(trace, self.layers[0]) for trace in data_batch]
+
+        min_max_scaler = preprocessing.MinMaxScaler()
+        data_batch = min_max_scaler.fit_transform(data_batch)
 
         encoder_inputs_ = data_batch
         decoder_targets_ = data_batch
