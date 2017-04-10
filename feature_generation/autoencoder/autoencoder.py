@@ -213,7 +213,7 @@ class AutoEncoder():
 
         data_batch = [self._process_trace(trace, self.layers[0]) for trace in data_batch]
 
-        min_max_scaler = preprocessing.MinMaxScaler()
+        min_max_scaler = MinMaxScaler()
         data_batch = min_max_scaler.fit_transform(data_batch)
 
         encoder_inputs_ = data_batch
