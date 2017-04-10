@@ -8,12 +8,12 @@
 
 \section{Future Works} \label{sec:future-works}
 
-This work shows that the classifiers currently still seem to perform better with hand-picked features rather than automatically generated ones but there is still much room for future improvements.
-Here we consider several different manners in how we can improve or extend this work.
+This work shows that the WF attacks currently still seem to perform better with hand-picked features rather than automatically generated ones but there is still much room for future improvements.
+Here we consider several different manners how we could improve or extend this work.
 Although we definitely will not cover all the different possible extensions, we try to list the most interesting ones.
 
-As previously mentioned in section \ref{sec:classifier-training}, we could add a \textit{softmax layer} on top of a decoder in a trained sequence-to-sequence model.
-Not only would this allow us to perform the classification with the sequence-to-sequence model, but it would also allow us to analyse how evidence affects the classification.
+As previously mentioned in section \ref{sec:classifier-training}, we could add a \textit{softmax layer} on top of the encoder in a trained sequence-to-sequence model.
+Not only would this allow us to perform the classification with the sequence-to-sequence model, but it would also allow us to analyse how different evidence affects the classification.
 Since you would technically only need one softmax layer, after the fingerprint has been extracted.
 But having one after every cell, allows us to see how different packets change the prediction of our model.
 This could then be used as a tool for analysis which features the model actually extracts.
@@ -44,10 +44,6 @@ Currently, one of the main weaknesses is that the traces can be very long, which
 We solved this issue here by cutting the traces after a certain amount of time since most the first part of the trace carries more information than the latter.
 However, this might not be the ideal solution.
 There might be another solution or perhaps even another model that does not have this weakness but still manages to map variable-length sequences into a fixed-length representation.
-
-Due to time constraints and limited Tensorflow support, we also did not examine the use of regularization.
-There are several works that show that several techniques such as \textit{L2 regularization}, \textit{dropout layers} and \textit{batch normalization} are promising techniques \cite{ioffe2015batch,nielsen_2017}.
-Hence, it could potentially help to reduce overfitting within the sequence-to-sequence model.
 
 % TODO: Which hand-picked features are the best?
 

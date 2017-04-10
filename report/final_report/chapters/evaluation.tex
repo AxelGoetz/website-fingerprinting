@@ -65,21 +65,12 @@ We perform several experiments here to see which ones are the most appropriate.
 
 \subsubsection{Learning Parameter Tuning}
 
-First, we start by varying the mini-batch sizes from $20$ to $400$ in steps of $20$.
+First, we start by varying the mini-batch sizes from $20$ to $400$ in steps of $20$ for a simple model with an input layer of $3000$ cells, and two hidden layers with $1600$ and $200$ neurons respectively.
 The higher the batch size, the longer it takes before making a weight update and the lower the value, the more noise in the training data.
-For instance, as can be seen in figure \ref{fig:varying-batch-sizes}, there is clearly a trend of the training error decreasing over time.
-However, since the batch size is low for the first case, there is a higher probability of having a batch where the training error is high for all of the samples within that batch.
-Hence, the data will look very noisy.
-Whilst the greater the batch size, the less noise there is in the data and therefore the easier it is to spot trends.
+We notice that a total batch size of $400$ seems to a good tradeoff.
 
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=\textwidth]{varying-batch-sizes}
-  \caption{Scaled MSE over traces processed for different batch sizes in a sequence-to-sequence model.}
-  \label{fig:varying-batch-sizes}
-\end{figure}
-
-% TODO: batch size, learning rate, MSE, optimizer
+Next, a \textit{mean squared error} (MSE) loss function with an \textit{RMSProp} optimizers and a $0.01$ learning rate and seem to yield the most appropriate results.
+Finally, we also use batch normalization for all experiments since it allows the model for faster convergence.
 
 \subsubsection{Architecture Tuning}
 
@@ -88,7 +79,7 @@ Hence, we will be using it for the rest of our experiments with stacked autoenco
 
 The amount of hidden layers is a slightly more difficult challenge.
 Since we want the simplest network possible that is able to learn a representation
-Hence, we experiment with networks with a total of $2$ up to $5$ hidden layers.
+Hence, we experiment with networks with a total of $1$ up to $3$ hidden layers.
 For each of these, the input layer will consist of $3000$ nodes and we will attempt to extract $200$ features, which means that the sizes of the hidden layers will gradually decrease to $200$ neurons.
 
 % TODO: Fill in amount of hidden layers
@@ -129,7 +120,7 @@ Thus through the rest of the report we will use a mini-batch size of $400$.
 
 Next, we vary the learning rate $\gamma$ from $0.01$ to $0.000001$ with various optimizers (\textit{adam}, \textit{gradient descent} or \textit{RMSProp}) and loss functions (\textit{mean squared error (MSE)} or \textit{absolute loss} (AL)).
 After trying a wide variety of different permutations, an \textit{adam optimizer} continuously demonstrated better results.
-We expected this since adam optimizers are computationally efficient, require a relatively little amount of memory and tend to perform very well with problems that have a large amount of parameters \cite{kingma2014adam},
+We already expected this since adam optimizers are computationally efficient, require a relatively little amount of memory and tend to perform very well with problems that have a large amount of parameters \cite{kingma2014adam},
 which is ideal since our network can be unrolled to a very large lengths.
 
 Next, we also note that the best quality of data compression was achieved with a \textit{MSE loss function} and a learning rate of $0.000002$.
@@ -140,9 +131,17 @@ However, to compare which time seems to be the most appropriate, we cannot simpl
 Therefore, we will cut the traces after $2$, $6$ and $10$ seconds, use these values to train a sequence-to-sequence model and train binary classifiers on the extracted fingerprints.
 Next, we can compare the performance of these classifiers to analyse how much information each part of the trace carries.
 
-% TODO: Add performance
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\textwidth]{trace-cutting}
+  \caption{Average performance measures of all classifiers after cutting traces.}
+  \label{fig:trace-cutting}
+\end{figure}
 
-% TODO: Add conclusion
+Figure \ref{fig:trace-cutting} shows us that majority of the information is in fact carried in the first couple of seconds of the trace.
+Hence, for the rest of our experiments we will be cutting the traces after $10$ seconds.
+
+Finally, we also use batch normalization for all experiments since it allows the model for faster convergence.
 
 \subsubsection{Architecture Tuning}
 
@@ -179,18 +178,36 @@ Since we aim to compromise between computational complexity and the time it take
 For these experiments, we consider a smaller range of hidden state values from $80$ to $120$ in steps of $20$.
 Again, for all of these we will be using LSTM cells without cutting or reversing the traces and all of the learning parameters described above and the training set will remain exactly the same.
 
-% TODO: Add figure + conclusion
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\textwidth]{varying-hidden-states2}
+  \caption{MSE over the amount of traces processed for varying hidden states for a bidirectional encoder.}
+  \label{fig:varying-hidden-states2}
+\end{figure}
+
+\noindent
+As can be seen in figure \ref{fig:varying-hidden-states2}, around $80$ hidden states seems to provide the best complexity/error tradeoff.
 
 \noindent
 \textbf{LSTM or GRU Cells}
 
 Here, we train a sequence-to-sequence model with both a unidirectional and bidirectional encoder.
-These will both have GRU cells with $100$ and $TODO: Fill in$ hidden states respectively.
+These will both have GRU cells with $100$ and $80$ hidden states respectively.
 
 Furthermore, we recreate the exact same training conditions as previously.
 This means that we will not be cutting the traces nor reversing them whilst training on the same dataset of $120,000$ web pages with the previously chosen learning parameters.
 
-% TODO: Add figure + conclusion
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\textwidth]{GRUcell}
+  \caption{Learning curves for different cell types.}
+  \label{fig:varying-cell-type}
+\end{figure}
+
+As can be seen in figure \ref{fig:varying-cell-type}, all of the architectures converge to a similar value.
+Although GRU cells seem to converge faster, they are also slightly more unstable especially around batch $80$ to $100$.
+The most stable model seems to be the bidirectional encoder with LSTM cells.
+Hence, we will be using this architecture for our sequence-to-sequence model.
 
 \subsection{Classifier Performance}
 
@@ -264,6 +281,9 @@ But the more unmonitored instances we train on, the better the classifiers seem 
   \caption{Varying the amount of unmonitored pages trained on for hand-picked features.}
   \label{fig:bin-varying-unmon}
 \end{figure}
+
+Now we will be analyzing the performance of these classifiers with the automatically generated features.
+We do note that from here on we refer to \texttt{svc1} and \texttt{svc2} as \texttt{svc} since they both have the same hyperparameters but were trained on different hand-picked features.
 
 % TODO: Automatically generated features
 % Bar chart?

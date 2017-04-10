@@ -16,6 +16,8 @@ Instead, we pick the average length of the traces, which is around $3,000$ and c
 On top of that, we deal with the fact that each packet is represented by a tuple, by just multiplying the time by the direction.
 Therefore, all of the outgoing packets are positive whilst the incoming ones will be negative.
 
+Finally, since the output of the activation functions used is either between 0 and 1 or -1 and 1, we will scale the batches accordingly.
+
 \section{Sequence-to-Sequence Model}
 
 As described in section \ref{sec:seq2seq}, a sequence-to-sequence model is able to learn how to construct a fixed-length representation from a variable-length sequence, which means that we will not have to perform as much preprocessing as for our autoencoder.
