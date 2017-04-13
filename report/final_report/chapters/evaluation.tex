@@ -298,6 +298,24 @@ But the more unmonitored instances we train on, the better the classifiers seem 
 Next, we will be analyzing the performance of these classifiers with the automatically generated features.
 We do note that from here on we refer to \texttt{svc1} and \texttt{svc2} as \texttt{svc} since they both have the same hyperparameters but were trained on different hand-picked features.
 
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{ r  r  r  r  r  r } \hline
+    \multicolumn{1}{c}{\textbf{Model}} & \multicolumn{1}{c}{\textbf{Accuracy}} & \multicolumn{1}{c}{\textbf{BDR}} & \multicolumn{1}{c}{\textbf{TPR}} &
+      \multicolumn{1}{c}{\textbf{FPR}} & \multicolumn{1}{c}{\textbf{F1}} \\ \hline
+
+    \texttt{svc1} & $0.92 \pm 0.001$ & $0.99 \pm 0.001$ & $0.98 \pm 0.001$ & $0.07 \pm 0.002$ & $0.89 \pm 0.003$ \\
+
+    \texttt{RF} & $0.77 \pm 0.012$ & $0.76 \pm 0.004$ & $0.87 \pm 0.009$ & $0.15 \pm 0.004$ & $0.78 \pm 0.007$ \\
+
+    \texttt{kNN} & $0.74 \pm 0.010$ & $0.73 \pm 0.009$ & $0.85 \pm 0.004$ & $0.18 \pm 0.007$ & $0.75 \pm 0.009$ \\
+
+    \hline
+  \end{tabular}
+  \caption{Performance statistics autoencoder features on a binary classification task with k-fold validation whilst training on $10\%$ of the unmonitored pages.}
+  \label{table:ae-bin}
+\end{table}
+
 % TODO: Automatically generated features
 % Bar chart?
 
@@ -336,6 +354,24 @@ Especially when given enough unmonitored pages to train them on, as can be seen 
   \caption{Varying the amount of unmonitored pages trained on for hand-picked features.}
   \label{fig:mult-varying-unmon}
 \end{figure}
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{ r  r  r  r  r  r } \hline
+    \multicolumn{1}{c}{\textbf{Model}} & \multicolumn{1}{c}{\textbf{Accuracy}} & \multicolumn{1}{c}{\textbf{BDR}} & \multicolumn{1}{c}{\textbf{TPR}} &
+      \multicolumn{1}{c}{\textbf{FPR}} & \multicolumn{1}{c}{\textbf{F1}} \\ \hline
+
+    \texttt{svc} & $0.21 \pm 0.003$ & $0.23 \pm 0.002$ & $0.13 \pm 0.002$ & $0.33 \pm 0.004$ & $0.25 \pm 0.004$ \\
+
+    \texttt{RF} & $0.19 \pm 0.009$ & $0.25 \pm 0.003$ & $0.11 \pm 0.008$ & $0.17 \pm 0.007$ & $0.24 \pm 0.009$\\
+
+    \texttt{kNN} & $0.18 \pm 0.015$ & $0.21 \pm 0.006$ & $0.09 \pm 0.006$ & $0.05 \pm 0.007$ & $0.20 \pm 0.011$ \\
+
+    \hline
+  \end{tabular}
+  \caption{Performance statistics autoencoder features on a multiclass classification task with k-fold validation whilst training on $10\%$ of the unmonitored pages.}
+  \label{table:mult-ae-test-error}
+\end{table}
 
 % TODO: Automatically generated features
 % Bar chart?
