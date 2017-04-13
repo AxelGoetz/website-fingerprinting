@@ -163,7 +163,7 @@ class AutoEncoder():
                                                     is_training=self.is_training,
                                                     scope='bn')
 
-    def set_is_training(is_training):
+    def set_is_training(self, is_training):
         """
         Sets the `is_training` class variable, used in th batch normalization layer.
         If `batch_norm == False`, this does not make a difference but if it is true, this variable should be set to false after training.
