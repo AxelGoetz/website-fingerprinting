@@ -1,0 +1,1274 @@
+\begin{landscape}
+\begin{multicols}{2}
+\chapter{Code Listing}
+
+In the following section we include the code that implements the unsupervised deep learning models used.
+
+\begingroup
+
+\lstset{
+    frame=none,
+    breaklines=true,
+    breakautoindent=true,
+    postbreak={},
+    upquote=true
+}
+
+\renewcommand{\thesubsection}{\arabic{subsection}}
+
+\renewcommand{\addcontentsline}[3]{}% Do nothing
+
+\subsection{Autoencoder}
+
+\begin{lstlisting}[language=Python]
+"""
+Implements a simple stacked autoencoder.
+
+Hyperparameters to tune:
+------------------------
+- Learning rate
+- Activation function (sigmoid, ReLU, atan)
+- Amount of neurons in each layer
+- Learning function (GradientDescentOptimizer, RMSProp, AdamOptimizer)
+- Batch size
+"""
+"""
+Implements a simple stacked autoencoder.
+
+Hyperparameters to tune:
+------------------------
+- Learning rate
+- Activation function (sigmoid, ReLU, atan)
+- Amount of neurons in each layer
+- Learning function (GradientDescentOptimizer, RMSProp, AdamOptimizer)
+- Batch size
+"""
+import numpy as np
+import tensorflow as tf
+
+from sys import stdout, path
+from os import path as ospath
+
+from sklearn.preprocessing import MinMaxScaler
+
+path.append(ospath.dirname(ospath.dirname(ospath.abspath(__file__))))
+import helpers
+
+class AutoEncoder():
+    """
+    Implements an autoencoder that tries to learn a representation for web page traces.
+
+    Atrributes:
+        - activation_func is a tensorflow function, representing the activation function used.
+            *(Often found in `tf.nn`)*
+        - encoder is a computation, representing the encoder layers
+        - decoder is another computtational graph, representing the decoder layers
+        - loss is the operation for the mean squared error (MSE)
+        - train_op is the train operation (`RMSProp`)
+        - layers is a list of integerrs, determining the amount of layers and their size
+        - is_training is a boolean representing whether you are training the autoencoder or not *(used in the batch_norm layer)*.
+        - batch_size
+        - learning_rate
+    """
+
+    def __init__(self, layers, batch_size, activation_func=tf.nn.sigmoid, saved_graph=None, sess=None, learning_rate=0.0001, batch_norm=False):
+        """
+        @param layers is a list of integers, determining the amount of layers and their size
+            starting with the input size
+        """
+        if len(layers) < 2:
+            print("Amount of layers must be greater than 1")
+            exit(0)
+
+        self.batch_size = batch_size
+        self.learning_rate = learning_rate
+        self.activation_func = activation_func
+        self.batch_norm = batch_norm
+
+        self.is_training = True
+
+        # Use this in data preprocessing
+        self.layers = layers
+
+        self._make_graph(layers)
+
+        if saved_graph is not None and sess is not None:
+            self.import_from_file(sess, saved_graph)
+
+    def _make_graph(self, layers):
+        """
+        Constructs the computational graph
+
+        @param layers is a list of integers, determining the size of the layers
+        """
+        self._init_placeholders(layers[0])
+
+        self.encoder = self._init_encoder(layers)
+        self.decoder = self._init_decoder(layers)
+
+        self._init_train()
+
+    def _init_placeholders(self, first_layer):
+        """
+        The main placeholders for input and output data
+        """
+        self.encoder_inputs = tf.placeholder(tf.float32, [self.batch_size, first_layer])
+
+        # We could technically use the same value as encoder_inputs but we do not
+        # for future possible extensions
+        self.decoder_targets = tf.placeholder(tf.float32, [self.batch_size, first_layer])
+
+
+    def _get_layer(self, layer_input, size_last_layer, size_current_layer):
+        """
+        Returns a layer with a batch normalized input, depending on the `batch_norm flag`
+
+        @param layer_input is the value used as an input to the layer.
+        @param size_last_layer is the size of the last layer (used in weight) or the size of the input
+        @param size_current_layer is the size of the current layer (used in weight and bias)
+        """
+        weight = tf.Variable(tf.random_normal([size_last_layer, size_current_layer]))
+        bias = tf.Variable(tf.random_normal([size_current_layer]))
+
+        if not self.batch_norm:
+            return self.activation_func(tf.add(tf.matmul(layer_input, weight), bias))
+
+
+        layer_input = tf.contrib.layers.batch_norm(layer_input,
+                                                   center=True, scale=True,
+                                                   is_training=self.is_training,
+                                                   scope='bn{}-{}'.format(size_last_layer, size_current_layer))
+
+        return self.activation_func(tf.add(tf.matmul(layer_input, weight), bias))
+
+    def _init_encoder(self, layers):
+        """
+        Creates the layers of the decoder and returns the last layer.
+        """
+        previous_layer = None
+
+        # We don't want to enumerate over the last one
+        for i in range(len(layers) - 1):
+            current_layer = None
+            if previous_layer is None:
+                current_layer = self._get_layer(self.encoder_inputs, layers[i], layers[i + 1])
+            else:
+                current_layer = self._get_layer(previous_layer, layers[i], layers[i + 1])
+
+            previous_layer = current_layer
+
+        # Will be the last layer
+        return previous_layer
+
+    def _init_decoder(self, layers):
+        """
+        Creates the decoder graph and returns the last layer
+        """
+        previous_layer = None
+
+        # We don't want to enumerate over the last one
+        for i in range(len(layers) - 1, 0, -1):
+            current_layer = None
+            if previous_layer is None:
+                current_layer = self._get_layer(self.encoder, layers[i], layers[i - 1])
+            else:
+                current_layer = self._get_layer(previous_layer, layers[i], layers[i - 1])
+
+            previous_layer = current_layer
+
+        # Will be the last layer
+        return previous_layer
+
+    def _init_train(self):
+        """
+        Create the train operation
+        """
+        self.loss = tf.reduce_sum(tf.square(self.decoder_targets - self.decoder))
+
+        # Which optimizer to use? `GradientDescentOptimizer`, `AdamOptimizer` or `RMSProp`?
+        self.train_op = tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss)
+
+    def _init_batch_norm(self):
+        """
+        Adds a batch normalization layer.
+        """
+        self.decoder = tf.contrib.layers.batch_norm(self.decoder,
+                                                    center=True, scale=True,
+                                                    is_training=self.is_training,
+                                                    scope='bn')
+
+    def set_is_training(is_training):
+        """
+        Sets the `is_training` class variable, used in th batch normalization layer.
+        If `batch_norm == False`, this does not make a difference but if it is true, this variable should be set to false after training.
+        """
+        self.is_training = is_training
+
+    def _process_trace(self, trace, n):
+        """
+        Cuts the traces after `n` steps or pads them such that they are of length `n`.
+        """
+        features = []
+
+        for packet in trace:
+            # Either positive or negative depending on whether its incoming or outgoing.
+            features.append(packet[0] * packet[1])
+
+            if len(features) == n:
+                break
+
+        for i in range(len(features), n):
+            features.append(0)
+
+        return features
+
+
+    def next_batch(self, batches, in_memory):
+        """
+        Returns the next batch in some fixed-length representation.
+        Currently we use Panchenko et al.'s cumulative traces
+
+        @param batches an iterator with all of the batches (
+            if in_memory == True:
+                in batch-major form without padding
+            else:
+                A list of paths to the files
+        )
+        @param in_memory is a boolean value
+
+        @return if in_memory is False, returns a tuple of (dict, [paths]) where paths is a list of paths for each batch
+            else it returns a dict for training
+        """
+        batch = next(batches)
+        data_batch = batch
+
+        if not in_memory:
+            data_batch = [helpers.read_cell_file(path) for path in batch]
+
+        data_batch = [self._process_trace(trace, self.layers[0]) for trace in data_batch]
+
+        min_max_scaler = MinMaxScaler()
+        data_batch = min_max_scaler.fit_transform(data_batch)
+
+        encoder_inputs_ = data_batch
+        decoder_targets_ = data_batch
+
+        train_dict = {
+            self.encoder_inputs: encoder_inputs_,
+            self.decoder_targets: decoder_targets_,
+        }
+
+        if not in_memory:
+            return (train_dict, batch)
+        return train_dict
+
+    def save(self, sess, file_name):
+        """
+        Save the model in a file
+
+        @param sess is the session
+        @param file_name is the file name without the extension
+        """
+        saver = tf.train.Saver()
+        saver.save(sess, file_name)
+
+    def import_from_file(self, sess, file_name):
+        """
+        Imports the graph from a file
+
+        @param sess is the session
+        @param file_name is a string that represents the file name
+            without the extension
+        """
+
+        # Get the graph
+        saver = tf.train.Saver()
+
+        # Restore the variables
+        saver.restore(sess, file_name)
+
+
+
+def train_on_copy_task(sess, model, data,
+                       batch_size=100,
+                       max_batches=None,
+                       batches_in_epoch=1000,
+                       verbose=False):
+    """
+    Train the `AutoEncoder` on a copy task
+
+    @param sess is a tensorflow session
+    @param model is the autoencoder model
+    @param data is the data (in batch-major form and not padded or a list of files (depending on `in_memory`))
+    """
+    batches = helpers.get_batches(data, batch_size=batch_size)
+
+    loss_track = []
+
+    batches_in_data = len(data) // batch_size
+    if max_batches is None or batches_in_data < max_batches:
+        max_batches = batches_in_data - 1
+
+    try:
+        for batch in range(max_batches):
+            print("Batch {}/{}".format(batch, max_batches))
+            fd, _ = model.next_batch(batches, False)
+            _, l = sess.run([model.train_op, model.loss], fd)
+
+            loss_track.append(l)
+
+            if batch == 0 or batch % batches_in_epoch == 0:
+                model.save(sess, 'autoencoder_model')
+                helpers.save_object(loss_track, 'loss_track.pkl')
+
+                if verbose:
+                    stdout.write('  minibatch loss: {}\n'.format(sess.run(model.loss, fd)))
+                    predict_ = sess.run(model.decoder_outputs, fd)
+                    for i, (inp, pred) in enumerate(zip(fd[model.encoder_inputs].swapaxes(0, 1), predict_.swapaxes(0, 1))):
+                        stdout.write('  sample {}:\n'.format(i + 1))
+                        stdout.write('    input     > {}\n'.format(inp))
+                        stdout.write('    predicted > {}\n'.format(pred))
+                        if i >= 0:
+                            break
+                    stdout.write('\n')
+
+    except KeyboardInterrupt:
+        stdout.write('training interrupted')
+        model.save(sess, 'autoencoder_model')
+        exit(0)
+
+    model.save(sess, 'autoencoder_model')
+    helpers.save_object(loss_track, 'loss_track.pkl')
+
+    return loss_track
+
+def get_vector_representations(sess, model, data, save_dir,
+                       batch_size=100,
+                       max_batches=None,
+                       batches_in_epoch=1000,
+                       extension=".cell"):
+    """
+    Given a trained model, gets a vector representation for the traces in batch
+
+    @param sess is a tensorflow session
+    @param model is the autoencoder model
+    @param data is the data (in batch-major form and not padded or a list of files (depending on `in_memory`))
+    """
+    batches = helpers.get_batches(data, batch_size=batch_size)
+
+    batches_in_data = len(data) // batch_size
+    if max_batches is None or batches_in_data < max_batches:
+        max_batches = batches_in_data - 1
+
+    try:
+        for batch in range(max_batches):
+            print("Batch {}/{}".format(batch, max_batches))
+            fd, paths = model.next_batch(batches, False)
+            l = sess.run(model.encoder, fd)
+
+            file_names = [helpers.extract_filename_from_path(path, extension) for path in paths]
+
+            for file_name, features in zip(file_names, list(l)):
+                helpers.write_to_file(features, save_dir, file_name, new_extension=".cellf")
+
+    except KeyboardInterrupt:
+        stdout.write('Interrupted')
+        exit(0)
+
+    return results
+
+\end{lstlisting}
+
+\subsection{Sequence-to-sequence model}
+
+\begin{lstlisting}[language=Python]
+"""
+This file implements a RNN encoder-decoder model (also known as sequence-to-sequence models).
+
+We made the choice not to implement an attention mechanism (which means that the decoder is allowed to have a 'peak' at the input).
+The reason why is because we are not trying to maximize the output of the decoder but instead the feature selection process.
+(http://suriyadeepan.github.io/2016-06-28-easy-seq2seq/)
+
+We will use batch-major rather than time-major even though time-major is slightly more efficient
+since it makes the feature extraction process a lot easier.
+
+We will not be using bucketing because traces of the same webpage will have the same length.
+Therefore every batch, we will most likely be training the seq2seq model on one webpage
+
+! Does encoder share weights with decoder or not (Less computation vs natural (https://arxiv.org/pdf/1409.3215.pdf))
+! Reverse traces (https://arxiv.org/pdf/1409.3215.pdf)
+
+Hyperparameters to tune:
+------------------------
+- Learning rate
+- Which cell to use (GRU vs LSTM) or a deep RNN architecture using `MultiRNNCell`
+- Reversing traces
+- Bidirectional encoder
+- Other objective functions (such as MSE,...)
+- Amount of encoder and decoder hidden states
+"""
+import numpy as np
+import tensorflow as tf
+
+from sys import stdout, path
+from os import path as ospath
+
+from tensorflow.contrib.rnn import LSTMStateTuple
+
+path.append(ospath.dirname(ospath.dirname(ospath.abspath(__file__))))
+import helpers
+
+
+class Seq2SeqModel():
+    """
+    Implements a sequence to sequence model for real values
+
+    Attributes:
+        - encoder_cell is the cell that will be used for encoding
+            (Should be part of `tf.nn.rnn_cell`)
+        - decoder cell is the cell used for decoding
+            (Should be part of `tf.nn.rnn_cell`)
+
+        - seq_width shows how many features each input in the sequence has
+            (For website fingerprinting this is only 2 (packet_size, incoming))
+        - batch_size
+
+        - bidirectional is a boolean value that determines whether the encoder is bidirectional or not
+        - reverse is also a boolean value that when if true, reversed the traces for training
+    """
+
+    def __init__(self, encoder_cell, decoder_cell, seq_width, batch_size=100, bidirectional=False, reverse=False, saved_graph=None, sess=None, learning_rate=0.0006):
+        """
+        @param saved_graph is a string, representing the path to the saved graph
+        """
+        # Constants
+        self.PAD = 0
+        self.EOS = -1
+
+        self.reverse = reverse
+        self.seq_width = seq_width
+        self.batch_size = batch_size
+        self.learning_rate = learning_rate
+
+        self.bidirectional = bidirectional
+
+        self.encoder_cell = encoder_cell
+        self.decoder_cell = decoder_cell
+
+        self._make_graph()
+
+        if saved_graph is not None and sess is not None:
+            self.import_from_file(sess, saved_graph)
+
+    def _make_graph(self):
+        """
+        Construct the graph
+        """
+
+        self._init_placeholders()
+
+        self._init_encoder()
+        self._init_decoder()
+
+        self._init_train()
+
+    def _init_placeholders(self):
+        """
+        The main placeholders used for the input data, and output
+        """
+        # The usual format is: `[self.batch_size, max_sequence_length, self.seq_width]`
+        # But we define `max_sequence_length` as None to make it dynamic so we only need to pad
+        # each batch to the maximum sequence length
+        self.encoder_inputs = tf.placeholder(tf.float32,
+            [self.batch_size, None, self.seq_width])
+
+        self.encoder_inputs_length = tf.placeholder(tf.int32, [self.batch_size])
+
+        self.decoder_targets = tf.placeholder(tf.float32,
+            [self.batch_size, None, self.seq_width])
+
+    def _init_encoder(self):
+        """
+        Creates the encoder attributes
+
+        Attributes:
+            - encoder_outputs is shaped [max_sequence_length, batch_size, seq_width]
+                (since time-major == True)
+            - encoder_final_state is shaped [batch_size, encoder_cell.state_size]
+        """
+        if not self.bidirectional:
+            with tf.variable_scope('Encoder') as scope:
+                self.encoder_outputs, self.encoder_final_state = tf.nn.dynamic_rnn(
+                    cell=self.encoder_cell,
+                    dtype=tf.float32,
+                    sequence_length=self.encoder_inputs_length,
+                    inputs=self.encoder_inputs,
+                    time_major=False)
+        else:
+            ((encoder_fw_outputs,
+              encoder_bw_outputs),
+             (encoder_fw_final_state,
+              encoder_bw_final_state)) = (
+                tf.nn.bidirectional_dynamic_rnn(cell_fw=self.encoder_cell,
+                                                cell_bw=self.encoder_cell,
+                                                inputs=self.encoder_inputs,
+                                                sequence_length=self.encoder_inputs_length,
+                                                dtype=tf.float32, time_major=False)
+                )
+
+            self.encoder_outputs = tf.concat((encoder_fw_outputs, encoder_bw_outputs), 2)
+
+            if isinstance(encoder_fw_final_state, LSTMStateTuple):
+                encoder_final_state_c = tf.concat(
+                    (encoder_fw_final_state.c, encoder_bw_final_state.c), 1)
+
+                encoder_final_state_h = tf.concat(
+                    (encoder_fw_final_state.h, encoder_bw_final_state.h), 1)
+
+                self.encoder_final_state = LSTMStateTuple(
+                    c=encoder_final_state_c,
+                    h=encoder_final_state_h
+                )
+
+            else:
+                self.encoder_final_state = tf.concat(
+                    (encoder_fw_final_state, encoder_bw_final_state), 1)
+
+    def _init_decoder(self):
+        """
+        Creates decoder attributes.
+        We cannot simply use a dynamic_rnn since we are feeding the outputs of the
+        decoder back into the inputs.
+        Therefore we use a raw_rnn and emulate a dynamic_rnn with this behavior.
+        (https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/ops/rnn.py)
+        """
+        # EOS token added
+        self.decoder_inputs_length = self.encoder_inputs_length + 1
+
+        def loop_fn_initial(time, cell_output, cell_state, loop_state):
+            elements_finished = (time >= self.decoder_inputs_length)
+
+            # EOS token (0 + self.EOS)
+            initial_input = tf.zeros([self.batch_size, self.decoder_cell.output_size], dtype=tf.float32) + self.EOS
+            initial_cell_state = self.encoder_final_state
+            initial_loop_state = None  # we don't need to pass any additional information
+
+            return (elements_finished,
+                    initial_input,
+                    initial_cell_state,
+                    None,  # cell output is dummy here
+                    initial_loop_state)
+
+        def loop_fn(time, cell_output, cell_state, loop_state):
+            if cell_output is None:  # time == 0
+                return loop_fn_initial(time, cell_output, cell_state, loop_state)
+
+            cell_output.set_shape([self.batch_size, self.decoder_cell.output_size])
+
+            emit_output = cell_output
+
+            next_cell_state = cell_state
+
+            elements_finished = (time >= self.decoder_inputs_length)
+            finished = tf.reduce_all(elements_finished)
+
+            next_input = tf.cond(
+                finished,
+                lambda: tf.zeros([self.batch_size, self.decoder_cell.output_size], dtype=tf.float32), # self.PAD
+                lambda: cell_output # Use the input from the previous cell
+            )
+
+            next_loop_state = None
+
+            return (
+                elements_finished,
+                next_input,
+                next_cell_state,
+                emit_output,
+                next_loop_state
+            )
+
+        decoder_outputs_ta, decoder_final_state, _ = tf.nn.raw_rnn(self.decoder_cell, loop_fn)
+        self.decoder_outputs = decoder_outputs_ta.stack()
+        self.decoder_outputs = tf.transpose(self.decoder_outputs, [1, 0, 2])
+
+        with tf.variable_scope('DecoderOutputProjection') as scope:
+            self.decoder_outputs = self.projection(self.decoder_outputs, self.seq_width, scope)
+
+    def _init_train(self):
+        self.loss = tf.reduce_sum(tf.square(self.decoder_targets - self.decoder_outputs))
+
+        # Which optimizer to use? `GradientDescentOptimizer`, `AdamOptimizer` or `RMSProp`?
+        self.train_op = tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss)
+
+    def projection(self, inputs, projection_size, scope):
+        """
+        Projects the input with a known amount of features to a `projection_size amount of features`
+
+        @param inputs is shaped like [time, batch, input_size] or [batch, input_size]
+        @param projection_size int32
+        @param scope outer variable scope
+        """
+        input_size = inputs.get_shape()[-1].value
+
+        with tf.variable_scope(scope) as scope:
+            W = tf.get_variable(name='W', shape=[input_size, projection_size],
+                                dtype=tf.float32)
+
+            b = tf.get_variable(name='b', shape=[projection_size],
+                                dtype=tf.float32,
+                                initializer=tf.constant_initializer(0, dtype=tf.float32))
+
+        input_shape = tf.unstack(tf.shape(inputs))
+
+        if len(input_shape) == 3:
+            time, batch, _ = input_shape  # dynamic parts of shape
+            inputs = tf.reshape(inputs, [-1, input_size])
+
+        elif len(input_shape) == 2:
+            batch, _depth = input_shape
+
+        else:
+            raise ValueError("Weird input shape: {}".format(inputs))
+
+        linear = tf.add(tf.matmul(inputs, W), b)
+
+        if len(input_shape) == 3:
+            linear = tf.reshape(linear, [time, batch, projection_size])
+
+        return linear
+
+    def next_batch(self, batches, in_memory, max_time_diff=float("inf")):
+        """
+        Returns the next batch.
+
+        @param batches an iterator with all of the batches (
+            if in_memory == True:
+                in batch-major form without padding
+            else:
+                A list of paths to the files
+        )
+        @param in_memory is a boolean value
+        @param max_time_diff **(should only be defined if `in_memory == False`)**
+            specifies what the maximum time different between the first packet in the trace and the last one should be
+
+        @return if in_memory is False, returns a tuple of (dict, [paths], max_length) where paths is a list of paths for each batch
+            else it returns a dict for training
+        """
+        batch = next(batches)
+        data_batch = batch
+
+        if not in_memory:
+            data_batch = [helpers.read_cell_file(path, max_time_diff=max_time_diff) for path in batch]
+            for i, cell in enumerate(data_batch):
+                data_batch[i] = [packet[0] * packet[1] for packet in cell]
+
+        data_batch, encoder_input_lengths_ = helpers.pad_traces(data_batch, reverse=self.reverse, seq_width=self.seq_width)
+        encoder_inputs_ = data_batch
+
+        decoder_targets_ = helpers.add_EOS(data_batch, encoder_input_lengths_)
+
+        train_dict = {
+            self.encoder_inputs: encoder_inputs_,
+            self.encoder_inputs_length: encoder_input_lengths_,
+            self.decoder_targets: decoder_targets_,
+        }
+
+        if not in_memory:
+            return (train_dict, batch, max(encoder_input_lengths_))
+        return train_dict
+
+    def save(self, sess, file_name):
+        """
+        Save the model in a file
+
+        @param sess is the session
+        @param file_name is the file name without the extension
+        """
+        saver = tf.train.Saver()
+        saver.save(sess, file_name)
+        # saver.export_meta_graph(filename=file_name + '.meta')
+
+    def import_from_file(self, sess, file_name):
+        """
+        Imports the graph from a file
+
+        @param sess is the session
+        @param file_name is a string that represents the file name
+            without the extension
+        """
+
+        # Get the graph
+        saver = tf.train.Saver()
+
+        # Restore the variables
+        saver.restore(sess, file_name)
+
+
+def train_on_copy_task(sess, model, data,
+                       batch_size=100,
+                       max_batches=None,
+                       batches_in_epoch=1000,
+                       max_time_diff=float("inf"),
+                       verbose=False):
+    """
+    Train the `Seq2SeqModel` on a copy task
+
+    @param sess is a tensorflow session
+    @param model is the seq2seq model
+    @param data is the data (in batch-major form and not padded or a list of files (depending on `in_memory`))
+    """
+    batches = helpers.get_batches(data, batch_size=batch_size)
+
+    loss_track = []
+
+    batches_in_data = len(data) // batch_size
+    if max_batches is None or batches_in_data < max_batches:
+        max_batches = batches_in_data - 1
+
+    try:
+        for batch in range(max_batches):
+            print("Batch {}/{}".format(batch, max_batches))
+            fd, _, length = model.next_batch(batches, False, max_time_diff)
+            _, l = sess.run([model.train_op, model.loss], fd)
+            loss_track.append(l / length)
+
+            if batch == 0 or batch % batches_in_epoch == 0:
+                model.save(sess, 'seq2seq_model')
+                helpers.save_object(loss_track, 'loss_track.pkl')
+
+                if verbose:
+                    stdout.write('  minibatch loss: {}\n'.format(sess.run(model.loss, fd)))
+                    predict_ = sess.run(model.decoder_outputs, fd)
+                    for i, (inp, pred) in enumerate(zip(fd[model.encoder_inputs].swapaxes(0, 1), predict_.swapaxes(0, 1))):
+                        stdout.write('  sample {}:\n'.format(i + 1))
+                        stdout.write('    input     > {}\n'.format(inp))
+                        stdout.write('    predicted > {}\n'.format(pred))
+                        if i >= 0:
+                            break
+                    stdout.write('\n')
+
+    except KeyboardInterrupt:
+        stdout.write('training interrupted')
+        model.save(sess, 'seq2seq_model')
+        exit(0)
+
+    model.save(sess, 'seq2seq_model')
+    helpers.save_object(loss_track, 'loss_track.pkl')
+
+    return loss_track
+
+def get_vector_representations(sess, model, data, save_dir,
+                       batch_size=100,
+                       max_batches=None,
+                       batches_in_epoch=1000,
+                       max_time_diff=float("inf"),
+                       extension=".cell"):
+    """
+    Given a trained model, gets a vector representation for the traces in batch
+
+    @param sess is a tensorflow session
+    @param model is the seq2seq model
+    @param data is the data (in batch-major form and not padded or a list of files (depending on `in_memory`))
+    """
+    batches = helpers.get_batches(data, batch_size=batch_size)
+
+    batches_in_data = len(data) // batch_size
+    if max_batches is None or batches_in_data < max_batches:
+        max_batches = batches_in_data - 1
+
+    try:
+        for batch in range(max_batches):
+            print("Batch {}/{}".format(batch, max_batches))
+            fd, paths, _ = model.next_batch(batches, False, max_time_diff)
+            l = sess.run(model.encoder_final_state, fd)
+
+            # Returns a tuple, so we concatenate
+            if isinstance(l, LSTMStateTuple):
+                l = np.concatenate((l.c, l.h), axis=1)
+
+            file_names = [helpers.extract_filename_from_path(path, extension) for path in paths]
+
+            for file_name, features in zip(file_names, list(l)):
+                helpers.write_to_file(features, save_dir, file_name, new_extension=".cellf")
+
+    except KeyboardInterrupt:
+        stdout.write('Interrupted')
+        exit(0)
+\end{lstlisting}
+
+\subsection{Batch-normalized LSTM cell}
+
+\begin{lstlisting}[language=Python]
+"""
+Implements batch normalized LSTM cells described in https://arxiv.org/pdf/1510.01378.pdf.
+"""
+
+from tensorflow.contrib.rnn import LSTMCell, LSTMStateTuple
+
+from tensorflow.python.framework import ops
+from tensorflow.python.framework import tensor_shape
+from tensorflow.python.framework import tensor_util
+from tensorflow.python.ops import array_ops
+from tensorflow.python.ops import clip_ops
+from tensorflow.python.ops import embedding_ops
+from tensorflow.python.ops import init_ops
+from tensorflow.python.ops import math_ops
+from tensorflow.python.ops import nn_ops
+from tensorflow.python.ops import partitioned_variables
+from tensorflow.python.ops import random_ops
+from tensorflow.python.ops import variable_scope as vs
+
+from tensorflow.python.ops.math_ops import sigmoid
+from tensorflow.python.ops.math_ops import tanh
+from tensorflow.python.ops.rnn_cell_impl import _RNNCell as RNNCell
+
+from tensorflow.python.platform import tf_logging as logging
+from tensorflow.python.util import nest
+
+from tensorflow.contrib.layers import batch_norm
+
+import contextlib
+
+_BIAS_VARIABLE_NAME = "biases"
+_WEIGHTS_VARIABLE_NAME = "weights"
+
+@contextlib.contextmanager
+def _checked_scope(cell, scope, reuse=None, **kwargs):
+  if reuse is not None:
+    kwargs["reuse"] = reuse
+  with vs.variable_scope(scope, **kwargs) as checking_scope:
+    scope_name = checking_scope.name
+    if hasattr(cell, "_scope"):
+      cell_scope = cell._scope  # pylint: disable=protected-access
+      if cell_scope.name != checking_scope.name:
+        raise ValueError(
+            "Attempt to reuse RNNCell %s with a different variable scope than "
+            "its first use.  First use of cell was with scope '%s', this "
+            "attempt is with scope '%s'.  Please create a new instance of the "
+            "cell if you would like it to use a different set of weights.  "
+            "If before you were using: MultiRNNCell([%s(...)] * num_layers), "
+            "change to: MultiRNNCell([%s(...) for _ in range(num_layers)]).  "
+            "If before you were using the same cell instance as both the "
+            "forward and reverse cell of a bidirectional RNN, simply create "
+            "two instances (one for forward, one for reverse).  "
+            "In May 2017, we will start transitioning this cell's behavior "
+            "to use existing stored weights, if any, when it is called "
+            "with scope=None (which can lead to silent model degradation, so "
+            "this error will remain until then.)"
+            % (cell, cell_scope.name, scope_name, type(cell).__name__,
+               type(cell).__name__))
+    else:
+      weights_found = False
+      try:
+        with vs.variable_scope(checking_scope, reuse=True):
+          vs.get_variable(_WEIGHTS_VARIABLE_NAME)
+        weights_found = True
+      except ValueError:
+        pass
+      if weights_found and reuse is None:
+        raise ValueError(
+            "Attempt to have a second RNNCell use the weights of a variable "
+            "scope that already has weights: '%s'; and the cell was not "
+            "constructed as %s(..., reuse=True).  "
+            "To share the weights of an RNNCell, simply "
+            "reuse it in your second calculation, or create a new one with "
+            "the argument reuse=True." % (scope_name, type(cell).__name__))
+
+    # Everything is OK.  Update the cell's scope and yield it.
+    cell._scope = checking_scope  # pylint: disable=protected-access
+    yield checking_scope
+
+class BNLSTMCell(LSTMCell):
+  """Long short-term memory unit (LSTM) recurrent network cell.
+  The default non-peephole implementation is based on:
+    http://deeplearning.cs.cmu.edu/pdfs/Hochreiter97_lstm.pdf
+  S. Hochreiter and J. Schmidhuber.
+  "Long Short-Term Memory". Neural Computation, 9(8):1735-1780, 1997.
+  The peephole implementation is based on:
+    https://research.google.com/pubs/archive/43905.pdf
+  Hasim Sak, Andrew Senior, and Francoise Beaufays.
+  "Long short-term memory recurrent neural network architectures for
+   large scale acoustic modeling." INTERSPEECH, 2014.
+  The class uses optional peep-hole connections, optional cell clipping, and
+  an optional projection layer.
+  """
+
+  def __init__(self, num_units, input_size=None,
+               use_peepholes=False, cell_clip=None,
+               initializer=None, num_proj=None, proj_clip=None,
+               num_unit_shards=None, num_proj_shards=None,
+               forget_bias=1.0, state_is_tuple=True,
+               activation=tanh, is_training=True, batch_norm=True):
+    """Initialize the parameters for an LSTM cell.
+    Args:
+      num_units: int, The number of units in the LSTM cell
+      input_size: Deprecated and unused.
+      use_peepholes: bool, set True to enable diagonal/peephole connections.
+      cell_clip: (optional) A float value, if provided the cell state is clipped
+        by this value prior to the cell output activation.
+      initializer: (optional) The initializer to use for the weight and
+        projection matrices.
+      num_proj: (optional) int, The output dimensionality for the projection
+        matrices.  If None, no projection is performed.
+      proj_clip: (optional) A float value.  If `num_proj > 0` and `proj_clip` is
+        provided, then the projected values are clipped elementwise to within
+        `[-proj_clip, proj_clip]`.
+      num_unit_shards: Deprecated, will be removed by Jan. 2017.
+        Use a variable_scope partitioner instead.
+      num_proj_shards: Deprecated, will be removed by Jan. 2017.
+        Use a variable_scope partitioner instead.
+      forget_bias: Biases of the forget gate are initialized by default to 1
+        in order to reduce the scale of forgetting at the beginning of
+        the training.
+      state_is_tuple: If True, accepted and returned states are 2-tuples of
+        the `c_state` and `m_state`.  If False, they are concatenated
+        along the column axis.  This latter behavior will soon be deprecated.
+      activation: Activation function of the inner states.
+      is_training: Python boolean describing whether or not you are currently
+        training. Should only be changed if `batch_norm == True`
+      batch_norm: Python boolean that indicated whether or not the cell is
+        batch normalized
+    """
+    self._is_training = is_training
+    self._batch_norm = batch_norm
+
+    super().__init__(num_units, input_size=input_size,
+                 use_peepholes=use_peepholes, cell_clip=cell_clip,
+                 initializer=initializer, num_proj=num_proj, proj_clip=proj_clip,
+                 num_unit_shards=num_unit_shards, num_proj_shards=num_proj_shards,
+                 forget_bias=forget_bias, state_is_tuple=state_is_tuple,
+                 activation=activation)
+
+
+  def __call__(self, inputs, state, scope=None):
+    """Run one step of LSTM.
+    Args:
+      inputs: input Tensor, 2D, batch x num_units.
+      state: if `state_is_tuple` is False, this must be a state Tensor,
+        `2-D, batch x state_size`.  If `state_is_tuple` is True, this must be a
+        tuple of state Tensors, both `2-D`, with column sizes `c_state` and
+        `m_state`.
+      scope: VariableScope for the created subgraph; defaults to "lstm_cell".
+    Returns:
+      A tuple containing:
+      - A `2-D, [batch x output_dim]`, Tensor representing the output of the
+        LSTM after reading `inputs` when previous state was `state`.
+        Here output_dim is:
+           num_proj if num_proj was set,
+           num_units otherwise.
+      - Tensor(s) representing the new state of LSTM after reading `inputs` when
+        the previous state was `state`.  Same type and shape(s) as `state`.
+    Raises:
+      ValueError: If input size cannot be inferred from inputs via
+        static shape inference.
+    """
+    num_proj = self._num_units if self._num_proj is None else self._num_proj
+
+    if self._state_is_tuple:
+      (c_prev, m_prev) = state
+    else:
+      c_prev = array_ops.slice(state, [0, 0], [-1, self._num_units])
+      m_prev = array_ops.slice(state, [0, self._num_units], [-1, num_proj])
+
+    dtype = inputs.dtype
+    input_size = inputs.get_shape().with_rank(2)[1]
+    if input_size.value is None:
+      raise ValueError("Could not infer input size from inputs.get_shape()[-1]")
+    with _checked_scope(self, scope or "lstm_cell",
+                        initializer=self._initializer) as unit_scope:
+      if self._num_unit_shards is not None:
+        unit_scope.set_partitioner(
+            partitioned_variables.fixed_size_partitioner(
+                self._num_unit_shards))
+      # i = input_gate, j = new_input, f = forget_gate, o = output_gate
+      lstm_matrix = _linear([inputs, m_prev], 4 * self._num_units, bias=True)
+      i, j, f, o = array_ops.split(
+          value=lstm_matrix, num_or_size_splits=4, axis=1)
+      # Diagonal connections
+      if self._use_peepholes:
+        with vs.variable_scope(unit_scope) as projection_scope:
+          if self._num_unit_shards is not None:
+            projection_scope.set_partitioner(None)
+          w_f_diag = vs.get_variable(
+              "w_f_diag", shape=[self._num_units], dtype=dtype)
+          w_i_diag = vs.get_variable(
+              "w_i_diag", shape=[self._num_units], dtype=dtype)
+          w_o_diag = vs.get_variable(
+              "w_o_diag", shape=[self._num_units], dtype=dtype)
+
+      if self._use_peepholes:
+        res = (sigmoid(f + self._forget_bias + w_f_diag * c_prev) * c_prev +
+             sigmoid(i + w_i_diag * c_prev) * self._activation(j))
+        if self._batch_norm:
+          c = batch_norm(res,
+                         center=True, scale=True,
+                         is_training=self._is_training,
+                         scope='bn')
+        else:
+          c = res
+      else:
+        res = (sigmoid(f + self._forget_bias) * c_prev + sigmoid(i) *
+             self._activation(j))
+        if self._batch_norm:
+          c = batch_norm(res,
+                         center=True, scale=True,
+                         is_training=self._is_training,
+                         scope='bn')
+        else:
+          c = res
+
+      if self._cell_clip is not None:
+        # pylint: disable=invalid-unary-operand-type
+        c = clip_ops.clip_by_value(c, -self._cell_clip, self._cell_clip)
+        # pylint: enable=invalid-unary-operand-type
+      if self._use_peepholes:
+        m = sigmoid(o + w_o_diag * c) * self._activation(c)
+      else:
+        m = sigmoid(o) * self._activation(c)
+
+      if self._num_proj is not None:
+        with vs.variable_scope("projection") as proj_scope:
+          if self._num_proj_shards is not None:
+            proj_scope.set_partitioner(
+                partitioned_variables.fixed_size_partitioner(
+                    self._num_proj_shards))
+          m = _linear(m, self._num_proj, bias=False)
+
+        if self._proj_clip is not None:
+          # pylint: disable=invalid-unary-operand-type
+          m = clip_ops.clip_by_value(m, -self._proj_clip, self._proj_clip)
+          # pylint: enable=invalid-unary-operand-type
+
+    new_state = (LSTMStateTuple(c, m) if self._state_is_tuple else
+                 array_ops.concat([c, m], 1))
+    return m, new_state
+
+def _linear(args, output_size, bias, bias_start=0.0):
+  """Linear map: sum_i(args[i] * W[i]), where W[i] is a variable.
+  Args:
+    args: a 2D Tensor or a list of 2D, batch x n, Tensors.
+    output_size: int, second dimension of W[i].
+    bias: boolean, whether to add a bias term or not.
+    bias_start: starting value to initialize the bias; 0 by default.
+  Returns:
+    A 2D Tensor with shape [batch x output_size] equal to
+    sum_i(args[i] * W[i]), where W[i]s are newly created matrices.
+  Raises:
+    ValueError: if some of the arguments has unspecified or wrong shape.
+  """
+  if args is None or (nest.is_sequence(args) and not args):
+    raise ValueError("`args` must be specified")
+  if not nest.is_sequence(args):
+    args = [args]
+
+  # Calculate the total size of arguments on dimension 1.
+  total_arg_size = 0
+  shapes = [a.get_shape() for a in args]
+  for shape in shapes:
+    if shape.ndims != 2:
+      raise ValueError("linear is expecting 2D arguments: %s" % shapes)
+    if shape[1].value is None:
+      raise ValueError("linear expects shape[1] to be provided for shape %s, "
+                       "but saw %s" % (shape, shape[1]))
+    else:
+      total_arg_size += shape[1].value
+
+  dtype = [a.dtype for a in args][0]
+
+  # Now the computation.
+  scope = vs.get_variable_scope()
+  with vs.variable_scope(scope) as outer_scope:
+    weights = vs.get_variable(
+        _WEIGHTS_VARIABLE_NAME, [total_arg_size, output_size], dtype=dtype)
+    if len(args) == 1:
+      res = math_ops.matmul(args[0], weights)
+    else:
+      res = math_ops.matmul(array_ops.concat(args, 1), weights)
+    if not bias:
+      return res
+    with vs.variable_scope(outer_scope) as inner_scope:
+      inner_scope.set_partitioner(None)
+      biases = vs.get_variable(
+          _BIAS_VARIABLE_NAME, [output_size],
+          dtype=dtype,
+          initializer=init_ops.constant_initializer(bias_start, dtype=dtype))
+    return nn_ops.bias_add(res, biases)
+\end{lstlisting}
+
+\subsection{Batch-normalized GRU cell}
+\begin{lstlisting}[language=Python]
+"""
+Implements a batch normalized GRU cell.
+Unfortunately, there aren't any research papers that examine how to exactly implement this.
+
+But most of it is based on https://arxiv.org/pdf/1510.01378.pdf
+"""
+
+from tensorflow.contrib.rnn import GRUCell
+
+from tensorflow.python.framework import ops
+from tensorflow.python.framework import tensor_shape
+from tensorflow.python.framework import tensor_util
+from tensorflow.python.ops import array_ops
+from tensorflow.python.ops import clip_ops
+from tensorflow.python.ops import embedding_ops
+from tensorflow.python.ops import init_ops
+from tensorflow.python.ops import math_ops
+from tensorflow.python.ops import nn_ops
+from tensorflow.python.ops import partitioned_variables
+from tensorflow.python.ops import random_ops
+from tensorflow.python.ops import variable_scope as vs
+
+from tensorflow.python.ops.math_ops import sigmoid
+from tensorflow.python.ops.math_ops import tanh
+from tensorflow.python.ops.rnn_cell_impl import _RNNCell as RNNCell
+
+from tensorflow.python.platform import tf_logging as logging
+from tensorflow.python.util import nest
+
+from tensorflow.contrib.layers import batch_norm
+
+import contextlib
+
+_BIAS_VARIABLE_NAME = "biases"
+_WEIGHTS_VARIABLE_NAME = "weights"
+
+@contextlib.contextmanager
+def _checked_scope(cell, scope, reuse=None, **kwargs):
+  if reuse is not None:
+    kwargs["reuse"] = reuse
+  with vs.variable_scope(scope, **kwargs) as checking_scope:
+    scope_name = checking_scope.name
+    if hasattr(cell, "_scope"):
+      cell_scope = cell._scope  # pylint: disable=protected-access
+      if cell_scope.name != checking_scope.name:
+        raise ValueError(
+            "Attempt to reuse RNNCell %s with a different variable scope than "
+            "its first use.  First use of cell was with scope '%s', this "
+            "attempt is with scope '%s'.  Please create a new instance of the "
+            "cell if you would like it to use a different set of weights.  "
+            "If before you were using: MultiRNNCell([%s(...)] * num_layers), "
+            "change to: MultiRNNCell([%s(...) for _ in range(num_layers)]).  "
+            "If before you were using the same cell instance as both the "
+            "forward and reverse cell of a bidirectional RNN, simply create "
+            "two instances (one for forward, one for reverse).  "
+            "In May 2017, we will start transitioning this cell's behavior "
+            "to use existing stored weights, if any, when it is called "
+            "with scope=None (which can lead to silent model degradation, so "
+            "this error will remain until then.)"
+            % (cell, cell_scope.name, scope_name, type(cell).__name__,
+               type(cell).__name__))
+    else:
+      weights_found = False
+      try:
+        with vs.variable_scope(checking_scope, reuse=True):
+          vs.get_variable(_WEIGHTS_VARIABLE_NAME)
+        weights_found = True
+      except ValueError:
+        pass
+      if weights_found and reuse is None:
+        raise ValueError(
+            "Attempt to have a second RNNCell use the weights of a variable "
+            "scope that already has weights: '%s'; and the cell was not "
+            "constructed as %s(..., reuse=True).  "
+            "To share the weights of an RNNCell, simply "
+            "reuse it in your second calculation, or create a new one with "
+            "the argument reuse=True." % (scope_name, type(cell).__name__))
+
+    # Everything is OK.  Update the cell's scope and yield it.
+    cell._scope = checking_scope  # pylint: disable=protected-access
+    yield checking_scope
+
+
+class BNGRUCell(GRUCell):
+  """Gated Recurrent Unit cell (cf. http://arxiv.org/abs/1406.1078)."""
+
+  def __init__(self, num_units, input_size=None, activation=tanh, is_training=True, batch_norm=True):
+    self._is_training = is_training
+    self._batch_norm = batch_norm
+
+    super().__init__(num_units, input_size, activation)
+
+  def __call__(self, inputs, state, scope=None):
+    """Gated recurrent unit (GRU) with nunits cells."""
+    with _checked_scope(self, scope or "gru_cell"):
+      with vs.variable_scope("gates"):  # Reset gate and update gate.
+        # We start with bias of 1.0 to not reset and not update.
+        value = sigmoid(_linear(
+          [inputs, state], 2 * self._num_units, True, 1.0))
+        r, u = array_ops.split(
+            value=value,
+            num_or_size_splits=2,
+            axis=1)
+      with vs.variable_scope("candidate"):
+        res = self._activation(_linear([inputs, r * state],
+                                     self._num_units, True))
+
+        if self._batch_norm:
+          c = batch_norm(res,
+                         center=True, scale=True,
+                         is_training=self._is_training,
+                         scope='bn1')
+        else:
+          c = res
+
+      new_h = u * state + (1 - u) * c
+    return new_h, new_h
+
+def _linear(args, output_size, bias, bias_start=0.0):
+  """Linear map: sum_i(args[i] * W[i]), where W[i] is a variable.
+  Args:
+    args: a 2D Tensor or a list of 2D, batch x n, Tensors.
+    output_size: int, second dimension of W[i].
+    bias: boolean, whether to add a bias term or not.
+    bias_start: starting value to initialize the bias; 0 by default.
+  Returns:
+    A 2D Tensor with shape [batch x output_size] equal to
+    sum_i(args[i] * W[i]), where W[i]s are newly created matrices.
+  Raises:
+    ValueError: if some of the arguments has unspecified or wrong shape.
+  """
+  if args is None or (nest.is_sequence(args) and not args):
+    raise ValueError("`args` must be specified")
+  if not nest.is_sequence(args):
+    args = [args]
+
+  # Calculate the total size of arguments on dimension 1.
+  total_arg_size = 0
+  shapes = [a.get_shape() for a in args]
+  for shape in shapes:
+    if shape.ndims != 2:
+      raise ValueError("linear is expecting 2D arguments: %s" % shapes)
+    if shape[1].value is None:
+      raise ValueError("linear expects shape[1] to be provided for shape %s, "
+                       "but saw %s" % (shape, shape[1]))
+    else:
+      total_arg_size += shape[1].value
+
+  dtype = [a.dtype for a in args][0]
+
+  # Now the computation.
+  scope = vs.get_variable_scope()
+  with vs.variable_scope(scope) as outer_scope:
+    weights = vs.get_variable(
+        _WEIGHTS_VARIABLE_NAME, [total_arg_size, output_size], dtype=dtype)
+    if len(args) == 1:
+      res = math_ops.matmul(args[0], weights)
+    else:
+      res = math_ops.matmul(array_ops.concat(args, 1), weights)
+    if not bias:
+      return res
+    with vs.variable_scope(outer_scope) as inner_scope:
+      inner_scope.set_partitioner(None)
+      biases = vs.get_variable(
+          _BIAS_VARIABLE_NAME, [output_size],
+          dtype=dtype,
+          initializer=init_ops.constant_initializer(bias_start, dtype=dtype))
+    return nn_ops.bias_add(res, biases)
+\end{lstlisting}
+
+\endgroup
+
+\end{multicols}
+\end{landscape}

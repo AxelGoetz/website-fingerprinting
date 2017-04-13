@@ -82,9 +82,14 @@ Since we want the simplest network possible that is able to learn a representati
 Hence, we experiment with networks with a total of $1$ up to $3$ hidden layers.
 For each of these, the input layer will consist of $3000$ nodes and we will attempt to extract $200$ features, which means that the sizes of the hidden layers will gradually decrease to $200$ neurons.
 
-% TODO: Fill in amount of hidden layers
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\textwidth]{changing-depth}
+  \caption{Learning curves for changing the depth of the stacked autoencoder}
+  \label{fig:changing-depth}
+\end{figure}
 
-% We already know that our network will be $x$ layers deep.
+Figure \ref{fig:changing-depth} already shows us that the network gets the best time/complexity performance when it has 2 hidden layers.
 But we haven't considered changing the size of the final hidden layer since it represents the amount of features that will be extracted.
 The more features we introduce, the more time and data they require to learn the classification task.
 Whilst if the amount of features is too low, the classifier might not be able to learn how to effectively classify any of the web pages.
@@ -104,10 +109,17 @@ Hence, we base the size of the final state on the amount of features used in pre
   \label{table:feature-wf-attacks}
 \end{table}
 
-Based on table \ref{table:feature-wf-attacks}, we vary the amount of features between $100$ and $300$ in steps of $40$.
-We aim to pick the sizes of the rest of the layers such that the step size is around the same value.
+Based on table \ref{table:feature-wf-attacks}, we vary the amount of features between $100$ and $300$ in steps of $50$.
+From figure \ref{fig:changing-output-size}, we determine that around $200$ nodes provides us with the best tradeoff.
 
-% TODO: FIll in what is the best?
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\textwidth]{changing-output-size}
+  \caption{Learning curves for changing the size of the middle layer in the stacked autoencoder}
+  \label{fig:changing-output-size}
+\end{figure}
+
+\newpage
 
 \subsection{Sequence-to-Sequence Model}
 
@@ -172,6 +184,8 @@ Figure \ref{fig:varying-hidden-states} clearly shows us that the smaller the amo
 On the other hand, the higher the amount of states, the lower the final error seems to be.
 Since we aim to compromise between computational complexity and the time it takes to train the model, around $100$ hidden states seems to be the most appropriate.
 
+\newpage
+
 \noindent
 \textbf{Bidirectional}
 
@@ -207,7 +221,6 @@ This means that we will not be cutting the traces nor reversing them whilst trai
 As can be seen in figure \ref{fig:varying-cell-type}, all of the architectures converge to a similar value.
 Although GRU cells seem to converge faster, they are also slightly more unstable especially around batch $80$ to $100$.
 The most stable model seems to be the bidirectional encoder with LSTM cells.
-Hence, we will be using this architecture for our sequence-to-sequence model.
 
 \subsection{Classifier Performance}
 
@@ -272,7 +285,7 @@ Here, we used a total of $10\%$ of the unmonitored data for training.
 
 As expected, the results on the individual folds is relatively high.
 However, now we will measure their performance when training the classifiers on the full training set and evaluating on the validation set, whilst changing the amount of unmonitored pages we train the model on.
-Clearly, the models suffer if we introduce a large amount of unmonitored pages in the test set.
+Clearly, figure \ref{fig:bin-varying-unmon} shows us that the models suffer if we introduce a large amount of unmonitored pages in the test set.
 But the more unmonitored instances we train on, the better the classifiers seem to perform.
 
 \begin{figure}[ht]
@@ -282,7 +295,7 @@ But the more unmonitored instances we train on, the better the classifiers seem 
   \label{fig:bin-varying-unmon}
 \end{figure}
 
-Now we will be analyzing the performance of these classifiers with the automatically generated features.
+Next, we will be analyzing the performance of these classifiers with the automatically generated features.
 We do note that from here on we refer to \texttt{svc1} and \texttt{svc2} as \texttt{svc} since they both have the same hyperparameters but were trained on different hand-picked features.
 
 % TODO: Automatically generated features
@@ -323,6 +336,9 @@ Especially when given enough unmonitored pages to train them on, as can be seen 
   \caption{Varying the amount of unmonitored pages trained on for hand-picked features.}
   \label{fig:mult-varying-unmon}
 \end{figure}
+
+% TODO: Automatically generated features
+% Bar chart?
 
 \subsubsection{Different Circumstances}
 
