@@ -1,3 +1,12 @@
 \begin{abstract}
-  
+
+Anonymity networks such as Tor enable their users to anonymously browse the Internet.
+But there are several attacks that allow adversaries to identify users, one of these is called \textit{website fingerprinting}, which relies a local, passive eavesdropper who performs pattern analysis on the encrypted data to classify web pages.
+In most prior works, adversaries extract \textit{fingerprints} by relying on a time-consuming, laborious feature extraction process.
+Here, we present several deep-learning techniques (\textit{stacked autoencoder} and a \textit{sequence-to-sequence model}) that can be used to automate this process, propose a technique to evaluate their performance and use this technique to compare our models to current state-of-the-art attacks.
+
+We find that the sequence-to-sequence models seems to get the highest performance with a $93 \%$ maximum for a binary classification task and a $39 \%$ accuracy in the multiclass classification both within an open-world scenario.
+On top of this, we also show that both deep learning models are robust and can be used to extract fingerprints from data that was recorded under different circumstances.
+
+Although our approach currently does not outperform the state-of-the-art attacks, it shows us that it is in fact possible to automate the feature extraction process without the need of any domain-specific knowledge.
 \end{abstract}
