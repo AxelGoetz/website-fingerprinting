@@ -135,9 +135,9 @@ class AutoEncoder():
 
 
         layer_input = tf.contrib.layers.batch_norm(layer_input,
-                                                   center=True, scale=True,
-                                                   is_training=self.is_training,
-                                                   scope='bn{}-{}'.format(size_last_layer, size_current_layer))
+                         center=True, scale=True,
+                         is_training=self.is_training,
+                         scope='bn{}-{}'.format(size_last_layer, size_current_layer))
 
         return self.activation_func(tf.add(tf.matmul(layer_input, weight), bias))
 
@@ -193,9 +193,9 @@ class AutoEncoder():
         Adds a batch normalization layer.
         """
         self.decoder = tf.contrib.layers.batch_norm(self.decoder,
-                                                    center=True, scale=True,
-                                                    is_training=self.is_training,
-                                                    scope='bn')
+                        center=True, scale=True,
+                        is_training=self.is_training,
+                        scope='bn')
 
     def set_is_training(is_training):
         """
@@ -510,10 +510,10 @@ class Seq2SeqModel():
              (encoder_fw_final_state,
               encoder_bw_final_state)) = (
                 tf.nn.bidirectional_dynamic_rnn(cell_fw=self.encoder_cell,
-                                                cell_bw=self.encoder_cell,
-                                                inputs=self.encoder_inputs,
-                                                sequence_length=self.encoder_inputs_length,
-                                                dtype=tf.float32, time_major=False)
+                    cell_bw=self.encoder_cell,
+                    inputs=self.encoder_inputs,
+                    sequence_length=self.encoder_inputs_length,
+                    dtype=tf.float32, time_major=False)
                 )
 
             self.encoder_outputs = tf.concat((encoder_fw_outputs, encoder_bw_outputs), 2)

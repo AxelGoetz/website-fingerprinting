@@ -451,44 +451,44 @@ At the time of writing, there hasn't been much research regarding using sequence
 In fact, currently they are most often used for translation and other NLP task.
 where they are most often used as a classification task where the model classifies which word is likely to be next \cite{tensorflowseq2seq,cho2014learning,rnnencoder,sutskever_vinyals_le}.
 
-\subsection{The Vanishing Gradient Problem}
-
-Deep learning often suffers from an problem, called the \textit{vanishing gradient problem} \cite{nielsen_2017}.
-This problem represents the fact that neurons in early layers tend to learn a lot slower than those in the last layers.
-The vanishing gradient problem is also the reason why some RNNs are not able to learn long-term dependencies.
-This is due to the fact that the derivatives of both \textit{tanh} and \textit{sigmoid} activation functions approach zero near both ends.
-Thus when one of the neurons is saturated, which means that the value of the gradient gets close to zero, it drives the gradients of previous neurons to zero as well \cite{britz_2016}.
-As RNNs tend to be a lot deeper than traditional feed-forward networks, this problems tends to be a lot more common \cite{britz_2016}.
-
-\begin{figure}[ht]
-  \centering
-  \begin{subfigure}[b]{0.45\textwidth}
-    \centering
-    \resizebox{\linewidth}{!}{
-    \begin{tikzpicture}
-      \draw[->] (-3, 0) -- (3, 0) node[right] {$x$};
-      \draw[->] (-3, 0) -- (-3, 3) node[above] {$y$};
-      \draw[yscale=6,domain=-3:3,smooth,variable=\x,blue] plot ({\x},{(1 / (1 + (e^(-\x)))) * (1 - 1 / (1 + (e^(-\x))))});
-    \end{tikzpicture}
-    }
-    \caption{Derivative of the sigmoid function.}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.45\textwidth}
-    \centering
-    \resizebox{\linewidth}{!}{
-    \begin{tikzpicture}
-      \draw[->] (-3, 0) -- (3, 0) node[right] {$x$};
-      \draw[->] (-3, 0) -- (-3, 3) node[above] {$y$};
-      \draw[yscale=3,domain=-3:3,smooth,variable=\x,blue] plot ({\x},{1 - ((2 / (1 + (e^(-2 * \x)))) - 1)^2});
-    \end{tikzpicture}
-    }
-    \caption{Derivative of the tanh function.}
-  \end{subfigure}
-  \caption{Derivatives of activation functions.}
-\end{figure}
-
-One solution to this problem is to use a ReLU activation function, as the derivative is either $0$ or $1$ \cite{britz_2016}.
-But both LSTM and GRU cells were especially designed to solve this issue in RNNs and therefore we will be using those throughout the rest of this paper \cite{LSTM,hochreiter1997long,cho2014learning}.
+% \subsection{The Vanishing Gradient Problem}
+%
+% Deep learning often suffers from an problem, called the \textit{vanishing gradient problem} \cite{nielsen_2017}.
+% This problem represents the fact that neurons in early layers tend to learn a lot slower than those in the last layers.
+% The vanishing gradient problem is also the reason why some RNNs are not able to learn long-term dependencies.
+% This is due to the fact that the derivatives of both \textit{tanh} and \textit{sigmoid} activation functions approach zero near both ends.
+% Thus when one of the neurons is saturated, which means that the value of the gradient gets close to zero, it drives the gradients of previous neurons to zero as well \cite{britz_2016}.
+% As RNNs tend to be a lot deeper than traditional feed-forward networks, this problems tends to be a lot more common \cite{britz_2016}.
+%
+% \begin{figure}[ht]
+%   \centering
+%   \begin{subfigure}[b]{0.45\textwidth}
+%     \centering
+%     \resizebox{\linewidth}{!}{
+%     \begin{tikzpicture}
+%       \draw[->] (-3, 0) -- (3, 0) node[right] {$x$};
+%       \draw[->] (-3, 0) -- (-3, 3) node[above] {$y$};
+%       \draw[yscale=6,domain=-3:3,smooth,variable=\x,blue] plot ({\x},{(1 / (1 + (e^(-\x)))) * (1 - 1 / (1 + (e^(-\x))))});
+%     \end{tikzpicture}
+%     }
+%     \caption{Derivative of the sigmoid function.}
+%   \end{subfigure}
+%   \begin{subfigure}[b]{0.45\textwidth}
+%     \centering
+%     \resizebox{\linewidth}{!}{
+%     \begin{tikzpicture}
+%       \draw[->] (-3, 0) -- (3, 0) node[right] {$x$};
+%       \draw[->] (-3, 0) -- (-3, 3) node[above] {$y$};
+%       \draw[yscale=3,domain=-3:3,smooth,variable=\x,blue] plot ({\x},{1 - ((2 / (1 + (e^(-2 * \x)))) - 1)^2});
+%     \end{tikzpicture}
+%     }
+%     \caption{Derivative of the tanh function.}
+%   \end{subfigure}
+%   \caption{Derivatives of activation functions.}
+% \end{figure}
+%
+% One solution to this problem is to use a ReLU activation function, as the derivative is either $0$ or $1$ \cite{britz_2016}.
+% But both LSTM and GRU cells were especially designed to solve this issue in RNNs and therefore we will be using those throughout the rest of this paper \cite{LSTM,hochreiter1997long,cho2014learning}.
 
 \subsection{Regularization}
 
@@ -503,8 +503,6 @@ The reason why neural nets often overfit is because of the large amount of free 
   \caption{Example of overfitting.}
   \label{fig:overfit}
 \end{figure}
-
-\newpage
 
 Overfitting can be reduced without the need to decrease the size of the network by performing \textit{regularization}.
 The most popular techniques are \textit{L1}, \textit{L2}, \textit{dropout layers} and \textit{batch normalization} \cite{nielsen_2017}.
