@@ -97,7 +97,10 @@ def bayesian_detection_rate(y_pred, y_true):
     nominator =TPR * PrM
     denominator = nominator + (FPR * PrU)
 
-    return nominator / denominator
+    try:
+        return nominator / denominator
+    except:
+        return 0
 
 def evaluate_model(y_pred, y_true):
     """
