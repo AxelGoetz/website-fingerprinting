@@ -12,12 +12,12 @@ First, we will look at the tools required to run the system then we will look at
 Finally, we explain the specific components and outline how you can contribute to this project.
 
 All of the code is hosted in a private repository on Github.
-If given access, it can be cloned from the following url (https://github.com/AxelGoetz/website-fingerprinting.git).
+If you have the right permissions, the repository can be cloned from the following url (https://github.com/AxelGoetz/website-fingerprinting.git).
 
 \subsection{Tools Required and Installation Instructions}
 
 Most of the project has been written in Python, more specifically, everything has been designed and tested with version 3.6.
-Our Travis build has also been configured to run all of the tests with Python 3.5, which means that we still get notified if anything breaks under a specific Python version.
+But our Travis build has also been configured to run all of the tests with Python 3.5, which means that we still get notified if anything breaks under a specific Python version.
 Some of the code has also been written in Golang, those parts have been adapted from an implementation of Wang et al.'s kNN attack for performance reasons \cite{wang_cai_johnson_nithyanand_goldberg_2014,gokNN}.
 
 Next, after the correct version of Python and Golang are installed, we also require a \textit{virtual environment} to manage all of our python dependencies.
@@ -56,16 +56,17 @@ These should be put in a data folder in the main directory where the directory c
 
 \subsection{System Overview}
 
-Figure \ref{fig:code-structure} already shows the overall structure of the and how different components interact.
+Figure \ref{fig:code-structure} already shows the overall structure of the code and how different components interact.
 Next, in section \ref{sec:code-structure} we also explain what the individual sections do.
-Hence, here we describe the same using a \textit{directory tree}.
+Hence, rather than explaining it again, we use a \textit{directory tree} to provide you with a different perspective.
 
 \dirtree{%
 .1 /.
 .2 attacks - Contains the code for all of the classifiers.
 .2 data.
 .3 cells - All of the individual cell files from the GRESCHBACH dataset.
-.2 feature\_extraction - All of the code to extract the hand-picked features from different models.
+.3 WANG14\_cells - All of the cell files from the WANG14 dataset.
+.2 feature\_extraction - All of the code to extract the hand-picked features for different classifiers.
 .2 feature\_generation - Perform automatic feature generation.
 .3 autoencoder - Implementation of the autoencoder, how to run it and how to extract features.
 .4 autoencoder - Autoencoder class.
@@ -83,23 +84,24 @@ Hence, here we describe the same using a \textit{directory tree}.
 .2 LICENSE.
 .2 README - More information on the project and how to install/run everything.
 .2 requirements - The python packages required.
+.2 user\_manual - How to run the code.
 }
 
 \newpage
 
 \subsection{Components}
 
-Here how the individual components work and how to potentially extend them.
+Here we outline how the individual components work and how to potentially extend them.
 
 \subsubsection{Attacks}
 
 This components implements all of the classifiers that are used to compare the hand-picked features with the automatically generated ones.
 Each of these classes needs to implement the interface, which has a \texttt{fit} and \texttt{predict} method.
 This is similar to the machine learning models provided in \textit{sklearn} \cite{scikitlearn}.
-The fit method takes an $X$ and $y$ input and changes its internal structure such that it minimizes the error.
-The predict method on the other hand just takes $X$ as its input and returns a vector $y$ of what it predicts the input represents.
+The fit method takes $X$ and $y$ as an input and changes the internal structure of the model such that it minimizes the error.
+The predict method on the other hand just take a 2D matrix $X$ as its input and returns a vector $y$, which represent the prediction.
 
-The models should also have a \texttt{is\_multiclass} flag, which represents the fact whether the classifier performs a binary or multiclass classification task.
+The models should also have a \texttt{is\_multiclass} flag, which represents the fact whether the classifier will be performing a binary or multiclass classification task.
 
 \subsubsection{Feature Extraction}
 
@@ -110,7 +112,7 @@ This file essentially goes over all the traces within the \texttt{data/cells} di
 
 \subsubsection{Feature Generation}
 
-This is one of the main components of this work, containing the code to automatically generate features.
+This is one of the main components of this project, containing the code to automatically generate features.
 Currently, we have two models defined, namely a sequence-to-sequence model, which can be found in \texttt{seq2seq} and an autoencoder in \texttt{autoencoder}.
 In these directories, we first have a file, containing a class that defines a model and then two more files, which are executables, used to train and extract the features (\texttt{train\_<model\_name>.py} and \texttt{feature\_extraction.py}).
 
@@ -138,7 +140,7 @@ Whenever a new classifier is added to the \texttt{attacks} directory, it should 
 \subsubsection{Unit Tests}
 
 For unit testing, we use the standard \texttt{unittest} module, which is very simple to use.
-To create more tests, create a new file in the \texttt{tests} directory, which starts with test and then the name of what you will be testing.
+To create more tests, create a new file in the \texttt{tests} directory, whose name starts with \texttt{test\_} and then the name of what componennt you will be testing.
 Next, create a class within that file, which extends the \texttt{unittest.TestCase} class and add the methods of what you would like to test.
 
 Then to run all of the unit tests within the \texttt{tests} directory, simply run:

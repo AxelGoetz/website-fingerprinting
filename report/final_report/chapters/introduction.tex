@@ -5,31 +5,31 @@
 The internet has become an essential tool for communication in the lives of many. But privacy has always remained a major concern.
 This is the reason why nowadays most web content providers are slowly moving away from HTTP to HTTPS.
 For instance, at the time of writing, around $86\%$ of Google's traffic is encrypted, which is a significant improvement compared to 2014 when only around $50\%$ of the traffic was sent over HTTPS \cite{google_transparancy}.
-However, this encryption only obscures the content of the web page and does not hide what websites a user might be visiting or in general who they might be communicating with.
+However, this encryption only obscures the content of the web pages and does not hide what websites a user might be visiting or who they might be communicating with.
 
-Consequently, Internet Service Providers (ISPs) can easily obtain a lot of information about a person.
-This can be a large concern for people living in oppressive regimes since it allows a government to easily spy on its people and
-censor whatever websites they would like. To circumvent these issues, several anonymization techniques have been developed.
+Consequently, Internet service providers (ISPs) can easily obtain a lot of information about a person.
+This can be a large concern for several people, like those living in oppressive regimes.
+Having this data allows a government to easily spy on its people and censor whatever websites they would like.
+To circumvent these issues, several anonymization techniques have been developed.
 These systems obscure both the content and meta-data, allowing users to anonymously browse the web.
-One of the most popular low-latency anonymization networks is called Tor, which relies on a concept called \textit{onion routing} to anonymize people\cite{tor_project}.
+One of the most popular low-latency anonymization networks is called Tor, which relies on a concept called \textit{onion routing} to anonymize traffic \cite{tor_project}.
 
-The list of known attacks against Tor is, at the time of writing, very limited and most of them rely on very
-unlikely scenarios such as having access to specific parts of the network \textit{(both entry and exit nodes)} \cite{tor_project}.
+At the time of writing, the list of known attacks against Tor is very limited and most of them rely on unlikely scenarios such as having access to specific parts of the network \textit{(like both entry and exit nodes)} \cite{tor_project}.
 However, in this work we will make a more reasonable assumption that an attacker is a \textit{local eavesdropper}.
 By this we mean that the entity only has access to the traffic between the sender and the first anonymization node, like ISPs.
 
 One of the most successful attacks that satisfy these conditions are known as \textit{website fingerprinting} (WF).
-This attack relies on the fact that Tor does not significantly alter the shape of the network traffic \cite{kfingerprinting}.
+They rely on the fact that Tor does not significantly alter the shape of the network traffic \cite{kfingerprinting}.
 Hence, the adversary can infer information about the content by analysing the raw traffic.
 For instance by examining the packet sizes, the amount of packets and the direction of the traffic, we might be able to deduce
 which web pages certain users are visiting.
 Initially, Tor was considered to be secure against this threat but around 2011, some techniques such as the \textit{support vector classifier} (SVC)
 used by Panchenko et al. started to get recognition rates higher than 50\%, which caused Tor to take various countermeasures \cite{panchenko1,perry2011experimental}.
 
-However, the main problem with majority of the WF attacks proposed in the research literature is that they rely on a laborious,
-time-consuming manual feature engineering process, which often requires expert knowledge of the underlying TCP/IP protocols.
-The reason behind this is that most primitive machine learning (ML) techniques only take fixed-length vectors as their input while a traffic data is represented by a variable-length amount of packets.
-The features that are often proposed are based on intuition and trial and error arguments as to why they identify specific web pages.
+However, one of the main problems with majority of the WF attacks proposed in the research literature is that they rely on a laborious,
+time-consuming, manual feature engineering process, which often requires expert knowledge of the underlying TCP/IP protocols.
+The reason behind this is that most primitive machine learning (ML) techniques only take fixed-length vectors as their input whilst traffic data consists of a variable-length amount of packets.
+The features that are proposed are based on intuition and trial and error arguments as to why they identify specific web pages.
 But there is no guarantee that they are in fact the most appropriate ones.
 
 Thus the goal of this paper is to investigate the use of novel deep-learning techniques to automatically extract
@@ -47,29 +47,30 @@ We can subdivide the project up into several different aims, each with their own
    \textbf{Goals:}
    \begin{itemize}
       \item Analyse various models that are currently used in fingerprinting attacks.
-      \item Examine how would a small percentage of false positives impacts a real WF attack.
-      \item Analyse the impact of the rapidly changing nature of some web pages.
+      \item Research how a small percentage of false positives would impacts a real WF attack.
+      \item Examine the effect of the rapidly changing nature of some web pages.
       \item Review if previous works make any assumptions that could impact the effectiveness of a real attack.
    \end{itemize}
 
    \item \textbf{Aim:} Automatically generate features from a trace that represents loading a webpage.\\
    \textbf{Goals:}
    \begin{itemize}
-      \item Critically compare various different feature generation techniques such as stacked autoencoders, sequence-to-sequence models and bidirectional encoder-decoder models.
+      \item Critically compare various feature generation techniques such as stacked autoencoders, sequence-to-sequence models and bidirectional encoder-decoder models.
       \item Identify a dataset that is large enough to train our unsupervised deep-learning models.
       \item Compare several software libraries to perform fast numerical computation such as Tensorflow, Torch, Theano and Keras.
-      \item Implement the most appropriate feature generation model in one of the previously mentioned software libraries.
+      \item Implement the most appropriate feature generation models in one of the previously mentioned software libraries.
    \end{itemize}
 
-   \item \textbf{Aim:} Train existing models with the automatically generated features and test their performance compared to hand-picked features..\\
+   \item \textbf{Aim:} Train existing models with the automatically generated features and test their performance compared to hand-picked features.\\
    \textbf{Goals:}
    \begin{itemize}
-      \item Identify several different models that have successful been applied to a website fingerprinting attacks and implement those models.
+      \item Identify several different models that have successful been applied to a website fingerprinting attacks and implement those attacks.
       \item Extract the same hand-picked features as have previously been used with the respective attacks.
       \item Investigate an appropriate technique for evaluating the results of different models.
-      \item Compare the hand-picked features to the automatically generated ones for different classifiers. In addition, we also want to investigate
-         their effectiveness in different threat models. For instance if an adversary wants to identify which specific web pages a user is visiting \textit{(multi-class classification)} or
-         if the adversary just wants to know whether the user visits a web page from a monitored set of web pages \textit{(binary classification)}.
+      \item Compare the hand-picked features to the automatically generated ones for different classifiers.
+      \item Investigate the classifiers' effectiveness in different threat models.
+         For instance an adversary might want to identify which specific web pages a user is visiting \textit{(multi-class classification)} or
+         they might just want to know whether the user visits a web page from a monitored set of web pages \textit{(binary classification)}.
    \end{itemize}
 
 \end{enumerate}
@@ -77,7 +78,7 @@ We can subdivide the project up into several different aims, each with their own
 \newpage
 
 \section{Project Overview}
-As previously mentioned, the project can be split up into three different aims, which is why we also approach it in three different stages:
+As previously mentioned, the project can be split up into three different aims, which is why we also approach the problem in three different stages:
 
 \begin{itemize}
 \item First, we examine different existing website fingerprinting classifiers to gain a deeper understanding of the concept.
@@ -90,4 +91,4 @@ As previously mentioned, the project can be split up into three different aims, 
 The general report has a very simple structure.
 In the following section we further explore similar works and several concepts that are necessary to understand the basics of website fingerprinting and our specific attack.
 Next, we identify the threat model and design an attack that uses our automatic feature generation model.
-Finally, we explore several methods of evaluating the performance of different feature generation models and use these methods to perform a thorough analysis to see how our attack compares to existing ones.
+Finally, we explore several methods of evaluating the performance of different feature generation models and use these methods to perform a thorough analysis to see how our attack compares to existing state-of-the-art attacks.

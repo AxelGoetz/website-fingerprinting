@@ -1,12 +1,12 @@
 \chapter{Conclusion}
 
 The aim of our research was to apply deep learning techniques to a WF environment to automatically extract fingerprints from a variable-length trace.
-We do in fact show that this is possible by introducing a novel approach with two deep learning models, namely a \textit{stacked autoencoder} and a \textit{sequence-to-sequence model}.
+We do in fact show that this is possible by introducing a novel approach to perform the attack, together with two deep learning models, namely a \textit{stacked autoencoder} and a \textit{sequence-to-sequence model}.
 
 The attack works in three main stages.
 First, all of the traffic is collected and preprocessed into Tor cells.
-Next, any of the previously mentioned deep learning models attempts to learn underlying patterns in the traffic traces and uses these to extract fingerprints through an unsupervised process.
-Finally, the extracted fingerprints are used to classify the trace as certain web pages.
+Next, the deep learning models attempt to learn underlying patterns in the traffic traces and use these to extract fingerprints through an unsupervised process.
+Finally, the extracted fingerprints are used to classify traces into web pages.
 
 Similarly, we also introduce a novel technique for evaluating the performance of such fingerprint generation models, which involves comparing them to a human benchmark.
 We achieve this by training existing classifiers on both hand-picked features and the automatically generated features and compare their performance.
@@ -22,8 +22,8 @@ This is most likely due to the fact that the autoencoder assumes that all of its
 However, the problem still remains that some traces can be extremely long, which results in a slow training of our model.
 In fact, it took an average of $8$ hours to train the sequence-to-sequence model, which is considerably slower than current state-of-the-art attacks.
 
-However, we have showed that once the deep learning model is trained, it can be used to extract fingerprints from traces that were recorded under different conditions.
-Hence, the model would only need to be trained once on a large variety of data and it can then be used for a long period of time, without the need of retraining the model, unlike existing classifiers
+On the other hand, we also showed that once the deep learning model is trained, it can be used to extract fingerprints from traces that were recorded under different conditions.
+Hence, the model would only need to be trained once on a large variety of data and it can then be used for a long period of time, without the need of retraining, unlike existing classifiers
 
 On top of evaluating the results, we also made various observations about the traffic data.
 For instance, we note that majority of the information is carried within the first couple seconds of the trace and that most traces can be represented using vectors of size $200$.
@@ -31,15 +31,14 @@ For instance, we note that majority of the information is carried within the fir
 \newpage
 
 Furthermore we do note that our attack has been based on several assumptions.
-For instance, we assume that the adversary knows where the trace of a single page starts and ends, that the adversary can recreate the exact same conditions such as internet speed and TBB that the user uses to browse the web and finally that the content of web pages does not change.
+For instance, we assume that the adversary knows where the trace of a single page starts and ends, that the adversary can recreate the exact same conditions such as internet speed and TBB and finally that the content of web pages does not change.
 Although the exact same assumptions have been made in previous WF works, we do note that some of these are not realistic and therefore might have a large impact on the scoring statistics if the attack were to be used in a real-life scenario.
 Equally important is the impact that false negatives can have on the attack, as outlined by M. Perry \cite{wfpcritique}.
-
 
 In conclusion, our research does not improve the results of existing works, but it does expose the possibility to automate the fingerprint extraction procedure.
 Until now, almost all attacks have relied on a manual feature extraction process that require expertise in the WF domain.
 However, we show that this time-consuming process can be automated.
-Although currently the performance of our automatically generated features is not as high as the hand-picked ones, given enough data the correct deep learning model, an adversary could potentially perform a WF without the need for any domain-specific expertise.
+Although currently the performance of our automatically generated features is not as high as the hand-picked ones, we believe given enough data the correct deep learning model, an adversary could potentially perform a WF by solely relying on automatically generated features.
 
 \section{Future Work} \label{sec:future-works}
 
@@ -51,17 +50,18 @@ As previously mentioned in section \ref{sec:classifier-training}, we could add a
 Not only would this allow us to perform the classification with the sequence-to-sequence model, but it would also allow us to analyse how different evidence affects the classification.
 You would technically only need one softmax layer, after the fingerprint has been extracted.
 But having one after every cell, allows us to see how different packets change the prediction of our model.
-This could then be used as a tool for analysis which features the model actually extracts.
+This could then be used as a tool for traffic analysis.
 
 There have also been a variety of different defenses, some of which have been outlined in section \ref{sec:defenses}.
 Some works have examined the the effectiveness of their attack, when these defenses were used \cite{kfingerprinting,wang_cai_johnson_nithyanand_goldberg_2014}.
 It would be interesting to see if the deep learning models might still be able to effectively extract fingerprints, even with these defenses deployed.
 This could include both training the model on data where the defense was deployed or training it on normal data and analysing whether it can still extract the fingerprints if the defense is deployed during the attack stage.
+Again, this could potentially be used as a tool for traffic analysis by trying to hide certain features, we could explore which features our model actually extracts.
 
 Juarez et al. have already shown that WF attacks suffer from the rapid changing nature of the content of web pages \cite{wfpevaluation}.
 Thus on top of analysing how defenses impact the attack, we could also potentially analyse how the performance of the fingerprint extraction process is affected over time.
 We have already shown that the models are still successful when extracting fingerprints from other datasets.
-However, this is not fully show that the models are not affected by content changes within web pages.
+However, this is not show that the models are not affected by content changes within web pages.
 This could be fully examined by collecting our own data over a period of time and see how the performance of a trained model changes.
 If the performance is not affected, we could save a large amount of time retraining the fingerprint extractor.
 
@@ -69,15 +69,20 @@ If the performance is not affected, we could save a large amount of time retrain
 
 We could also potentially research the possibility that training our model with data collected over time and under different circumstances would also make the model more robust.
 Since technically, the more different training instances it sees, the better it should get at identifying features.
-Additionally, we could also investigate how well the models perform when collecting features when given more realistic user behavior.
+Additionally, we could also investigate how well the models perform at identifying features when given more realistic user behavior.
 Hence, rather than visiting one page and waiting a certain amount of time before loading the next one, the data can be more realistic such as where the user has multiple tabs open at the same time.
 
-On top of training the model with more realistic browsing data, we could also evaluate its performance for \textit{Tor hidden services}.
+On top of training the model with more realistic browsing data, we could also evaluate its performance on \textit{Tor hidden services}.
 This is a protocol for Tor users to hide their location while offering a service such as hosting a website \cite{tor_hidden_services}.
-There is already evidence that these services can be classifier using a WF attack \cite{kfingerprinting} but it would be interesting to see how our models would perform on this data.
+There is already evidence that these services are vulnerable to WF attacks \cite{kfingerprinting} but it would be interesting to see how our models would perform on this data.
 
 Rather than extending this work by using more of different kinds of data, we could also improve the deep learning models.
-Currently, one of the main weaknesses is that the traces can be very long, which in turn makes our model very deep.
+Currently, one of the main weaknesses is that the traces can be very long, which in turn makes our sequence-to-sequence model very deep.
 We solved this issue here by cutting the traces after a certain amount of time since most the first part of the trace carries more information than the latter.
 However, this might not be the ideal solution.
 There might be another solution or perhaps even another model that does not have this weakness but still manages to map variable-length sequences into a fixed-length representation.
+
+Finally, one of the weaknesses in our evaluation model is that we did not perform a parameter search for our classifiers.
+Instead, we re-used the same (hyper)parameters that were used for the hand-picked features in the respective works.
+Consequently, we can expect that the performance on the hand-picked features will be higher than on the generated ones.
+Therefore, in future works, we might consider performing a parameter search when training the classifiers on the generated features and see if this yields higher results.

@@ -9,7 +9,7 @@
 In the following section, we explain how the provided code can be used to run the experiments.
 
 Firstly, in order to run the experiments, we require data.
-Any dataset you want can be used, as long as each cell is represented as a Tor cell, where the SENDMEs have been removed (the same format as in table \ref{table:cell-extract}).
+Any dataset you want can be used, as long as the data is represented as Tor cells, where the SENDMEs have been removed (the same format as in table \ref{table:cell-extract}).
 However, for this specific project we will be using two datasets, namely \texttt{GRESCHBACH}\footnote{https://nymity.ch/tor-dns/\#data} and \texttt{WANG14}\footnote{https://cs.uwaterloo.ca/~t55wang/wf.html}.
 Both of these need to be placed in the \texttt{data} directory.
 
@@ -50,13 +50,13 @@ All of these are outlined below:
     \textbf{Parameter} & \textbf{Type} & \textbf{Default} & \textbf{Description} \\ \hline \hline
     batch\_size & Integer & 100 & The size of each mini-batch. \\ \hline
     bidirectional & Boolean & False & If true, the model will use a bidirectional encoder and a normal one otherwise. \\ \hline
-    encoder\_hidden\_states & Integer & 120 & The amount of hidden states in each RNN cell. The size of the fingerprints depends on this value. \par $\textit{len}(\textit{fingerprint}) = 2 \times \textit{encoder\_hidden\_states}$ \\ \hline
+    encoder\_hidden\_states & Integer & 120 & The amount of hidden states in each RNN cell. The size of the fingerprints depends on this value. \par $\textit{len}(\textit{lstm\_fingerprint}) = 2 \times \textit{encoder\_hidden\_states}$ \\ \hline
     cell\_type & String & LSTM & Which specific type of cell to use. Currently only support LSTM and GRU. \\ \hline
     reverse\_traces & Boolean & False & If true, reverses the traces and leaves them untouched otherwise. This should not be used when \texttt{bidirectional} is true. \\ \hline
     max\_time\_diff & Float & Infinite & The maximum time difference \textit{(in seconds)} after which you start cutting the traces. For instance, if set to $1$, all of the traces will be cut after one second.\\ \hline
     extension & String & .cell & The extension of the Tor cell files. We expect that they are in the following format \texttt{<webpage\_id>-<instance>.<extension>}. \\ \hline
     learning\_rate & Float & 0.000002 & The learning rate used whilst training. \\ \hline
-    batch\_norm & Boolean & False & If true, will use batch normalization within the RNN cells and otherwise the normal Tensorflow cells.
+    batch\_norm & Boolean & False & If true, will use batch normalization within the RNN cells. This involves using the custom cells \texttt{bn\_lstm.py} and \texttt{bn\_gru.py}.
   \end{tabular}
   \caption{Parameters for the \texttt{train\_seq2seq.py} file.}
 \end{table}
@@ -68,8 +68,8 @@ All of these are outlined below:
     batch\_size & Integer & 100 & The size of each mini-batch. \\ \hline
     extension & String & .cell & The extension of the Tor cell files. We expect that they are in the following format \texttt{<webpage\_id>-<instance>.<extension>}. \\ \hline
     learning\_rate & Float & 0.0001 & The learning rate used whilst training. \\ \hline
-    activation\_func & String & sigmoid & The activation function used for the neurons. \\ \hline
-    layers & List & \texttt{[1500, 500, 100]} & The sizes of the respective layers in the encoder and decoder. \\ \hline
+    activation\_func & String & sigmoid & The activation function used for the neurons. Currently only supports sigmoid, atan and relu. \\ \hline
+    layers & List & 1500 500 100 & The sizes of the respective layers in the encoder and decoder. \\ \hline
     batch\_norm & Boolean & False & If true, will use batch normalization for the individual layers and does not perform any normalization otherwise.
   \end{tabular}
   \caption{Parameters for the \texttt{train\_autoencoder.py} file.}
@@ -121,7 +121,7 @@ python feature_generation/seq2seq/train_seq2seq.py --batch_size 200 --encoder_hi
 We then want to compare these automatically generated features with the hand-picked ones.
 These can be extracted using the \texttt{feature\_extraction.py} script, which again has several parameters.
 After this script is done running, the features should be stored in the appropriate folders within the \texttt{data} directory.
-Again, all of the files with the extracted features will have the \texttt{cellf} extension.
+Again, all of the files with the extracted features will have the \texttt{.cellf} extension.
 
 \begin{table}[ht]
   \centering
@@ -151,7 +151,7 @@ After finishing the k fold validation, the model then prints out the different s
   \begin{tabular}{ l | l | l | p{0.5\textwidth} }
     \textbf{Parameter} & \textbf{Type} & \textbf{Default} & \textbf{Description} \\ \hline \hline
     model & String & kNN & Which model to run, the options are \textit{kNN}, \textit{random\_forest}, \textit{svc1} and \textit{svc2}. \\ \hline
-    dir\_name & String & Name of handpicked directory & If specified, it will use the features in the given directory, otherwise the standard ones for a specific model. \\ \hline
+    dir\_name & String & Name of handpicked directory & If specified, it will use the features in the given directory, otherwise the standard hand-picked ones for a specific model. \\ \hline
     is\_multiclass & Boolean & True & If true, trains the classifier on a multiclass task and binary otherwise. \\ \hline
     extension & String & .cell & Represents the extension of the cell files.
   \end{tabular}

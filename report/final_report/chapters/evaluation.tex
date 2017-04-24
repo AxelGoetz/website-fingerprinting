@@ -17,20 +17,20 @@ As previously mentioned, the main dataset used is \texttt{GRESCHBACH} but we wil
 For both these datasets, we will only be using the preprocessed Tor cells and not the raw TCP traffic data.
 
 Finally, in all of the experiments that are be conducted below, we only consider an \textit{open-world scenario}.
-This means that the test set will contain both monitored and unmonitored pages that the fingerprint extraction models and the classifier have never seen before.
+This means that the test set will contain both monitored and unmonitored pages that the fingerprint extraction models and the classifiers have never seen before.
 For this to work, we train the models on a large set of monitored web pages but also on a small percentage of unmonitored web pages such the classifiers can distinguish between both.
 
 \section{Evaluation Techniques}
 
-There are several different manners in which we can evaluate the feature selection process.
-First of all, we could analyse how the model performs on unseen traces, as it learns.
+There are several different manners in which we can evaluate the feature selection models.
+First of all, we could analyse how the model performs on unseen traces as it is learning.
 If the difference between both the training error and the error on an unseen instance increases, the model will clearly be overfitting.
 
 However, this data only show us how well the model is at reproducing the trace from a fingerprint but not how well the fingerprints perform in a WF attack.
 For this we need to train a classifier and see how well it performs by using the metrics described in section \ref{sec:classifier-training}.
 
 To be able to compare these fingerprints with hand-picked ones, we could train the classifiers with the hand-picked features and with the automatically generated ones.
-These hand-picked features are often chosen by experts and after a careful analysis.
+These hand-picked features are often chosen by experts after a careful analysis.
 Hence, if the classifier with our fingerprints were to get similar results or even outperform the classifiers with the hand-picked features, we know that the fingerprint extraction model has been successful.
 For these results to be accurate, we do not change any (hyper)parameters within the classifiers.
 Thus everything, except for the features, remains the same.
@@ -52,7 +52,7 @@ We also aim to use the exact same hyperparameters described in the respective pa
   \item \textbf{kNN} \cite{wang_cai_johnson_nithyanand_goldberg_2014} - also has a good accuracy/time tradoff when $k = 2$ and $k_{\textit{reco}} = 5$.
 \end{itemize}
 
-We do need to note that these parameters have been specifically tuned for the hand-picked features and not for our fingerprints.
+We do need to note that these parameters have been specifically tuned for the hand-picked features and not for our fingerprints, which might have an impact on the performance.
 
 \section{Evaluation}
 As mentioned in section \ref{sec:fingerprint-extraction-training}, for both deep learning models. we need to make a couple design decisions regarding different architectures and learning parameters.
@@ -64,28 +64,29 @@ We perform several experiments here to see which ones are the most appropriate.
 
 First, we start by varying the mini-batch sizes from $20$ to $600$ in steps of $20$ for a simple model with an input layer of $3000$ cells, and two hidden layers with $1600$ and $200$ neurons respectively.
 The higher the batch size, the longer it takes before making a weight update and the lower the value, the more noise in the training data.
-We notice that a total batch size of $400$ seems to be a good tradeoff.
+We notice that a total batch size of $400$ seems to provide us with a good tradeoff.
 
-Next, a \textit{mean squared error} (MSE) loss function with an \textit{RMSProp} optimizer and a $0.01$ learning rate and seem to yield the most appropriate results.
-Finally, we also use batch normalization for all experiments since it allows the model for faster convergence.
+Next, we tried a variety of different permutations of loss functions and optimizers and varied the learning rate from $0.01$ to $0.000001$.
+THese experiments revealed that a \textit{mean squared error} (MSE) loss function with an \textit{RMSProp} optimizer and a $0.01$ learning rate continuously yield the most appropriate results.
+Finally, we also use batch normalization for all experiments since our experiments show that it allows the model for faster convergence.
 
 \subsubsection{Architecture Tuning}
 
 Our experiments show that a \textit{sigmoid} activation function continuously results in better learning with a variety of different hidden layers with different sizes.
 
 The amount of hidden layers is a slightly more difficult decision.
-Since we want the simplest network possible that is able to learn a representation
+Since we want the simplest network possible that is able to learn a representation.
 Hence, we experiment with networks with a total of $1$ up to $3$ hidden layers.
 For each of these, the input layer will consist of $3000$ nodes and we will attempt to extract $200$ features, which means that the sizes of the hidden layers will gradually decrease to $200$ neurons.
 
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\textwidth]{changing-depth}
-  \caption{Learning curves for changing the depth of the stacked autoencoder}
+  \caption{Learning curves for changing the depth of the stacked autoencoder.}
   \label{fig:changing-depth}
 \end{figure}
 
-Figure \ref{fig:changing-depth} already shows us that a network with two hidden layers provides a good complexity/training error tradeoff.
+Figure \ref{fig:changing-depth} shows us that a network with two hidden layers provides a good complexity/training error tradeoff.
 Now that we know the depth of the network, we also need to consider changing the size of the final hidden layer since it represents the amount of features that will be extracted.
 The more features we introduce, the more time and data we require to learn the classification task.
 Whilst if the amount of features is too low, the classifiers might not be able to learn how to effectively classify any of the web pages.
@@ -107,7 +108,7 @@ Hence, we base the size of the final state on the amount of features used in pre
 
 Based on table \ref{table:feature-wf-attacks}, we vary the amount of features between $100$ and $300$ in steps of $50$.
 From figure \ref{fig:changing-output-size}, we determine that around $200$ nodes provides us with the best tradeoff.
-Therefore, throughout the rest of the report when we refer to a stacked autoencoder, its architecture consists of $3$ layers with $3000$, $1600$ and $200$ nodes each.
+Therefore, throughout the rest of the report when we refer to a stacked autoencoder, its architecture will consist of $3$ layers with $3000$, $1600$ and $200$ nodes each.
 
 \begin{figure}[ht]
   \centering
@@ -136,7 +137,7 @@ Next, we also note that the best quality of data compression was achieved with a
 Hence, we set $\lambda = 0.000002$, $b = 400$ and use an adam optimizer with a MSE loss function for the rest of our experiments.
 
 Since some of the traces are relatively long, it might be worth cutting the them after a certain amount of time.
-However, to compare after which time to cut the trace, we cannot simply base our analysis on the learning curve because the shorter the trace, the smaller the error is likely to be.
+However, to compare after which time to cut the trace, we cannot simply base our analysis on the learning curve because the shorter the trace, the smaller the error will be.
 Therefore, we will cut the traces after $2$, $6$ and $10$ seconds, use these values to train a sequence-to-sequence model and train binary classifiers on the extracted fingerprints.
 Next, we can compare the performance of these classifiers to analyse how much information each part of the trace carries.
 
@@ -154,14 +155,14 @@ Finally, we also use batch normalization for all experiments since it allows the
 
 \subsubsection{Architecture Tuning}
 
-Now that we have made a decision on which learning parameters to use, we can start changing the architecture of the sequence-to-sequence model to see which ones yield the best results.
+Now that we have made a decision on which learning parameters to use, we can start changing the architecture of the sequence-to-sequence models to see which ones yield the best results.
 
 \noindent
 \textbf{Hidden States}
 
 We first start by examining the amount of hidden states in the network.
 These directly affect the size of the fingerprints that will be extracted.
-In fact, the amount of features extracted is exactly double the amount of hidden states.
+In fact, if we use an LSTM cell, the amount of features extracted is exactly double the amount of hidden states.
 Thus, based on table \ref{table:feature-wf-attacks}, we vary the amount of hidden states between $60$ to $140$ in steps of $20$ to see which ones yield the most appropriate results.
 
 For these experiments we train a sequence-to-sequence model with a unidirectional encoder, LSTM cells and without cutting or reversing the traces.
@@ -205,7 +206,7 @@ As can be seen in figure \ref{fig:varying-hidden-states2}, around $80$ hidden st
 \textbf{LSTM or GRU Cells}
 
 Here, we train a sequence-to-sequence model with both a unidirectional and bidirectional encoder.
-These will both have GRU cells with $100$ and $80$ hidden states respectively.
+These will both have GRU and LSTM cells with $100$ and $80$ hidden states respectively.
 Furthermore, we recreate the exact same training conditions as in the previous experiments.
 
 \begin{figure}[ht]
@@ -218,13 +219,13 @@ Furthermore, we recreate the exact same training conditions as in the previous e
 As can be seen in figure \ref{fig:varying-cell-type}, all of the different architectures converge to a similar value.
 Although GRU cells seem to converge faster, they are also slightly more unstable especially around batch $80$ to $100$.
 The most stable model seems to be the bidirectional encoder with LSTM cells.
-Although it has more parameters than the unidirectional encoder models, it takes a very similar amount of time to train it.
+Although this specific model has more parameters than the other sequence-to-sequence models, the time difference in training is only minimal
 Hence, throughout the rest of the report when we refer to a sequence-to-sequence model, its architecture consists of a bidirectional encoder with $80$ hidden states.
 
 \subsection{Classifier Performance}
 
-We have previously analysed the models' performance based on how well it copies the original input from a fingerprint.
-But to examine how well our model performs during a real WF attack, we compare its performance on different existing classifiers with hand-picked features.
+We have previously analysed the models' performance based on how well they reconstruct the original input from a fingerprint.
+But to examine how well our models perform during a real WF attack, we compare the performance on different existing classifiers with hand-picked features.
 This means that we choose a set of existing WF attacks and recreate them.
 Next we run the exact same attack but with both the hand-picked and automatically generated features.
 
@@ -254,9 +255,9 @@ For all of the models below, we aim to extract the exact same hand-picked featur
 
 For training these models, we use an extract from the \texttt{GRESCHBACH} dataset with a total of $100$ monitored web pages with $70$ instances each and $5000$ unmonitored web pages.
 We then split this set into a training and validation set using a stratified split.
-The training set will contain $90\%$ of the monitored web pages whilst we vary the amount of unmonitored pages to see how the models perform.
+The training set will contain $90\%$ of the monitored web pages whilst we vary the percentage of unmonitored pages to see how the models perform.
 
-After the set is split up into a training and validation set, we perform a \textit{stratified k-fold validation} with $k = 3$ on the training set
+After the set is split up into a training and validation set, we perform a \textit{stratified k-fold validation} with $k = 3$ on the training set.
 Then finally we train the classifiers on all of the training data and evaluate them on the test set.
 
 The results for the k-fold validation on the training set for the hand-picked features are outlined in table \ref{table:hand-picked-bin}.
@@ -284,7 +285,8 @@ As expected, the results with a small amount of unmonitored data is relatively h
 \end{table}
 
 Next, we will be analyzing the performance of these classifiers with the automatically generated features.
-We do note that from here on we refer to \texttt{svc1} and \texttt{svc2} as \texttt{svc} since they both have the same hyperparameters but were trained on different hand-picked features.
+We do note that from here on we refer to \texttt{svc1} and \texttt{svc2} as \texttt{svc} since both \texttt{svc1} and \texttt{svc2} have the same hyperparameters but were trained on different hand-picked features.
+So they would get the same results on the automatically generated features anyway.
 
 \begin{table}[ht]
   \centering
@@ -324,9 +326,7 @@ We do note that from here on we refer to \texttt{svc1} and \texttt{svc2} as \tex
 
 Both table \ref{table:ae-bin} and \ref{table:seq2seq-bin} show that the performance on a small amount of unmonitored pages is very similar with the \texttt{svc} model but slightly lower for both the \texttt{RF} and \texttt{kNN} attacks.
 
-\newpage
-
-Now we will the performance when training the classifiers on the full training set and evaluating them on the validation set, whilst changing the amount of unmonitored pages we train the model on.
+Now we will measure the performance when training the classifiers on the full training set and evaluating them on the validation set, whilst changing the amount of unmonitored pages we train the model on.
 Clearly, figure \ref{fig:bin-unmon-performance} shows us that the models suffer if we introduce a large amount of unmonitored pages in the test set.
 But the more unmonitored instances we train on, the better the classifiers seem to perform.
 
@@ -386,7 +386,7 @@ On the other hand, both table \ref{table:mult-ae-test-error} and \ref{table:mult
   \label{table:mult-ae-test-error}
 \end{table}
 
-\begin{table}[ht]
+\begin{table}[!htb]
   \centering
   \begin{tabular}{ r  r  r  r  r  r } \hline
     \multicolumn{1}{c}{\textbf{Model}} & \multicolumn{1}{c}{\textbf{Accuracy}} & \multicolumn{1}{c}{\textbf{BDR}} & \multicolumn{1}{c}{\textbf{TPR}} &
@@ -404,7 +404,7 @@ On the other hand, both table \ref{table:mult-ae-test-error} and \ref{table:mult
   \label{table:mult-seq2seq-test-error}
 \end{table}
 
-\begin{figure}[ht]
+\begin{figure}[!htb]
   \centering
   \includegraphics[width=\textwidth]{mult-unmon-performance}
   \caption{Varying the amount of unmonitored pages trained on for different features.}
@@ -414,7 +414,7 @@ On the other hand, both table \ref{table:mult-ae-test-error} and \ref{table:mult
 But the behavior of the classifiers gets even more interesting when training on a larger amount of unmonitored pages.
 Figure \ref{fig:mult-unmon-performance} shows that the stacked autoencoder has a very similar performance as on the binary classification task.
 Whilst the sequence-to-sequence model performs almost as well as the hand-picked features.
-In fact, the sequence-to-sequence features even perform better on the \texttt{svc}.
+In fact, the sequence-to-sequence features even outperforms the hand-picked features on the \texttt{svc}.
 
 \subsubsection{Different Circumstances}
 
@@ -441,6 +441,7 @@ Figure \ref{fig:different-circumstances} shows us that the performance drops sli
 Especially with the stacked autoencoder.
 However, the sequence-to-sequence model seems to achieve similar F1 scores on both the \texttt{GRESCHBACH} and \texttt{WANG14} dataset.
 
+
 \section{Unit Tests}
 
 On top of evaluating the results, we also needed to ensure that the code behaves as we expect it to.
@@ -452,9 +453,9 @@ The reason for this choice is that it is flexible and the standard Python unit t
 On top of unit tests, \textit{Travis} was also used \cite{travis}.
 Travis is a popular tool, that has an easy integration with Github, for continuous integration.
 Therefore, every time a commit is pushed to the remote repository, Travis runs all of the tests automatically.
-If one of the tests fails, Travis then automatically notifies all the contributors.
+If one of the tests fails, Travis immediately notifies all the contributors.
 
-Finally, to check if our tests cover our entire codebase, \textit{codecov} is used \cite{codecov}.
+Finally, to check if our tests cover our entire codebase, an online service, called \textit{codecov} is used \cite{codecov}.
 This tool automatically checks how much of the codebase all of the unit tests cover.
 At the time of writing, the coverage is $93\%$.
 The bits that aren't covered by unit tests, such as the Tensorflow implementation of the deep learning models, have been carefully examined to see if they behave as expected by using the Tensorflow debugger \cite{tensorflow}.
