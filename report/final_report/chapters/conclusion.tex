@@ -77,7 +77,7 @@ This is a protocol for Tor users to hide their location while offering a service
 There is already evidence that these services are vulnerable to WF attacks \cite{kfingerprinting} but it would be interesting to see how our models would perform on this data.
 
 Rather than extending this work by using more of different kinds of data, we could also improve the deep learning models.
-Currently, one of the main weaknesses is that the traces can be very long, which in turn makes our sequence-to-sequence model very deep.
+Currently, one of the main weaknesses is that the traces can be long, which in turn makes our sequence-to-sequence model very deep.
 We solved this issue here by cutting the traces after a certain amount of time since most the first part of the trace carries more information than the latter.
 However, this might not be the ideal solution.
 There might be another solution or perhaps even another model that does not have this weakness but still manages to map variable-length sequences into a fixed-length representation.

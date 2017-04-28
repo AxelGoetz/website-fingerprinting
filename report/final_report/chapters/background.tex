@@ -13,7 +13,7 @@ onion routing, website fingerprinting deep learning.
 \subsection{Onion Routing}
 
 To preserve privacy, we do not only need to obscure the content of a web page but also hide who is taking to whom \cite{goldschlag1999onion}.
-Tor achieves both of these by making use of a technique, called \textit{onion routing}, which is a very simple protocol that can be divided up into three phases:
+Tor achieves both of these by making use of a technique, called \textit{onion routing}, which is a simple protocol that can be divided up into three phases:
 \textit{connection setup}, \textit{data movement} and \textit{connection tear-down} \cite{goldschlag1999onion}.
 We show how the protocol works by providing a simple example of Alice trying to communicate with Bob.
 
@@ -46,7 +46,7 @@ We show how the protocol works by providing a simple example of Alice trying to 
     \begin{itemize}
       \item Before Alice can send any data, she first needs to encrypt it in different layers. By this we mean that first it encrypts the data \textit{(adressed to Bob)}
         using the shared key from the third node and addresses that encrypted data to the third node.
-        Next, it encrypts that data again using the key from the second node and addresses it to the second node.
+        Next, she encrypts that data again using the key from the second node and addresses it to the second node.
         Finally, as expected, it encrypts the data a final time using the shared key from the first node.
 
       \item Now Alice is ready to send the data to the first node.
@@ -71,7 +71,7 @@ We show how the protocol works by providing a simple example of Alice trying to 
       \label{fig:tor_message_sending}
     \end{figure}
 
-  \item \textbf{Connection Tear-down:} This can be initiated by any of the nodes or the client and the process is very straightforward.
+  \item \textbf{Connection Tear-down:} This can be initiated by any of the nodes or the client and the process is straightforward.
     Either the client sends a request for a tear-down to the first node to remove any data on the connection (including the shared key), which is then forwarded to the other nodes.
     Or one of the nodes sends a tear-down message to both the previous node and the next node, which are then forwarded in both directions \cite{goldschlag1999onion}.
 
@@ -109,7 +109,7 @@ The reasoning behind this is that a website often consists of multiple web pages
 which can result in significantly different traffic traces, depending on which document you load.
 
 The term \textit{``website fingerprinting''} was first mentioned by A. Hintz who performed a simple traffic analysis on Safeweb,
-an encrypting web proxy that tried to protect user's privacy \cite{hintz2002fingerprinting}. Although the attack was very simple, it and other earlier
+an encrypting web proxy that tried to protect user's privacy \cite{hintz2002fingerprinting}. Although the attack was simple, it and other earlier
 works show the possibility that encrypted channels might still leak information about the URL \cite{hintz2002fingerprinting, wagner1996analysis}.
 Later, in 2009, the first fingerprinting attack against Tor was executed by Herrmann et al. using a \textit{multinomial naive bayes} model.
 They managed to get a relatively high accuracy for several protocols, such as \textit{OpenSSL} and \textit{OpenVPN}, on a small set of 775 web pages.
@@ -128,7 +128,7 @@ In an \textit{open-world scenario}, however, the attacker does not know in advan
 The most prominent example of this is when the authorities want to monitor which people try to access a set of censored sites \cite{panchenko1}.
 In order to achieve this, the models need to be trained on both \textit{monitored} and \textit{unmonited web pages}.
 
-Wang et al. later conducted an attack on Tor using a novel \textit{k-nearest neighbor} (k-NN) classifier with \textit{weight adjustment} on a very large feature set (3736 features).
+Wang et al. later conducted an attack on Tor using a novel \textit{k-nearest neighbor} (k-NN) classifier with \textit{weight adjustment} on a large feature set (3736 features).
 In addition to getting around 90\% accuracy, they also significantly reduced the time needed for training \cite{wang_cai_johnson_nithyanand_goldberg_2014}.
 
 Next, using a completely different approach, Hayes et al. extracted fingerprints using a \textit{random forest} \cite{kfingerprinting}.
@@ -148,7 +148,7 @@ First, Abe et al. study the use of a \textit{stacked autoencoder} with a \textit
 However, since a stacked autoencoder still requires a fixed-length input, they pad and truncate cells, whose length is shorter or longer than $5000$.
 With it, they manage to achieve a $88\%$ accuracy \cite{deeplearning}.
 
-V. Rimmer takes a very similar approach, as she also uses a stacked autoencoder with a softmax classifier \cite{deeplearningthesis}.
+V. Rimmer takes a similar approach, as she also uses a stacked autoencoder with a softmax classifier \cite{deeplearningthesis}.
 But rather than padding or truncating the cells, she transforms the traces into a fixed-length histogram or \textit{wavelength coefficients}.
 With this, she manages to achieve a $71\%$ accuracy.
 
@@ -176,7 +176,7 @@ This can be particularly interesting for \textit{Tor hidden services} that want 
 The attack uses a technique, called \textit{ALPaCA}, which pads the content of a web page and creates new content to conceal specific features on a network level \cite{cherubin2017website}.
 
 Finally, there are also some other techniques such as \textit{decoy pages} and \textit{traffic morphing} \cite{wright2009traffic,panchenko1}.
-Decoy pages, or sometimes called \textit{camouflage}, is a very simple defense that involves loading another web page whenever a page is requested.
+Decoy pages, or sometimes called \textit{camouflage}, is a simple defense that involves loading another web page whenever a page is requested.
 This process provides more background noise, which makes fingerprinting more difficult \cite{panchenko1}.
 Traffic morphing, on the other hand, is a slightly more complex technique that changes certain features in the traffic in order to make it appear as if another page is loaded \cite{wright2009traffic}.
 
@@ -190,12 +190,12 @@ One of the main problems with website fingerprinting is the amount of web pages 
 An open-world scenario tries to solve this issue by only classifying a small amount of web pages and by labelling the other ones as unmonitored.
 However, machine learning theory states that the bigger the world size, the more data is required.
 So the small size of the \textit{hypothesis space} compared to our world size, could have a direct impact on the amount of false positives.
-Since the more web pages there are, the higher the probability that one of the traces will be very similar to one in the monitored set.
+Since the more web pages there are, the higher the probability that one of the traces will be similar to one in the monitored set.
 Therefore, the false positive rates, described in the previously mentioned papers, might be considerably higher in a real attack \cite{wfpcritique}.
 
 \newpage
 
-Nonetheless, even if those false positive rates are accurate, a very small amount of false negatives could have a large impact on the classification.
+Nonetheless, even if those false positive rates are accurate, a small amount of false negatives could have a large impact on the classification.
 M. Perry shows that if the FP rate is as low as $0.2\%$, with just a $100$ page loads around $18\%$ of the user base would be falsely accused of visiting at least one monitored website.
 Or after $1000$ page loads, this percentage increases to around $86\%$ \cite{wfpcritique}.
 
@@ -209,7 +209,7 @@ Although some papers consider this \cite{naivebayes}, most assume that the adver
 
 \section{Deep Learning and Automatic Feature Selection}
 
-In the following section, we will give a very short introduction to deep learning and describe some of the deep learning solutions that allow us to perform feature extraction.
+In the following section, we will give a short introduction to deep learning and describe some of the deep learning solutions that allow us to perform feature extraction.
 We start by exploring \textit{artificial neural networks} and \textit{stacked autoencoders}.
 Then we move on to \textit{recurrent neural networks}, \textit{long short-term memory} and \textit{sequence-to-sequence models}.
 All of these explanations assume some familiarity with neural networks and only aim to give a high-level overview of the most important concepts rather than providing an in-depth explanation of the mathematical aspects.
@@ -227,7 +227,7 @@ One of the simplest type of neuron is called a \textit{perceptron}, which consis
 They essentially weight different pieces of evidence by assigning a different weight to every input.
 Next, the output of the neuron can be calculated as follows:
 
-$$\text{output} = f(\sum_{i} w_i x_i)$$
+$$\text{output} = f((\sum_{i} w_i x_i) + b)$$
 
 \begin{figure}[ht]
   \centering
@@ -364,7 +364,7 @@ More specifically, they allow connections to form loops.
 These loops basically represent that the network can be \textit{unrolled}.
 For instance, for the network in figure \ref{fig:rnn}, where each square is a neural network layer, if you have a sequence that has a length of $n$, you unroll the network for $n$ steps.
 Hence, we can say that an RNN has `memory' that affects the outcome of the computation, based on previous inputs \cite{britz_2016}.
-So the outputs can be calculated as follows:
+So the outputs, at every time step $t$ can be calculated as follows:
 $$\textit{result}, h_t = f(h_{t - 1}, x_t)$$
 
 \begin{figure}[ht]
@@ -399,7 +399,7 @@ Whilst LSTM cells have a greater expressive power \cite{hochreiter1997long,LSTM,
 
 Recurrent neural nets cannot make use of the same backpropagation algorithm used by feedforward neural nets since the unrolled layers share the same set of weights $W$.
 Instead, we use a different optimization method, called \textit{backpropagation through time} (BPTT).
-BPTT is very similar to standard backpropagation with the key difference being that the gradients for the weights are summed at every time step $t$ \cite{britz_2016}.
+BPTT is similar to standard backpropagation with the key difference being that the gradients for the weights are summed at every time step $t$ \cite{britz_2016}.
 
 \subsection{Sequence-to-Sequence Model} \label{sec:seq2seq}
 
@@ -428,7 +428,7 @@ the network has learned to compress any variable-length sequence into a fixed-le
 So the size of the though vector is another hyperparameter to the model.
 
 To allow a sequence-to-sequence to learn more complex representations, Sutskever et al. experimented with multilayered LSTM cells \cite{sutskever_vinyals_le}.
-They showed that this model was very successful in a English to French translation task and managed to cope with long-term dependencies.
+They showed that this model was successful in a English to French translation task and managed to cope with long-term dependencies.
 Additionally, they also showed that reversing the sentences made the learning process easier.
 Sutskever et al. do not have a complete explanation for this phenomenon but they believe that it is due to the many short-term dependencies in the dataset \cite{sutskever_vinyals_le}.
 
@@ -548,12 +548,12 @@ All of the above allow you to use \textit{cuDNN} to perform GPU-accelerated comp
 Tensorflow has a C\texttt{++} backend and its low-level API is provides more than enough flexibility to implement the required models.
 It also provides a high-level API that include different RNN cells and even a sequence-to-sequence model.
 However, this model has been specifically designed for NLP tasks and therefore does not support the computations that we are trying to achieve \cite{tensorflow}.
-Theano is very similar to Tensorflow but it does not provide all of the same high-level tools \cite{theano}.
+Theano is similar to Tensorflow but it does not provide all of the same high-level tools \cite{theano}.
 
 Keras, on the other hand, runs on top of either Tensorflow or Theano.
 Hence, the library provides high-level functions to create different models, rather than the low-level APIs provided by both Tensorflow and Theano.
 Although this library would allow us to quickly prototype a sequence-to-sequence model, it does not provide the low-level access that we might need in order to be able to tune certain hyperparameters \cite{keras}.
-Finally, Pytorch is also a very attractive option but the current release is still a beta version \cite{torch}.
+Finally, Pytorch is also an attractive option but the current release is still a beta version \cite{torch}.
 
 After a careful analysis, Tensorflow provides us with the highest flexibility whilst still providing tools to easily perform certain calculations with their high-level API.
 Hence, we will use Tensorflow to implement all of our deep learning models.

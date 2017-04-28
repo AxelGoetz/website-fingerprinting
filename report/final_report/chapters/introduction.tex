@@ -5,7 +5,7 @@
 The internet has become an essential tool for communication in the lives of many. But privacy has always remained a major concern.
 This is the reason why nowadays most web content providers are slowly moving away from HTTP to HTTPS.
 For instance, at the time of writing, around $86\%$ of Google's traffic is encrypted, which is a significant improvement compared to 2014 when only around $50\%$ of the traffic was sent over HTTPS \cite{google_transparancy}.
-However, this encryption only obscures the content of the web pages and does not hide what websites a user might be visiting or who they might be communicating with.
+However, this encryption only obscures the content of the web pages and does not hide metadata such as what websites a user might be visiting.
 
 Consequently, Internet service providers (ISPs) can easily obtain a lot of information about a person.
 This can be a large concern for several people, like those living in oppressive regimes.
@@ -14,17 +14,17 @@ To circumvent these issues, several anonymization techniques have been developed
 These systems obscure both the content and meta-data, allowing users to anonymously browse the web.
 One of the most popular low-latency anonymization networks is called Tor, which relies on a concept called \textit{onion routing} to anonymize traffic \cite{tor_project}.
 
-At the time of writing, the list of known attacks against Tor is very limited and most of them rely on unlikely scenarios such as having access to specific parts of the network \textit{(like both entry and exit nodes)} \cite{tor_project}.
+At the time of writing, the list of known attacks against Tor is limited and most of them rely on unlikely scenarios such as having access to specific parts of the network \textit{(like both entry and exit nodes)} \cite{tor_project}.
 However, in this work we will make a more reasonable assumption that an attacker is a \textit{local eavesdropper}.
-By this we mean that the entity only has access to the traffic between the sender and the first anonymization node, like ISPs.
+By this we mean that the entity only has access to the traffic between the sender and the first anonymization node.
 
-One of the most successful attacks that satisfy these conditions are known as \textit{website fingerprinting} (WF).
+The most successful attacks that satisfy these conditions are known as \textit{website fingerprinting attacks} (WF).
 They rely on the fact that Tor does not significantly alter the shape of the network traffic \cite{kfingerprinting}.
 Hence, the adversary can infer information about the content by analysing the raw traffic.
 For instance by examining the packet sizes, the amount of packets and the direction of the traffic, we might be able to deduce
 which web pages certain users are visiting.
-Initially, Tor was considered to be secure against this threat but around 2011, some techniques such as the \textit{support vector classifier} (SVC)
-used by Panchenko et al. started to get recognition rates higher than 50\%, which caused Tor to take various countermeasures \cite{panchenko1,perry2011experimental}.
+Initially, Tor was considered to be secure against this threat but around 2011, some techniques such as the \textit{support vector classifier} (SVC) used by Panchenko et al. started to get recognition rates higher than 50\%.
+Ever since, various defenses against WF attacks have been proposed \cite{panchenko1,perry2011experimental}.
 
 However, one of the main problems with majority of the WF attacks proposed in the research literature is that they rely on a laborious,
 time-consuming, manual feature engineering process, which often requires expert knowledge of the underlying TCP/IP protocols.

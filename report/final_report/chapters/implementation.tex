@@ -12,7 +12,9 @@ There are various different manners of doing this.
 One of the most naive ones is to find the longest length trace and pad all of the other traces up to that length.
 However, in Greschbach et al.'s dataset, this length is around $250,000$ \cite{greschbach2016effect}, which means that our network will need to be incredibly deep to extract a short trace.
 
-Instead, we pick the average length of the traces, which is around $3,000$ and cut or pad traces which are longer or shorter.
+Instead, we can pick the average or median length of the traces and cut or pad traces which are longer or shorter.
+In this work we will investigate the average length, which is around $3,000$.
+But the median length might be slightly more appropriate, as the length is positively skewed.
 On top of that, we deal with the fact that each packet is represented by a tuple, by just multiplying the time by the direction.
 Therefore, all of the outgoing packets are positive whilst the incoming ones will be negative.
 
@@ -158,7 +160,7 @@ After that the model has been constructed, there are still several learning para
 \begin{itemize}
     \item The optimizer to use (\textit{adam}, \textit{gradient descent} or \textit{RMSProp}) \cite{tensorflow}.
     \item Learning rate ($\gamma$) for the previously chosen optimizer.
-    \item Amount of traces within a single mini-batch ($b$).
+    \item Amount of traces within a single mini-batch ($m$).
     \item Cost, or loss function ($f$) to minimize (\textit{mean squared error} (MSE), \textit{absolute loss} (AL) or \textit{cross-entropy}) \cite{tensorflow}.
 \end{itemize}
 
@@ -174,7 +176,7 @@ However, in order to do so, there are a variety of different architectures that 
 
 \begin{itemize}
   \item Which sort or RNN cells to use. The most popular ones being GRU or LSTM cells.
-    We could also potentially investigate the usefulness of multilayered RNN cells but we expect the performance gain to be very limited, which is why we do not consider them in our evaluation.
+    We could also potentially investigate the usefulness of multilayered RNN cells but we expect the performance gain to be limited, which is why we do not consider them in our evaluation.
 
   \item Whether or not to use a bidirectional encoder to ensure that the output at time $t$ is not only affected by past information but also on future information.
 
@@ -188,7 +190,7 @@ Now that the model has been constructed, the adversary again has to chose variou
 \begin{itemize}
   \item The optimizer to use (\textit{adam}, \textit{gradient descent} or \textit{RMSProp}) \cite{tensorflow}.
   \item Learning rate ($\gamma$) for the previously chosen optimizer.
-  \item Amount of traces within a single mini-batch ($b$).
+  \item Amount of traces within a single mini-batch ($m$).
   \item Cost, or loss function ($f$) to minimize (\textit{mean squared error} (MSE), \textit{absolute loss} (AL) or \textit{cross-entropy}) \cite{tensorflow}.
   \item After how much time the traces are cut.
 \end{itemize}

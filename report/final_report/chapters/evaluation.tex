@@ -130,8 +130,8 @@ Thus through the rest of the report we will use a mini-batch size of $400$.
 
 Next, we vary the learning rate $\gamma$ from $0.01$ to $0.000001$ with various optimizers (\textit{adam}, \textit{gradient descent} or \textit{RMSProp}) and loss functions (\textit{mean squared error (MSE)} or \textit{absolute loss} (AL)).
 After trying a wide variety of different permutations, an \textit{adam optimizer} continuously demonstrated better results.
-We already expected this since adam optimizers are computationally efficient, require relatively little amount of memory and tend to perform very well with problems that have a large amount of parameters \cite{kingma2014adam},
-which is ideal since our network can be unrolled to a very large lengths.
+We already expected this since adam optimizers are computationally efficient, require relatively little amount of memory and tend to perform well with problems that have a large amount of parameters \cite{kingma2014adam},
+which is ideal since our network can be unrolled to large lengths.
 
 Next, we also note that the best quality of data compression was achieved with a \textit{MSE loss function} and a learning rate of $0.000002$.
 Hence, we set $\lambda = 0.000002$, $b = 400$ and use an adam optimizer with a MSE loss function for the rest of our experiments.
@@ -324,7 +324,7 @@ So they would get the same results on the automatically generated features anywa
   \label{table:seq2seq-bin}
 \end{table}
 
-Both table \ref{table:ae-bin} and \ref{table:seq2seq-bin} show that the performance on a small amount of unmonitored pages is very similar with the \texttt{svc} model but slightly lower for both the \texttt{RF} and \texttt{kNN} attacks.
+Both table \ref{table:ae-bin} and \ref{table:seq2seq-bin} show that the performance on a small amount of unmonitored pages is similar to the \texttt{svc} model but slightly lower for both the \texttt{RF} and \texttt{kNN} attacks.
 
 Now we will measure the performance when training the classifiers on the full training set and evaluating them on the validation set, whilst changing the amount of unmonitored pages we train the model on.
 Clearly, figure \ref{fig:bin-unmon-performance} shows us that the models suffer if we introduce a large amount of unmonitored pages in the test set.
@@ -412,7 +412,7 @@ On the other hand, both table \ref{table:mult-ae-test-error} and \ref{table:mult
 \end{figure}
 
 But the behavior of the classifiers gets even more interesting when training on a larger amount of unmonitored pages.
-Figure \ref{fig:mult-unmon-performance} shows that the stacked autoencoder has a very similar performance as on the binary classification task.
+Figure \ref{fig:mult-unmon-performance} shows that the stacked autoencoder has a similar performance as on the binary classification task.
 Whilst the sequence-to-sequence model performs almost as well as the hand-picked features.
 In fact, the sequence-to-sequence features even outperforms the hand-picked features on the \texttt{svc}.
 
@@ -422,7 +422,7 @@ Beside analysing how the fingerprint extraction models perform on data within th
 It has already been shown that the performance of the classifiers is greatly impacted by the network, time and the TBB version.
 But that doesn't necessarily mean that our fingerprint extraction model is impacted similarly.
 
-If the deep learning models are not impacted by these flaws, an adversary would only need to train the fingerprint extraction model once and then it could continue to use it and only retrain the classifiers, like some sort of \textit{transfer learning}
+If the deep learning models are not impacted by these flaws, an adversary would only need to train the fingerprint extraction model once and then it could continue to use it and only retrain the classifiers, like some sort of \textit{transfer learning} \cite{transfer_learning}.
 
 To test this premise, we use the models that we previously trained on the same $120,000$ web pages within the \texttt{GRESCHBACH} dataset.
 More specifically, a LSTM bidirectional encoder with $80$ hidden states and a stacked autoencoder with sizes of the hidden layers being $3000$, $1600$ and $200$.

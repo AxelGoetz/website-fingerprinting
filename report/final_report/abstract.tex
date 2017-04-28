@@ -1,12 +1,12 @@
 \begin{abstract}
 
 Low-latency anonymity networks such as Tor allow people to anonymously browse the web by obscuring both the content and meta-data of their communications.
-However, there are several attacks that allow an avdersary to break the privacy expected by their users.
-At the time of writing, one of the most popular attacks against Tor are called \textit{website fingerprinting}, which rely a local, passive eavesdropper performing pattern analysis on the encrypted data.
+However, there are several attacks that allow an adversary to break the privacy expected by their users.
+At the time of writing, one of the most popular kind of attack against Tor is called \textit{website fingerprinting}, which relies on a local, passive eavesdropper performing pattern analysis on the encrypted data.
 In prior works, adversaries extract \textit{fingerprints} from the traffic data, which are then used to classify web pages accordingly.
-But in order to do so these works rely on a time-consuming, laborious feature extraction process.
+But in order to do so, these works rely on a time-consuming, laborious feature extraction process.
 
-Here, we attempt to automate this process by leveraging several unsupervised deep learning techniques.
+Here we attempt to automate this process by leveraging several unsupervised deep learning techniques.
 More specifically, a \textit{stacked autoencoder} and a \textit{sequence-to-sequence model}.
 Next, we also propose a technique to evaluate the performance of these models and use this same method to compare them to current state-of-the-art attacks.
 
